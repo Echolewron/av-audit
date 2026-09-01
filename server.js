@@ -83,8 +83,17 @@ function escapeHtml(str) {
 // Public Dynamic Checklist Landing Route with Rich Open Graph Link Previews
 app.get(['/checklist/:id', '/c/:id'], (req, res) => {
   const checklist = checklistService.getChecklistById(req.params.id);
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  let protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  if (req.headers['cf-visitor']) {
+    try {
+      const cf = JSON.parse(req.headers['cf-visitor']);
+      if (cf.scheme) protocol = cf.scheme;
+    } catch (_) {}
+  }
   const host = req.headers['x-forwarded-host'] || req.get('host') || `localhost:${PORT}`;
+  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
+    protocol = 'https';
+  }
   const fullBaseUrl = `${protocol}://${host}`;
 
   if (!checklist) {
@@ -131,8 +140,7 @@ app.get(['/checklist/:id', '/c/:id'], (req, res) => {
       return res.status(500).send('Error loading application');
     }
 
-    const ogTags = `
-  <title>${safeTitle} — AV Audit</title>
+    const ogTags = `<title>${safeTitle} — AV Audit</title>
   <meta name="description" content="${checklist.progress}% Completed • ${statusText}">
   <meta property="og:site_name" content="AV Audit Platform">
   <meta property="og:title" content="${safeTitle}">
@@ -151,7 +159,11 @@ app.get(['/checklist/:id', '/c/:id'], (req, res) => {
   <meta name="theme-color" content="${hasBlocked ? '#f85149' : (isSubmitted ? '#58a6ff' : '#18edb3')}">
   <script>window.__INITIAL_CHECKLIST_ID__ = "${checklist.id}";</script>`;
 
-    const injectedHtml = html.replace('</head>', `${ogTags}\n</head>`);
+    let injectedHtml = html.replace(
+      /<title>[\s\S]*?<\/title>[\s\S]*?<meta\s+name="description"[\s\S]*?>/i,
+      ogTags
+    );
+
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.send(injectedHtml);

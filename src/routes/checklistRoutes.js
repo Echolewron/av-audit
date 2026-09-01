@@ -13,7 +13,9 @@ router.get('/:id/preview.png', (req, res) => {
     }
     const pngBuffer = checklistService.generatePreviewPng(checklist);
     res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'public, max-age=10');
+    res.setHeader('Content-Length', pngBuffer.length);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
     res.send(pngBuffer);
   } catch (err) {
     console.error('Error generating preview PNG:', err);
