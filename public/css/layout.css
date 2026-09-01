@@ -396,13 +396,27 @@
 }
 
 #sidebar.collapsed .sidebar-version-badge {
-  font-size: 0.625rem;
-  padding: 0.25rem 0.3rem;
+  font-size: 0.6rem;
+  padding: 0.25rem 0.15rem;
   margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
+  text-align: center;
+  width: 100%;
   border: 1px solid transparent;
   border-radius: var(--radius-sm);
   background: transparent;
+  line-height: 1.25;
+}
+
+#sidebar.collapsed .sidebar-version-badge .version-text {
+  display: block;
+  text-align: center;
+  width: 100%;
+  word-break: break-all;
+  letter-spacing: -0.2px;
 }
 
 #sidebar.collapsed .sidebar-version-badge.is-clickable:hover {

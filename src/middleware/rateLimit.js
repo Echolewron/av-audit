@@ -6,6 +6,7 @@ const authLimiter = rateLimit({
   max: 60, // Limit each IP to 60 requests per window
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { trustProxy: false },
   message: {
     error: 'TOO_MANY_REQUESTS',
     message: 'Too many authentication attempts. Please try again in a few minutes.'
