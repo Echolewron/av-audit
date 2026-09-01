@@ -83,8 +83,17 @@ function escapeHtml(str) {
 // Public Dynamic Checklist Landing Route with Rich Open Graph Link Previews
 app.get('/c/:id', (req, res) => {
   const checklist = checklistService.getChecklistById(req.params.id);
-  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  let protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  if (req.headers['cf-visitor']) {
+    try {
+      const cf = JSON.parse(req.headers['cf-visitor']);
+      if (cf.scheme) protocol = cf.scheme;
+    } catch (_) {}
+  }
   const host = req.headers['x-forwarded-host'] || req.get('host') || `localhost:${PORT}`;
+  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
+    protocol = 'https';
+  }
   const fullBaseUrl = `${protocol}://${host}`;
 
   if (!checklist) {

@@ -467,12 +467,14 @@ const checklistsView = {
     const checklistId = this.currentChecklist.id;
     const title = this.currentChecklist.title || 'AV Audit Checklist';
     const shareUrl = `${window.location.origin}/c/${checklistId}`;
+    const shareData = {
+      title: title,
+      text: title,
+      url: shareUrl
+    };
 
     if (navigator.share && typeof navigator.share === 'function') {
-      navigator.share({
-        title: title,
-        url: shareUrl
-      }).catch((err) => {
+      navigator.share(shareData).catch((err) => {
         if (err.name !== 'AbortError') {
           this.copyShareLinkToClipboard(shareUrl);
         }
