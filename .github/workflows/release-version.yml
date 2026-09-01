@@ -31,10 +31,18 @@ jobs:
           echo "Updating package.json to version: $VERSION"
           npm version "$VERSION" --no-git-tag-version --allow-same-version
 
-      - name: Commit and Push Updated package.json
+      - name: Commit, Push, and Update Release Tag
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           
+          TAG="${{ github.event.release.tag_name }}"
           git add package.json package-lock.json
-          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(release): bump version to ${{ github.event.release.tag_name }} [skip ci]" && git push origin main)
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            git commit -m "chore(release): bump version to $TAG [skip ci]"
+            git push origin main
+            
+            # Re-point the release tag to this new commit with updated package.json
+            git tag -f "$TAG"
+            git push origin "$TAG" --force
+          fi

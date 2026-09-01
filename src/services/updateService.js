@@ -149,8 +149,8 @@ const updateService = {
 
       console.log('[OTA Update] Pulling latest code from GitHub...');
 
-      // 2. Run git pull and npm install
-      exec('git pull origin main && npm install --omit=dev', { cwd, timeout: 60000 }, (error, stdout, stderr) => {
+      // 2. Fetch latest commits and reset hard to origin/main (prevents local lock/merge conflicts)
+      exec('git fetch origin main && git reset --hard origin/main && npm install --omit=dev', { cwd, timeout: 90000 }, (error, stdout, stderr) => {
         if (error) {
           console.error('[OTA Update] Update script failed:', error.message, stderr);
           return reject(new Error(`Update failed: ${error.message}`));
