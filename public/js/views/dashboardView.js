@@ -1373,9 +1373,8 @@ const dashboardView = {
     temp.innerHTML = this.renderCardHtml(card, sectionId);
     const newEl = temp.firstElementChild;
     if (newEl) {
-      cardEl.innerHTML = newEl.innerHTML;
-      cardEl.className = newEl.className;
-      this.attachCardInteractiveListeners(cardEl, card, sectionId);
+      cardEl.replaceWith(newEl);
+      this.attachCardInteractiveListeners(newEl, card, sectionId);
     }
   },
 
@@ -1454,7 +1453,31 @@ const dashboardView = {
 
   // ================= SERVER TRIGGER DISPATCHER & LOCAL SEQUENCE RUNNER =================
   async executeTrigger(card, triggerName, payloadData = {}) {
-    if (!card) return;
+    if (!card) return false;
+
+    // 0. Pre-evaluate confirmation dialog steps before dispatching
+    const automations = this.normalizeAutomations(card.automations || card.pipelines);
+    const matchingRules = automations.filter(a => a.enabled !== false && a.trigger && a.trigger.type === triggerName);
+    
+    if (matchingRules.length > 0) {
+      const normalizedData = this.normalizePayload(payloadData);
+      const evalContext = { widget: { ...card }, data: normalizedData };
+
+      for (const rule of matchingRules) {
+        const actions = Array.isArray(rule.actions) ? rule.actions : [];
+        for (const step of actions) {
+          const type = step.type || step.action;
+          if (type === 'confirmation' || type === 'confirm') {
+            const promptMsg = this.evalTemplateString(step.message || step.msg || 'Are you sure you want to proceed?', evalContext);
+            const userConfirmed = window.confirm(promptMsg);
+            if (!userConfirmed) {
+              // User clicked Cancel: abort sequence execution
+              return false;
+            }
+          }
+        }
+      }
+    }
 
     // 1. Dispatch to server engine for official execution, sequence processing & multi-client sync
     if (this.activeDashboardId && card.id) {
@@ -1486,11 +1509,13 @@ const dashboardView = {
 
     // 2. If card modal preview is open, execute locally for instant modal live preview feedback
     if (this.activeCardConfig && this.activeCardConfig.id === card.id) {
-      this.executeLocalModalSequence(this.activeCardConfig, triggerName, payloadData);
+      this.executeLocalModalSequence(this.activeCardConfig, triggerName, payloadData, true);
     }
+
+    return true;
   },
 
-  async executeLocalModalSequence(card, triggerName, payloadData = {}) {
+  async executeLocalModalSequence(card, triggerName, payloadData = {}, skipConfirm = false) {
     const automations = this.normalizeAutomations(card.automations || card.pipelines);
     const matchingRules = automations.filter(a => a.enabled !== false && a.trigger && a.trigger.type === triggerName);
     if (matchingRules.length === 0) return;
@@ -1527,6 +1552,14 @@ const dashboardView = {
           const passes = Boolean(this.evalExpression(condExpr, localContext));
           if (!passes) {
             break;
+          }
+        } else if (actionType === 'confirmation' || actionType === 'confirm') {
+          if (!skipConfirm) {
+            const promptMsg = this.evalTemplateString(step.message || step.msg || 'Are you sure you want to proceed?', localContext);
+            const passes = window.confirm(promptMsg);
+            if (!passes) {
+              break;
+            }
           }
         }
       }
@@ -1907,12 +1940,13 @@ const dashboardView = {
 
           const isCurrentlyOn = card.state === true || String(card.state).toLowerCase() === 'on' || String(card.state).toLowerCase() === 'true';
           const willBeOn = !isCurrentlyOn;
-
-          card.state = willBeOn ? 'on' : 'off';
-          this.updateCardElementInDom(card);
-
           const triggerName = willBeOn ? 'onToggleOn' : 'onToggleOff';
-          await this.executeTrigger(card, triggerName, { state: card.state });
+
+          const proceed = await this.executeTrigger(card, triggerName, { state: willBeOn ? 'on' : 'off' });
+          if (proceed !== false) {
+            card.state = willBeOn ? 'on' : 'off';
+            this.updateCardElementInDom(card);
+          }
         });
       }
     }
@@ -2601,6 +2635,13 @@ const dashboardView = {
                 <input type="text" class="form-control macro-step-condition-expr" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" placeholder="e.g. data.battery < 20 || widget.value >= 100" value="${helpers.escapeHtml(step.expression || step.expr || '')}" style="font-size: 0.825rem; font-family: var(--font-mono); color: #c084fc;">
               </div>
             `;
+          } else if (type === 'confirmation' || type === 'confirm') {
+            stepFieldsHtml = `
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" style="font-size: 0.75rem;">Confirmation Prompt Message <span style="color: #fbbf24;">(Native browser popup; halts if Cancelled)</span></label>
+                <input type="text" class="form-control macro-step-confirm-msg" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" placeholder='e.g. Are you sure you want to proceed?' value="${helpers.escapeHtml(step.message || step.msg || '')}" style="font-size: 0.825rem; font-family: var(--font-mono); color: #fbbf24;">
+              </div>
+            `;
           }
 
           return `
@@ -2693,6 +2734,9 @@ const dashboardView = {
                 <div class="macro-actions-buttons-grid">
                   <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="set_property">
                     <span class="step-btn-emoji">🏷️</span> Set Property
+                  </button>
+                  <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="confirmation">
+                    <span class="step-btn-emoji">⚠️</span> Confirmation
                   </button>
                   <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="webhook">
                     <span class="step-btn-emoji">🌐</span> Webhook
@@ -2944,6 +2988,17 @@ const dashboardView = {
       });
     });
 
+    container.querySelectorAll('.macro-step-confirm-msg').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const macroIdx = Number(input.dataset.macroIdx);
+        const stepIdx = Number(input.dataset.stepIdx);
+        if (automations[macroIdx]?.actions?.[stepIdx]) {
+          automations[macroIdx].actions[stepIdx].message = e.target.value;
+          this.updateYamlCodeEditor();
+        }
+      });
+    });
+
     // Initialize Sortable for each macro's steps
     this.initMacroStepsSortables(container);
   },
@@ -3049,6 +3104,8 @@ const dashboardView = {
       newStep = { type: 'webhook', method: 'GET', url: 'https://api.example.com/status', body: '' };
     } else if (actionType === 'condition') {
       newStep = { type: 'condition', expression: 'data.battery !== undefined' };
+    } else if (actionType === 'confirmation' || actionType === 'confirm') {
+      newStep = { type: 'confirmation', message: 'Are you sure you want to proceed?' };
     }
 
     if (newStep) {

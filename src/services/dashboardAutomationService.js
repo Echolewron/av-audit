@@ -296,6 +296,11 @@ class DashboardAutomationService {
             // Cleanly halt this automation sequence when condition fails
             break;
           }
+        } else if (actionType === 'confirmation' || actionType === 'confirm') {
+          // If triggered server-side (e.g. polling or background), check if pre-confirmed or pass
+          if (step.confirmed === false) {
+            break;
+          }
         }
       }
     }
