@@ -466,8 +466,7 @@ const checklistsView = {
 
     const checklistId = this.currentChecklist.id;
     const title = this.currentChecklist.title || 'AV Audit Checklist';
-    // Append timestamp query parameter so messengers never cache stale cards from earlier in the session
-    const shareUrl = `${window.location.origin}/c/${checklistId}?t=${Date.now()}`;
+    const shareUrl = `${window.location.origin}/c/${checklistId}`;
     const shareText = `${title}\n\n${shareUrl}`;
 
     if (navigator.share && typeof navigator.share === 'function') {
