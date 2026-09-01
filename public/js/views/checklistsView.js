@@ -476,11 +476,11 @@ const checklistsView = {
         url: shareUrl
       }).catch((err) => {
         if (err.name !== 'AbortError') {
-          this.copyShareLinkToClipboard(shareUrl);
+          this.copyShareLinkToClipboard(shareText);
         }
       });
     } else {
-      this.copyShareLinkToClipboard(shareUrl);
+      this.copyShareLinkToClipboard(shareText);
     }
   },
 

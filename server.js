@@ -81,19 +81,10 @@ function escapeHtml(str) {
 }
 
 // Public Dynamic Checklist Landing Route with Rich Open Graph Link Previews
-app.get(['/c/:id', '/checklist/:id'], (req, res) => {
+app.get(['/checklist/:id', '/c/:id'], (req, res) => {
   const checklist = checklistService.getChecklistById(req.params.id);
-  let protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
-  if (req.headers['cf-visitor']) {
-    try {
-      const cf = JSON.parse(req.headers['cf-visitor']);
-      if (cf.scheme) protocol = cf.scheme;
-    } catch (_) {}
-  }
+  const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
   const host = req.headers['x-forwarded-host'] || req.get('host') || `localhost:${PORT}`;
-  if (!host.includes('localhost') && !host.includes('127.0.0.1')) {
-    protocol = 'https';
-  }
   const fullBaseUrl = `${protocol}://${host}`;
 
   if (!checklist) {
@@ -160,12 +151,7 @@ app.get(['/c/:id', '/checklist/:id'], (req, res) => {
   <meta name="theme-color" content="${hasBlocked ? '#f85149' : (isSubmitted ? '#58a6ff' : '#18edb3')}">
   <script>window.__INITIAL_CHECKLIST_ID__ = "${checklist.id}";</script>`;
 
-    // Strip default static title and description so messenger crawlers immediately read the dynamic OpenGraph tags
-    let injectedHtml = html
-      .replace(/<title>[\s\S]*?<\/title>/i, '')
-      .replace(/<meta\s+name=["']description["'][\s\S]*?>/i, '');
-
-    injectedHtml = injectedHtml.replace('<head>', `<head>\n${ogTags}`);
+    const injectedHtml = html.replace('</head>', `${ogTags}\n</head>`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.send(injectedHtml);
