@@ -25,6 +25,7 @@ const checklistService = require('./src/services/checklistService');
 const dashboardAutomationService = require('./src/services/dashboardAutomationService');
 
 const app = express();
+app.set('trust proxy', true);
 const server = http.createServer(app);
 
 // Socket.io initialization
