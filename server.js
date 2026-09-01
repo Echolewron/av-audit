@@ -49,10 +49,11 @@ app.use(sanitizeMiddleware);
 app.use('/info', infoRoutes);
 app.use('/api/info', infoRoutes);
 
-// Static files with immediate cache invalidation
+// Static files with immediate cache invalidation (HTML passes through dynamic prepareHtml)
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: false,
   maxAge: 0,
+  index: false,
   setHeaders: (res) => {
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
   }
