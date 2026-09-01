@@ -164,11 +164,37 @@
   height: 20px;
   stroke: currentColor;
   display: block;
-  transition: transform var(--transition-fast);
+  transition: transform var(--transition-fast), stroke var(--transition-fast), filter var(--transition-fast);
+}
+
+/* Emoji-Matched Palette for Heroicons */
+.nav-item[data-nav="dashboard"] .nav-icon svg {
+  stroke: #38bdf8; /* 🎛️ Tech Cyan / Sky */
+}
+.nav-item[data-nav="sermon-sender"] .nav-icon svg {
+  stroke: #fb7185; /* 🎙️ Studio Rose / Red */
+}
+.nav-item[data-nav="checklists"] .nav-icon svg {
+  stroke: #34d399; /* 📋 Emerald / Mint */
+}
+.nav-item[data-nav="roles"] .nav-icon svg {
+  stroke: #fbbf24; /* 🛡️ Gold / Amber */
+}
+.nav-item[data-nav="accounts"] .nav-icon svg {
+  stroke: #a78bfa; /* 👥 Violet / Purple */
+}
+.nav-item[data-nav="audit"] .nav-icon svg {
+  stroke: #fb923c; /* 📜 Warm Orange */
 }
 
 .nav-link:hover .nav-icon svg {
-  transform: scale(1.08);
+  transform: scale(1.12);
+  filter: brightness(1.2);
+}
+
+.nav-link.active .nav-icon svg {
+  transform: scale(1.06);
+  filter: brightness(1.25);
 }
 
 .nav-text {
