@@ -301,7 +301,7 @@
   justify-content: center;
   gap: 0.45rem;
   margin-top: 0.65rem;
-  padding: 0.25rem 0.6rem;
+  padding: 0.3rem 0.65rem;
   font-family: var(--font-mono);
   font-size: 0.725rem;
   font-weight: 500;
@@ -309,7 +309,33 @@
   border-radius: var(--radius-sm);
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid var(--border-subtle);
+  cursor: pointer;
   user-select: none;
+  transition: all var(--transition-fast);
+}
+
+.sidebar-version-badge:hover {
+  color: var(--text-primary);
+  background: rgba(24, 237, 179, 0.08);
+  border-color: rgba(24, 237, 179, 0.35);
+  box-shadow: 0 0 12px rgba(24, 237, 179, 0.15);
+}
+
+.sidebar-version-badge:hover .version-dot {
+  opacity: 1;
+  transform: scale(1.25);
+  box-shadow: 0 0 8px var(--accent-primary);
+}
+
+.sidebar-version-badge:active {
+  transform: scale(0.97);
+  background: rgba(24, 237, 179, 0.14);
+}
+
+.sidebar-version-badge:focus-visible {
+  outline: none;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px var(--accent-primary-glow);
 }
 
 .sidebar-version-badge .version-dot {
@@ -319,6 +345,7 @@
   border-radius: 50%;
   background: var(--accent-primary);
   opacity: 0.85;
+  transition: all var(--transition-fast);
 }
 
 #sidebar.collapsed .sidebar-footer {
@@ -327,11 +354,18 @@
 
 #sidebar.collapsed .sidebar-version-badge {
   font-size: 0.625rem;
-  padding: 0.15rem 0.2rem;
+  padding: 0.25rem 0.3rem;
   margin-top: 0.5rem;
   justify-content: center;
-  border: none;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
   background: transparent;
+}
+
+#sidebar.collapsed .sidebar-version-badge:hover {
+  color: var(--accent-primary);
+  background: rgba(24, 237, 179, 0.12);
+  border-color: rgba(24, 237, 179, 0.25);
 }
 
 #sidebar.collapsed .sidebar-version-badge .version-dot {

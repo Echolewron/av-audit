@@ -18,6 +18,13 @@ const updateView = {
         e.stopPropagation();
         this.openModal();
       });
+      versionBadge.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          e.stopPropagation();
+          this.openModal();
+        }
+      });
     }
 
     // 2. Recheck button

@@ -1,6 +1,6 @@
 {
   "name": "av-audit",
-  "version": "beta 0.1.0",
+  "version": "beta 0.1.2",
   "description": "",
   "main": "index.js",
   "scripts": {
