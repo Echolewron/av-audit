@@ -15,7 +15,7 @@ router.get('/:id/preview.png', (req, res) => {
     res.setHeader('Content-Type', 'image/png');
     res.setHeader('Content-Length', pngBuffer.length);
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=60');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
     res.send(pngBuffer);
   } catch (err) {
     console.error('Error generating preview PNG:', err);
