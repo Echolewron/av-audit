@@ -298,21 +298,22 @@ const dashboardView = {
   init() {
     this.bindEvents();
     this.setupSocketListeners();
-    this.loadInfoState();
-
-    this.loadDashboards();
-    this.updatePermissionsUI();
   },
 
   render() {
-    this.loadDashboards(this.activeDashboardId);
-    this.updatePermissionsUI();
+    if (this.canAccessDashboards()) {
+      this.loadDashboards(this.activeDashboardId);
+      this.updatePermissionsUI();
+    }
   },
 
   canAccessDashboards() {
     if (!window.app || !window.app.user) return false;
     if (window.app.user.isAdmin) return true;
-    return window.app.hasPermission('dashboards', 'access_nav') || window.app.hasPermission('dashboards', 'manage_dashboards');
+    return typeof window.app.hasPermission === 'function' && (
+      window.app.hasPermission('dashboards', 'access_nav') || 
+      window.app.hasPermission('dashboards', 'manage_dashboards')
+    );
   },
 
   updatePermissionsUI() {
@@ -640,7 +641,9 @@ const dashboardView = {
 
     // Dashboard Structure & Canvas Sync
     window.addEventListener('socket_dashboards_updated', () => {
-      this.loadDashboards(this.activeDashboardId);
+      if (this.canAccessDashboards()) {
+        this.loadDashboards(this.activeDashboardId);
+      }
     });
 
     window.addEventListener('socket_dashboard_canvas_updated', (e) => {
@@ -671,6 +674,7 @@ const dashboardView = {
   },
 
   async loadDashboards(preferredId = null) {
+    if (!this.canAccessDashboards()) return;
     if (this.isLoadingDashboards) return;
     this.isLoadingDashboards = true;
 
@@ -692,8 +696,10 @@ const dashboardView = {
       this.renderActiveDashboard();
       this.updatePermissionsUI();
     } catch (err) {
-      console.error('Failed to load dashboards:', err);
-      helpers.showToast('Failed to load dashboards', 'error');
+      if (err.status !== 401 && err.code !== 'UNAUTHORIZED') {
+        console.error('Failed to load dashboards:', err);
+        helpers.showToast('Failed to load dashboards', 'error');
+      }
     } finally {
       this.isLoadingDashboards = false;
     }
