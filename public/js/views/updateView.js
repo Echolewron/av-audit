@@ -232,7 +232,7 @@ const updateView = {
           // Verify HTTP 200 AND valid JSON body from actual backend (not Cloudflare HTML error page)
           if (res.ok) {
             const data = await res.json().catch(() => null);
-            if (data && typeof data === 'object' && ('allowRegistration' in data || 'timezone' in data)) {
+            if (data && typeof data === 'object' && ('version' in data || 'sessionDurationHours' in data || 'sessionDurationMs' in data)) {
               consecutiveSuccesses++;
               if (statusText) {
                 statusText.textContent = `Server back online! Verifying connection (${consecutiveSuccesses}/${requiredConsecutive})...`;
