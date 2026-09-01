@@ -150,12 +150,25 @@
 }
 
 .nav-icon {
-  font-size: 1.15rem;
   width: 24px;
   min-width: 24px;
+  height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  display: block;
+  transition: transform var(--transition-fast);
+}
+
+.nav-link:hover .nav-icon svg {
+  transform: scale(1.08);
 }
 
 .nav-text {
@@ -663,9 +676,14 @@
   }
 
   .nav-icon {
-    font-size: 1.35rem;
     width: 28px;
     min-width: 28px;
+    height: 28px;
+  }
+
+  .nav-icon svg {
+    width: 22px;
+    height: 22px;
   }
 
   .nav-text {

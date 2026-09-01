@@ -23,13 +23,28 @@ jobs:
           node-version: '20'
 
       - name: Extract Tag and Update Version
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
         run: |
           # Extract clean version without leading 'v'
-          TAG="${{ github.event.release.tag_name }}"
-          VERSION="${TAG#v}"
-          
+          VERSION="${RELEASE_TAG#v}"
           echo "Updating package.json to version: $VERSION"
-          npm version "$VERSION" --no-git-tag-version --allow-same-version
+          
+          node -e "
+            const fs = require('fs');
+            const ver = process.env.VERSION;
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.version = ver;
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+            if (fs.existsSync('package-lock.json')) {
+              const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
+              lock.version = ver;
+              if (lock.packages && lock.packages['']) lock.packages[''].version = ver;
+              fs.writeFileSync('package-lock.json', JSON.stringify(lock, null, 2) + '\n');
+            }
+          "
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
 
       - name: Commit, Push, and Update Release Tag
         run: |
