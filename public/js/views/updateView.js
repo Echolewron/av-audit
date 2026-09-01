@@ -152,8 +152,8 @@ const updateView = {
   },
 
   async confirmAndApplyUpdate() {
-    if (!window.app?.user?.isAdmin) {
-      helpers.showToast('Only administrators can trigger system updates.', 'error');
+    if (!this.canManageUpdates()) {
+      helpers.showToast('You do not have permission to trigger system updates.', 'error');
       return;
     }
 
@@ -208,27 +208,60 @@ const updateView = {
     if (this.pollInterval) clearInterval(this.pollInterval);
 
     let attempts = 0;
-    // Wait 2.5 seconds before starting health checks
+    let consecutiveSuccesses = 0;
+    const requiredConsecutive = 2;
+
+    // Wait 2.5 seconds to allow process exit and PM2 restart to initialize
     setTimeout(() => {
       this.pollInterval = setInterval(async () => {
         attempts++;
         const statusText = document.getElementById('updating-status-text');
-        if (statusText) {
-          statusText.textContent = `Waiting for server to come back online... (${attempts}s)`;
-        }
 
         try {
-          const res = await fetch('/api/auth/client-config', { cache: 'no-store' });
+          // Use AbortController timeout to prevent hanging connections during tunnel reconnection
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 2500);
+
+          const res = await fetch('/api/auth/client-config', {
+            cache: 'no-store',
+            headers: { 'Accept': 'application/json' },
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          // Verify HTTP 200 AND valid JSON body from actual backend (not Cloudflare HTML error page)
           if (res.ok) {
-            clearInterval(this.pollInterval);
-            this.pollInterval = null;
-            if (statusText) statusText.textContent = 'Server online! Reloading application...';
-            setTimeout(() => {
-              window.location.reload(true);
-            }, 800);
+            const data = await res.json().catch(() => null);
+            if (data && typeof data === 'object' && ('allowRegistration' in data || 'timezone' in data)) {
+              consecutiveSuccesses++;
+              if (statusText) {
+                statusText.textContent = `Server back online! Verifying connection (${consecutiveSuccesses}/${requiredConsecutive})...`;
+              }
+
+              if (consecutiveSuccesses >= requiredConsecutive) {
+                clearInterval(this.pollInterval);
+                this.pollInterval = null;
+                if (statusText) {
+                  statusText.textContent = 'Update complete! Reloading application...';
+                }
+                setTimeout(() => {
+                  window.location.reload(true);
+                }, 600);
+                return;
+              }
+            } else {
+              consecutiveSuccesses = 0;
+            }
+          } else {
+            consecutiveSuccesses = 0;
           }
         } catch (e) {
-          // Still rebooting, keep waiting
+          // Still rebooting or tunnel establishing connection
+          consecutiveSuccesses = 0;
+        }
+
+        if (consecutiveSuccesses === 0 && statusText) {
+          statusText.textContent = `Waiting for server and tunnel to come back online... (${attempts}s)`;
         }
       }, 1000);
     }, 2500);
