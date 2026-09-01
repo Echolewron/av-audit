@@ -608,32 +608,6 @@ class ChecklistService {
     const accentColor = hasBlocked ? '#f85149' : (isSubmitted ? '#58a6ff' : '#18edb3');
     const isCompleted = (progress === 100 && !hasBlocked);
 
-    let badgeText = 'IN-PROGRESS';
-    let badgeBg = 'rgba(24, 237, 179, 0.15)';
-    let badgeBorder = '#18edb3';
-    let badgeColor = '#18edb3';
-    let badgeWidth = 160;
-
-    if (hasBlocked) {
-      badgeText = blockedCount > 1 ? `! ${blockedCount} ISSUES REPORTED` : `! ISSUE REPORTED`;
-      badgeBg = 'rgba(248, 81, 73, 0.2)';
-      badgeBorder = '#f85149';
-      badgeColor = '#f85149';
-      badgeWidth = 230;
-    } else if (isSubmitted) {
-      badgeText = '✓ SUBMITTED';
-      badgeBg = 'rgba(88, 166, 255, 0.2)';
-      badgeBorder = '#58a6ff';
-      badgeColor = '#58a6ff';
-      badgeWidth = 160;
-    } else if (isCompleted) {
-      badgeText = '✓ 100% COMPLETE';
-      badgeBg = 'rgba(24, 237, 179, 0.2)';
-      badgeBorder = '#18edb3';
-      badgeColor = '#18edb3';
-      badgeWidth = 180;
-    }
-
     let progressLabelText = 'Checklist Progress';
     let progressLabelColor = '#8b949e';
 
@@ -708,12 +682,6 @@ class ChecklistService {
     <rect width="56" height="56" rx="14" fill="url(#logoGrad)"/>
     <text x="28" y="37" fill="#04100c" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="24" text-anchor="middle" letter-spacing="-0.5">AV</text>
     <text x="78" y="39" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="30" letter-spacing="1.5">AV AUDIT CHECKLIST</text>
-  </g>
-
-  <!-- Status Pill Badge (Top-Right) -->
-  <g transform="translate(${1120 - badgeWidth}, 82)">
-    <rect width="${badgeWidth}" height="42" rx="21" fill="${badgeBg}" stroke="${badgeBorder}" stroke-width="1.8"/>
-    <text x="${badgeWidth / 2}" y="27" fill="${badgeColor}" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="16" text-anchor="middle" letter-spacing="1">${escapeXml(badgeText)}</text>
   </g>
 
   <!-- 2. Checklist Name (Wrapped & Adaptable) -->
