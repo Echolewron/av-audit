@@ -123,6 +123,8 @@ const updateService = {
 
   async applyUpdate(io, actingUser, ipAddress) {
     const cwd = path.join(__dirname, '../../');
+    const updateInfo = await this.checkForUpdates().catch(() => ({}));
+    const targetVersion = updateInfo.latestVersion;
 
     return new Promise((resolve, reject) => {
       // 1. Broadcast updating status to all connected users
@@ -140,7 +142,7 @@ const updateService = {
           username: actingUser?.username || 'Administrator',
           actionType: 'SYSTEM',
           actionName: 'OTA_UPDATE_INITIATED',
-          details: { triggeredBy: actingUser?.username || 'admin' },
+          details: { triggeredBy: actingUser?.username || 'admin', targetVersion },
           ipAddress: ipAddress || '127.0.0.1'
         });
       } catch (e) {
@@ -154,6 +156,19 @@ const updateService = {
         if (error) {
           console.error('[OTA Update] Update script failed:', error.message, stderr);
           return reject(new Error(`Update failed: ${error.message}`));
+        }
+
+        // Guarantee package.json version matches target release version even if fetched prior to bot commit
+        if (targetVersion) {
+          try {
+            const pkgPath = path.join(cwd, 'package.json');
+            const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+            const cleanVer = targetVersion.replace(/^v/i, '').trim();
+            if (pkg.version !== cleanVer) {
+              pkg.version = cleanVer;
+              fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2), 'utf8');
+            }
+          } catch (_) {}
         }
 
         console.log('[OTA Update] Code updated successfully:\n', stdout);

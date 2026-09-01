@@ -13,12 +13,24 @@ const cookieOptions = {
   maxAge: SESSION_DURATION_MS
 };
 
+const fs = require('fs');
+const path = require('path');
+
+function getAppVersion() {
+  try {
+    const pkgPath = path.join(__dirname, '../../package.json');
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+    return pkg.version || '1.0.0';
+  } catch (_) {
+    return '1.0.0';
+  }
+}
+
 // Public Client Config (Session timing & countdown durations)
 router.get('/client-config', (req, res) => {
   const { sessionDurationHours, inactivityWarningMinutes, SESSION_DURATION_MS, INACTIVITY_WARNING_MS } = require('../config/config');
-  const packageJson = require('../../package.json');
   res.json({
-    version: packageJson.version || '1.0.0',
+    version: getAppVersion(),
     sessionDurationHours,
     inactivityWarningMinutes,
     sessionDurationMs: SESSION_DURATION_MS,
@@ -163,9 +175,8 @@ router.post('/logout', optionalAuthMiddleware, async (req, res) => {
 
 // Get current profile
 router.get('/me', authMiddleware, (req, res) => {
-  const packageJson = require('../../package.json');
   res.json({
-    appVersion: packageJson.version || '1.0.0',
+    appVersion: getAppVersion(),
     user: {
       id: req.user.id,
       username: req.user.username,
