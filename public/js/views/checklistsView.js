@@ -467,20 +467,18 @@ const checklistsView = {
     const checklistId = this.currentChecklist.id;
     const title = this.currentChecklist.title || 'AV Audit Checklist';
     const shareUrl = `${window.location.origin}/c/${checklistId}`;
-    const shareText = `${title}\n\n${shareUrl}`;
 
     if (navigator.share && typeof navigator.share === 'function') {
       navigator.share({
         title: title,
-        text: shareText,
         url: shareUrl
       }).catch((err) => {
         if (err.name !== 'AbortError') {
-          this.copyShareLinkToClipboard(shareText);
+          this.copyShareLinkToClipboard(shareUrl);
         }
       });
     } else {
-      this.copyShareLinkToClipboard(shareText);
+      this.copyShareLinkToClipboard(shareUrl);
     }
   },
 

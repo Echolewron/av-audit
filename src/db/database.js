@@ -428,6 +428,18 @@ function initDb() {
     seedInitialData();
   }
 
+  // Convert any legacy long checklist IDs to clean 7-char short IDs
+  let chkMigrated = false;
+  dbState.checklists.forEach(chk => {
+    if (chk.id && (chk.id.startsWith('chk_') || chk.id.length > 10)) {
+      chk.id = generateShortId(7);
+      chkMigrated = true;
+    }
+  });
+  if (chkMigrated) {
+    saveDb();
+  }
+
   // Ensure default dashboard exists with rich Lovelace sections and badges
   if (!dbState.dashboards || dbState.dashboards.length === 0) {
     dbState.dashboards = [

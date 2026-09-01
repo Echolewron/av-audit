@@ -81,7 +81,7 @@ function escapeHtml(str) {
 }
 
 // Public Dynamic Checklist Landing Route with Rich Open Graph Link Previews
-app.get(['/checklist/:id', '/c/:id'], (req, res) => {
+app.get('/c/:id', (req, res) => {
   const checklist = checklistService.getChecklistById(req.params.id);
   const protocol = req.headers['x-forwarded-proto'] || req.protocol || 'http';
   const host = req.headers['x-forwarded-host'] || req.get('host') || `localhost:${PORT}`;
