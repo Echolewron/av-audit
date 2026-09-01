@@ -160,7 +160,12 @@ app.get(['/c/:id', '/checklist/:id'], (req, res) => {
   <meta name="theme-color" content="${hasBlocked ? '#f85149' : (isSubmitted ? '#58a6ff' : '#18edb3')}">
   <script>window.__INITIAL_CHECKLIST_ID__ = "${checklist.id}";</script>`;
 
-    const injectedHtml = html.replace('</head>', `${ogTags}\n</head>`);
+    // Strip default static title and description so messenger crawlers immediately read the dynamic OpenGraph tags
+    let injectedHtml = html
+      .replace(/<title>[\s\S]*?<\/title>/i, '')
+      .replace(/<meta\s+name=["']description["'][\s\S]*?>/i, '');
+
+    injectedHtml = injectedHtml.replace('<head>', `<head>\n${ogTags}`);
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.send(injectedHtml);
