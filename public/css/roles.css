@@ -99,9 +99,23 @@
 }
 
 /* Drag states */
-.role-list-item.dragging {
-  opacity: 0.4;
-  border: 2px dashed var(--accent-primary);
+.role-list-item.dragging,
+.role-list-item.role-sortable-ghost {
+  opacity: 0.35 !important;
+  background: rgba(24, 237, 179, 0.08) !important;
+  border: 2px dashed var(--accent-primary) !important;
+}
+
+.role-list-item.role-sortable-chosen {
+  cursor: grabbing !important;
+  background: var(--bg-surface-hover) !important;
+}
+
+.role-list-item.role-sortable-drag {
+  opacity: 0.95 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+  border-color: var(--accent-primary) !important;
+  background: var(--bg-surface-elevated) !important;
 }
 
 .role-list-item.drag-over {

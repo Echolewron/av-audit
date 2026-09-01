@@ -41,9 +41,9 @@ const PERMISSION_REGISTRY = {
 const PERMISSION_METADATA = {
   system: {
     label: 'System & Maintenance',
-    description: 'Over-The-Air (OTA) software updates and system maintenance',
+    description: 'Software updates and system maintenance',
     permissions: {
-      manage_updates: { label: 'Manage System Updates', description: 'Check for and install Over-The-Air (OTA) software releases' }
+      manage_updates: { label: 'Manage System Updates', description: 'Check for and install software updates' }
     }
   },
   sermon_sender: {
@@ -57,37 +57,37 @@ const PERMISSION_METADATA = {
   },
   dashboards: {
     label: 'Dashboards',
-    description: 'Customizable multi-dashboard flight control, widgets, and access settings',
+    description: 'Customizable dashboard layouts, widgets, and access settings',
     permissions: {
-      access_nav: { label: 'Access Dashboards', description: 'Show and view authorized flight control dashboards' },
+      access_nav: { label: 'Access Dashboards', description: 'Show and view authorized dashboards' },
       manage_dashboards: { label: 'Manage Dashboards', description: 'Create, edit settings, assign role access, and delete dashboards' }
     }
   },
   checklists: {
     label: 'Checklists & Templates',
-    description: 'Operational checklists, active tasks, templates, and automation hooks',
+    description: 'Operational checklists, active tasks, templates, and automations',
     permissions: {
-      access_nav: { label: 'Access Navigation', description: 'Show Checklists in navigation menu' },
-      view_active: { label: 'View Active Checklists', description: 'View active checklist instances and task states' },
-      create_active: { label: 'Create Active Checklist', description: 'Instantiate checklists from templates' },
-      delete_active: { label: 'Delete Active Checklist', description: 'Delete or cancel active checklist instances' },
-      edit_templates: { label: 'Manage Templates', description: 'Create, edit, delete templates and in-line sync' },
-      execute_automations: { label: 'Execute Automations', description: 'Trigger cURL automation webhooks' }
+      access_nav: { label: 'Access Page', description: 'Show Checklists page' },
+      view_active: { label: 'View Started Checklists', description: 'View started checklists' },
+      create_active: { label: 'Start Checklist', description: 'Start checklists from templates' },
+      delete_active: { label: 'Delete Started Checklist', description: 'Delete or cancel started checklists' },
+      edit_templates: { label: 'Manage Templates', description: 'Create, edit, delete templates' },
+      execute_automations: { label: 'Execute Automations', description: 'Trigger automations' }
     }
   },
   roles: {
     label: 'Roles & Hierarchy',
-    description: 'Discord-style role hierarchy and permission assignments',
+    description: 'Manage role and permission assignments',
     permissions: {
-      access_nav: { label: 'Access Navigation', description: 'Show Roles in navigation menu' },
-      manage_roles: { label: 'Manage Roles', description: 'Create, edit, reorder hierarchy, and assign permissions' }
+      access_nav: { label: 'View Roles', description: 'View user roles' },
+      manage_roles: { label: 'Manage Roles', description: 'Create, delete, reorder roles and assign permissions' }
     }
   },
   accounts: {
     label: 'Account Management',
     description: 'User approvals, directory, suspensions, and password resets',
     permissions: {
-      access_nav: { label: 'Access Navigation', description: 'Show Accounts in navigation menu' },
+      access_nav: { label: 'Access Page', description: 'Show Accounts in navigation menu' },
       view_users: { label: 'View Users Directory', description: 'Search and inspect all user accounts' },
       admit_pending: { label: 'Admit / Reject Pending', description: 'Approve or reject newly registered users' },
       modify_passwords: { label: 'Modify Passwords', description: 'Overwrite user passwords' },
@@ -95,10 +95,10 @@ const PERMISSION_METADATA = {
     }
   },
   audit: {
-    label: 'Audit Log & Retention',
-    description: 'System event logs, day grouping, and retention cleanup',
+    label: 'Audit Log',
+    description: 'System event logs',
     permissions: {
-      access_nav: { label: 'Access Navigation', description: 'Show Audit Log in navigation menu' },
+      access_nav: { label: 'Access Page', description: 'Show Audit Log in navigation menu' },
       delete_logs: { label: 'Delete / Purge Logs', description: 'Manually purge today\'s or all audit logs' },
       configure_retention: { label: 'Configure Retention', description: 'Adjust automated log retention threshold' }
     }
@@ -109,7 +109,7 @@ const PERMISSION_METADATA = {
 function hasPermission(userPermissions, module, action, isAdmin = false) {
   if (isAdmin) return true;
   if (!userPermissions || !Array.isArray(userPermissions)) return false;
-  
+
   const exactKey = `${module}.${action}`;
   return userPermissions.includes(exactKey) || userPermissions.includes('*');
 }

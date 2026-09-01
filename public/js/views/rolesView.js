@@ -40,7 +40,17 @@ const rolesView = {
     }
   },
 
+  sortableInstance: null,
+
+  destroySortable() {
+    if (this.sortableInstance) {
+      this.sortableInstance.destroy();
+      this.sortableInstance = null;
+    }
+  },
+
   renderHierarchyList() {
+    this.destroySortable();
     const listContainer = document.getElementById('roles-hierarchy-list');
     if (!listContainer) return;
 
@@ -63,6 +73,7 @@ const rolesView = {
       `;
 
       li.addEventListener('click', () => {
+        if (this.selectedRoleId === role.id) return;
         this.selectedRoleId = role.id;
         this.renderHierarchyList();
         this.renderRoleEditor();
@@ -71,18 +82,30 @@ const rolesView = {
       listContainer.appendChild(li);
     });
 
-    // Make draggable if user has manage_roles permission
-    if (canManageRoles) {
-      window.makeListDraggable(listContainer, '.role-drag-handle', async (newOrderedIds) => {
-        try {
-          const res = await api.roles.reorder(newOrderedIds);
-          this.roles = res.roles;
-          helpers.showToast('Role hierarchy updated!', 'success');
-          this.renderHierarchyList();
-          this.renderRoleEditor();
-        } catch (err) {
-          helpers.showToast(err.message || 'Failed to reorder roles', 'error');
-          this.loadRoles();
+    // Make draggable with SortableJS if user has manage_roles permission
+    if (canManageRoles && typeof Sortable !== 'undefined') {
+      this.sortableInstance = new Sortable(listContainer, {
+        handle: '.role-drag-handle',
+        animation: 150,
+        ghostClass: 'role-sortable-ghost',
+        chosenClass: 'role-sortable-chosen',
+        dragClass: 'role-sortable-drag',
+        onEnd: async (evt) => {
+          if (evt.oldIndex === evt.newIndex) return;
+          const newOrderedIds = Array.from(listContainer.children)
+            .map(child => child.dataset.id)
+            .filter(Boolean);
+
+          try {
+            const res = await api.roles.reorder(newOrderedIds);
+            this.roles = res.roles;
+            helpers.showToast('Role hierarchy updated!', 'success');
+            this.renderHierarchyList();
+            this.renderRoleEditor();
+          } catch (err) {
+            helpers.showToast(err.message || 'Failed to reorder roles', 'error');
+            this.loadRoles();
+          }
         }
       });
     }
