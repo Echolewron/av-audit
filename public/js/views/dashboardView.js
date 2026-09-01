@@ -1523,11 +1523,8 @@ const dashboardView = {
     });
   },
 
-  // ================= SERVER TRIGGER DISPATCHER & LOCAL SEQUENCE RUNNER =================
-  async executeTrigger(card, triggerName, payloadData = {}) {
-    if (!card) return false;
-
-    // 0. Pre-evaluate confirmation dialog steps before dispatching
+  checkConfirmationPrompt(card, triggerName, payloadData = {}) {
+    if (!card) return true;
     const automations = this.normalizeAutomations(card.automations || card.pipelines);
     const matchingRules = automations.filter(a => a.enabled !== false && a.trigger && a.trigger.type === triggerName);
     
@@ -1543,12 +1540,23 @@ const dashboardView = {
             const promptMsg = this.evalTemplateString(step.message || step.msg || 'Are you sure you want to proceed?', evalContext);
             const userConfirmed = window.confirm(promptMsg);
             if (!userConfirmed) {
-              // User clicked Cancel: abort sequence execution
               return false;
             }
           }
         }
       }
+    }
+    return true;
+  },
+
+  // ================= SERVER TRIGGER DISPATCHER & LOCAL SEQUENCE RUNNER =================
+  async executeTrigger(card, triggerName, payloadData = {}, alreadyConfirmed = false) {
+    if (!card) return false;
+
+    // 0. Pre-evaluate confirmation dialog steps before dispatching if not already checked
+    if (!alreadyConfirmed) {
+      const confirmed = this.checkConfirmationPrompt(card, triggerName, payloadData);
+      if (!confirmed) return false;
     }
 
     // 1. Dispatch to server engine for official execution, sequence processing & multi-client sync
@@ -1560,22 +1568,37 @@ const dashboardView = {
           if (current) {
             if (res.isBadge && Array.isArray(current.badges)) {
               const idx = current.badges.findIndex(b => b.id === card.id);
-              if (idx >= 0) current.badges[idx] = res.widget;
-              else current.badges.push(res.widget);
-              this.updateBadgeElementInDom(res.widget);
+              if (idx >= 0) {
+                const existing = current.badges[idx];
+                // Only update DOM if server state differs from current local state
+                if (!this.isWidgetEqual(existing, res.widget)) {
+                  current.badges[idx] = res.widget;
+                  this.updateBadgeElementInDom(res.widget);
+                }
+              } else {
+                current.badges.push(res.widget);
+                this.updateBadgeElementInDom(res.widget);
+              }
             } else if (Array.isArray(current.sections)) {
               current.sections.forEach(sec => {
                 if (Array.isArray(sec.cards)) {
                   const cIdx = sec.cards.findIndex(c => c.id === card.id);
-                  if (cIdx >= 0) sec.cards[cIdx] = res.widget;
+                  if (cIdx >= 0) {
+                    const existing = sec.cards[cIdx];
+                    // Only update DOM if server state differs from current local state
+                    if (!this.isWidgetEqual(existing, res.widget)) {
+                      sec.cards[cIdx] = res.widget;
+                      this.updateCardElementInDom(res.widget);
+                    }
+                  }
                 }
               });
-              this.updateCardElementInDom(res.widget);
             }
           }
         }
       } catch (err) {
         console.warn(`[Client Trigger] Server trigger dispatch error for ${card.id}:`, err);
+        throw err;
       }
     }
 
@@ -2014,11 +2037,20 @@ const dashboardView = {
           const willBeOn = !isCurrentlyOn;
           const triggerName = willBeOn ? 'onToggleOn' : 'onToggleOff';
 
-          const proceed = await this.executeTrigger(card, triggerName, { state: willBeOn ? 'on' : 'off' });
-          if (proceed !== false) {
-            card.state = willBeOn ? 'on' : 'off';
+          // 1. Check confirmation prompt synchronously if configured
+          const confirmed = this.checkConfirmationPrompt(card, triggerName, { state: willBeOn ? 'on' : 'off' });
+          if (!confirmed) return;
+
+          // 2. Optimistic UI update locally immediately (0ms delay)
+          card.state = willBeOn ? 'on' : 'off';
+          this.updateCardElementInDom(card);
+
+          // 3. Dispatch to server in background (revert only if server rejects or fails)
+          this.executeTrigger(card, triggerName, { state: card.state }, true).catch(err => {
+            console.warn('[Optimistic UI] Toggle trigger error, reverting:', err);
+            card.state = isCurrentlyOn ? 'on' : 'off';
             this.updateCardElementInDom(card);
-          }
+          });
         });
       }
     }
@@ -2068,9 +2100,18 @@ const dashboardView = {
           if (!isDragging) return;
           isDragging = false;
           const res = updateSliderFromEvent(evt);
+          const prevVal = card.value;
+
+          // 1. Optimistic UI update locally immediately
           card.value = res.calcVal;
           this.updateCardElementInDom(card);
-          this.executeTrigger(card, 'onChange', { value: res.calcVal, val: res.calcVal });
+
+          // 2. Dispatch to server in background (revert only if server rejects or fails)
+          this.executeTrigger(card, 'onChange', { value: res.calcVal, val: res.calcVal }).catch(err => {
+            console.warn('[Optimistic UI] Slider trigger error, reverting:', err);
+            card.value = prevVal;
+            this.updateCardElementInDom(card);
+          });
         };
 
         const onStart = (e) => {
@@ -2111,7 +2152,6 @@ const dashboardView = {
     if (p.type === 'stepper') {
       const btnDown = cardEl.querySelector('.btn-step-down');
       const btnUp = cardEl.querySelector('.btn-step-up');
-      const stateEl = cardEl.querySelector('.stepper-val');
 
       const handleStep = (delta) => {
         if (this.isEditMode || !p.enabled) return;
@@ -2120,10 +2160,22 @@ const dashboardView = {
         const max = Number(p.max) || 99999;
         const currentVal = Number(card.value !== undefined ? card.value : 0);
         const nextVal = Math.max(min, Math.min(max, Math.round((currentVal + (delta * step)) * 100) / 100));
+        const prevVal = card.value;
 
+        // 1. Check confirmation prompt synchronously if configured
+        const confirmed = this.checkConfirmationPrompt(card, 'onChange', { value: nextVal });
+        if (!confirmed) return;
+
+        // 2. Optimistic UI update locally immediately (0ms delay)
         card.value = nextVal;
         this.updateCardElementInDom(card);
-        this.executeTrigger(card, 'onChange', { value: nextVal });
+
+        // 3. Dispatch to server in background (revert only if server rejects or fails)
+        this.executeTrigger(card, 'onChange', { value: nextVal }, true).catch(err => {
+          console.warn('[Optimistic UI] Stepper trigger error, reverting:', err);
+          card.value = prevVal;
+          this.updateCardElementInDom(card);
+        });
       };
 
       if (btnDown) btnDown.addEventListener('click', (e) => { e.stopPropagation(); handleStep(-1); });
