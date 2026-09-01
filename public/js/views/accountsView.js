@@ -139,7 +139,6 @@ const accountsView = {
         if (confirm(`Are you sure you want to reject registration for @${username}?`)) {
           try {
             await api.accounts.rejectPending(id);
-            helpers.showToast('Registration request rejected.', 'info');
             this.loadAccounts();
           } catch (err) {
             helpers.showToast(err.message || 'Rejection failed', 'error');

@@ -311,7 +311,7 @@ const dashboardView = {
     if (!window.app || !window.app.user) return false;
     if (window.app.user.isAdmin) return true;
     return typeof window.app.hasPermission === 'function' && (
-      window.app.hasPermission('dashboards', 'access_nav') || 
+      window.app.hasPermission('dashboards', 'access_nav') ||
       window.app.hasPermission('dashboards', 'manage_dashboards')
     );
   },
@@ -817,7 +817,7 @@ const dashboardView = {
         if (typeof expr === 'string' && expr.includes('${')) {
           return this.evalTemplateString(expr, { widget, data });
         }
-      } catch (e2) {}
+      } catch (e2) { }
     }
     return fallback !== null ? fallback : expr;
   },
@@ -1533,7 +1533,7 @@ const dashboardView = {
     if (!card) return true;
     const automations = this.normalizeAutomations(card.automations || card.pipelines);
     const matchingRules = automations.filter(a => a.enabled !== false && a.trigger && a.trigger.type === triggerName);
-    
+
     if (matchingRules.length > 0) {
       const normalizedData = this.normalizePayload(payloadData);
       const evalContext = { widget: { ...card }, data: normalizedData };
@@ -1923,7 +1923,6 @@ const dashboardView = {
               badges: current.badges || [],
               sections: current.sections || []
             });
-            helpers.showToast('Card moved', 'info');
           } catch (err) {
             console.error('Failed to save card position:', err);
           }
@@ -1976,7 +1975,6 @@ const dashboardView = {
               badges: current.badges || [],
               sections: current.sections || []
             });
-            helpers.showToast('Badge reordered', 'info');
           } catch (err) {
             console.error('Failed to save badge order:', err);
           }
@@ -3138,7 +3136,7 @@ const dashboardView = {
 
     if (!this.macroSortableInstances) this.macroSortableInstances = [];
     this.macroSortableInstances.forEach(inst => {
-      try { inst.destroy(); } catch (e) {}
+      try { inst.destroy(); } catch (e) { }
     });
     this.macroSortableInstances = [];
 

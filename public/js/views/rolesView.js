@@ -99,7 +99,6 @@ const rolesView = {
           try {
             const res = await api.roles.reorder(newOrderedIds);
             this.roles = res.roles;
-            helpers.showToast('Role hierarchy updated!', 'success');
             this.renderHierarchyList();
             this.renderRoleEditor();
           } catch (err) {
@@ -143,7 +142,7 @@ const rolesView = {
     if (this.registry && this.metadata) {
       for (const [moduleKey, actions] of Object.entries(this.registry)) {
         const meta = this.metadata[moduleKey] || { label: moduleKey, description: '' };
-        
+
         let itemsHtml = '';
         actions.forEach(action => {
           const permKey = `${moduleKey}.${action}`;

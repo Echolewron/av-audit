@@ -259,7 +259,6 @@ const templatesView = {
         if (subMethod) subMethod.value = 'POST';
         if (hookLabel) hookLabel.textContent = 'On-Submit Webhook';
         if (drawer) drawer.style.display = 'none';
-        helpers.showToast('Submission webhook removed.', 'info');
       });
     }
 
@@ -290,7 +289,6 @@ const templatesView = {
         const container = document.getElementById('relevance-rules-container');
         if (container) container.innerHTML = '';
         this.updateRelevanceButtonBadge();
-        helpers.showToast('All alarm rules cleared.', 'info');
       });
     }
 
@@ -392,7 +390,6 @@ const templatesView = {
           this.activeSheetTargetNode.dataset.optional = (!isCurrentlyOptional).toString();
           this.updateNodeShape(this.activeSheetTargetNode);
           this.closeActionSheet();
-          helpers.showToast(!isCurrentlyOptional ? 'Task marked as optional ⬠' : 'Task marked as required ○', 'info');
         }
       });
     }
@@ -450,7 +447,7 @@ const templatesView = {
     let days = [];
     try {
       if (node.dataset.days) days = JSON.parse(node.dataset.days);
-    } catch (_) {}
+    } catch (_) { }
     const daysLabelEl = document.getElementById('sheet-label-days');
     if (daysLabelEl) {
       daysLabelEl.textContent = (Array.isArray(days) && days.length > 0)
@@ -885,8 +882,8 @@ const templatesView = {
 
     if (btnOpt) {
       btnOpt.classList.toggle('is-optional', isOptional);
-      btnOpt.innerHTML = isOptional 
-        ? '<span class="btn-icon">⬠</span><span class="btn-text">Optional</span>' 
+      btnOpt.innerHTML = isOptional
+        ? '<span class="btn-icon">⬠</span><span class="btn-text">Optional</span>'
         : '<span class="btn-icon">⬠</span><span class="btn-text">Req</span>';
       btnOpt.title = isOptional ? 'Marked as Optional (Click to make Required)' : 'Marked as Required (Click to make Optional)';
     }
@@ -1135,7 +1132,7 @@ const templatesView = {
       let currentDays = [];
       try {
         if (section.dataset.days) currentDays = JSON.parse(section.dataset.days);
-      } catch (_) {}
+      } catch (_) { }
       if (!Array.isArray(currentDays)) currentDays = [];
 
       const hasAny = currentDays.length > 0;
@@ -1187,7 +1184,6 @@ const templatesView = {
         section.dataset.days = JSON.stringify([]);
         updateSectionDaysUi();
         if (!this.isUndoingRedoing) this.pushHistoryState();
-        helpers.showToast('Section set to be visible every day.', 'info');
       });
     }
 
@@ -1197,7 +1193,7 @@ const templatesView = {
         let currentDays = [];
         try {
           if (section.dataset.days) currentDays = JSON.parse(section.dataset.days);
-        } catch (_) {}
+        } catch (_) { }
         if (!Array.isArray(currentDays)) currentDays = [];
 
         if (currentDays.includes(d)) {
@@ -1246,7 +1242,6 @@ const templatesView = {
       section.querySelector('.btn-section-opt-label').textContent = newOpt ? 'Optional' : 'Required';
       this.updateAllSectionTaskShapes(section);
       if (!this.isUndoingRedoing) this.pushHistoryState();
-      helpers.showToast(newOpt ? 'Section and all enclosed tasks set to Optional ⬠' : 'Section and enclosed tasks set to Required ○', 'info');
     });
 
     // Delete Section
@@ -1513,7 +1508,6 @@ const templatesView = {
         node.dataset.optional = (!isCurrentOpt).toString();
         this.updateNodeShape(node);
         if (!this.isUndoingRedoing) this.pushHistoryState();
-        helpers.showToast(!isCurrentOpt ? 'Task marked as optional ⬠' : 'Task marked as required ○', 'info');
       });
     }
 
@@ -1545,7 +1539,6 @@ const templatesView = {
         this.updateNodeShape(node);
         autoDrawer.style.display = 'none';
         if (!this.isUndoingRedoing) this.pushHistoryState();
-        helpers.showToast('Task webhook removed.', 'info');
       });
     }
 
@@ -1575,7 +1568,7 @@ const templatesView = {
       let currentDays = [];
       try {
         if (node.dataset.days) currentDays = JSON.parse(node.dataset.days);
-      } catch (_) {}
+      } catch (_) { }
       if (!Array.isArray(currentDays)) currentDays = [];
 
       const hasAny = currentDays.length > 0;
@@ -1621,7 +1614,6 @@ const templatesView = {
         node.dataset.days = JSON.stringify([]);
         updateDaysUi();
         if (!this.isUndoingRedoing) this.pushHistoryState();
-        helpers.showToast('Task set to be visible every day.', 'info');
       });
     }
 
@@ -1631,7 +1623,7 @@ const templatesView = {
         let currentDays = [];
         try {
           if (node.dataset.days) currentDays = JSON.parse(node.dataset.days);
-        } catch (_) {}
+        } catch (_) { }
         if (!Array.isArray(currentDays)) currentDays = [];
 
         if (currentDays.includes(d)) {
@@ -2042,7 +2034,7 @@ const templatesView = {
 
     const descInput = node.querySelector(':scope > .todoist-task-row .tmpl-item-desc');
     const description = descInput ? this.decodeEntities(descInput.value.trim()) : '';
-    
+
     const autoUrlInput = node.querySelector(':scope > .tmpl-automation-drawer .tmpl-auto-url');
     const autoUrl = autoUrlInput ? autoUrlInput.value.trim() : '';
 
@@ -2075,7 +2067,7 @@ const templatesView = {
     let days = [];
     try {
       if (node.dataset.days) days = JSON.parse(node.dataset.days);
-    } catch (_) {}
+    } catch (_) { }
     if (!Array.isArray(days)) days = [];
 
     return {
@@ -2105,9 +2097,9 @@ const templatesView = {
         let secDays = [];
         try {
           if (node.dataset.days) secDays = JSON.parse(node.dataset.days);
-        } catch (_) {}
+        } catch (_) { }
         if (!Array.isArray(secDays)) secDays = [];
-        
+
         const secTasks = [];
         const tasksContainer = node.querySelector('.tmpl-section-tasks');
         if (tasksContainer) {

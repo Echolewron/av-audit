@@ -115,7 +115,6 @@ const authView = {
           const res = await api.auth.login(username, password);
           sessionStorage.removeItem('av_pending_username');
           sessionStorage.removeItem('av_pending_user');
-          helpers.showToast(`Welcome back, ${res.user.username}!`, 'success');
           formLogin.reset();
           this.hideAuthPage();
           await window.app.loadCurrentUser();
@@ -171,7 +170,6 @@ const authView = {
           const res = await api.auth.register(username, password);
           sessionStorage.setItem('av_pending_username', username);
           sessionStorage.setItem('av_pending_user', JSON.stringify({ username, status: 'PENDING' }));
-          helpers.showToast(res.message, 'success');
           formRegister.reset();
           this.hideAuthPage();
           window.app.showPendingView({ username, status: 'PENDING' });
@@ -194,7 +192,6 @@ const authView = {
           await api.auth.logout();
           sessionStorage.removeItem('av_pending_username');
           sessionStorage.removeItem('av_pending_user');
-          helpers.showToast('Logged out successfully.', 'info');
           this.currentUser = null;
           this.showAuthPage();
         } catch (err) {
@@ -212,7 +209,7 @@ const authView = {
         sessionStorage.removeItem('av_pending_user');
         try {
           await api.auth.logout();
-        } catch (_) {}
+        } catch (_) { }
         this.showAuthPage();
       });
     }

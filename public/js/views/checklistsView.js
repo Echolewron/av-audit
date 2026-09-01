@@ -421,7 +421,6 @@ const checklistsView = {
 
     try {
       const res = await api.checklists.create(templateId);
-      helpers.showToast('Checklist instantiated successfully!', 'success');
       helpers.closeModal('modal-new-checklist');
       this.loadChecklists();
       this.openExecutionView(res.checklist.id);
@@ -1277,7 +1276,6 @@ const checklistsView = {
 
     this.updateTaskDomIssueState(itemId, hasIssue, issueNote);
     this.updateHeaderProgressMetrics();
-    helpers.showToast(hasIssue ? 'Task marked as Blocked/Issue' : 'Issue cleared.', hasIssue ? 'warning' : 'success');
 
     api.checklists.updateNotes(this.currentChecklist.id, itemId, hasIssue, issueNote)
       .then(res => {
@@ -1315,7 +1313,6 @@ const checklistsView = {
 
     updateNode(this.currentChecklist.items);
     this.updateTaskDomIssueState(itemId, hasIssue, note);
-    helpers.showToast('Note saved', 'info');
 
     api.checklists.updateNotes(this.currentChecklist.id, itemId, undefined, note)
       .then(res => {
