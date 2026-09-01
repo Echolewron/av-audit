@@ -1,0 +1,1251 @@
+const fs = require('fs');
+const path = require('path');
+const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
+const { DATA_DIR, DEFAULT_LOG_RETENTION_DAYS, DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD } = require('../config/config');
+const { getAllPermissionKeys } = require('../config/permissions');
+const { formatTimeLA, formatSubmissionTimeLA, getDayKeyLA, formatDayLabelLA } = require('../utils/timezone');
+
+const DB_FILE = path.resolve(DATA_DIR, 'av_audit_db.json');
+
+// In-memory state with atomic persistence
+let dbState = {
+  users: [],
+  roles: [],
+  templates: [],
+  checklists: [],
+  dashboards: [],
+  audit_logs: [],
+  sessions: [],
+  info_state: {},
+  settings: {
+    retention_days: DEFAULT_LOG_RETENTION_DAYS
+  }
+};
+
+let isSaving = false;
+let pendingSave = false;
+
+// Ensure data directory exists
+if (!fs.existsSync(DATA_DIR)) {
+  fs.mkdirSync(DATA_DIR, { recursive: true });
+}
+
+// Atomic save to disk
+function saveDb() {
+  if (isSaving) {
+    pendingSave = true;
+    return;
+  }
+  isSaving = true;
+  
+  const tmpFile = `${DB_FILE}.tmp.${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+  const data = JSON.stringify(dbState, null, 2);
+  
+  try {
+    fs.writeFileSync(tmpFile, data, 'utf-8');
+    if (fs.existsSync(tmpFile)) {
+      try {
+        fs.renameSync(tmpFile, DB_FILE);
+      } catch (renameErr) {
+        if (['EPERM', 'EBUSY', 'EACCES', 'ENOENT'].includes(renameErr.code)) {
+          try {
+            fs.copyFileSync(tmpFile, DB_FILE);
+            try { fs.unlinkSync(tmpFile); } catch (_) {}
+          } catch (_) {
+            fs.writeFileSync(DB_FILE, data, 'utf-8');
+            try { fs.unlinkSync(tmpFile); } catch (_) {}
+          }
+        } else {
+          fs.writeFileSync(DB_FILE, data, 'utf-8');
+          try { fs.unlinkSync(tmpFile); } catch (_) {}
+        }
+      }
+    }
+  } catch (err) {
+    try {
+      fs.writeFileSync(DB_FILE, data, 'utf-8');
+    } catch (directErr) {
+      console.error('Error persisting database to disk:', directErr);
+    }
+    try {
+      if (fs.existsSync(tmpFile)) fs.unlinkSync(tmpFile);
+    } catch (_) {}
+  } finally {
+    isSaving = false;
+    if (pendingSave) {
+      pendingSave = false;
+      saveDb();
+    }
+  }
+}
+
+function getDefaultDashboardSections() {
+  return [
+    {
+      id: 'sec_audio_matrix',
+      title: 'Audio Matrix & Rigging',
+      icon: '🎙️',
+      subtitle: 'FOH console, wireless mics, DSP routing',
+      cards: [
+        {
+          id: 'card_lead_vocal_mic',
+          type: 'button',
+          label: 'Lead Vocal Wireless RF',
+          subtitle: 'Shure Axient Digital AD4Q',
+          icon: '🎤',
+          color: '#10b981',
+          enabled: true,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onTap: [
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"mic": "Lead Vocal", "rf_check": true}' }
+            ],
+            onInfo: {
+              key: 'audio/mic1',
+              actions: [
+                { type: 'set_property', property: 'subtitle', value: '(data.active ? "Active" : "Muted") + " • " + (data.gain || "-18dB")' }
+              ]
+            }
+          }
+        },
+        {
+          id: 'card_pa_mute_toggle',
+          type: 'toggle',
+          label: 'Main PA Stage Un-Mute',
+          subtitle: 'd&b audiotechnik Line Array',
+          icon: '🔊',
+          color: '#10b981',
+          enabled: true,
+          state: 'on',
+          cols: 6,
+          rows: 1,
+          automations: {
+            onToggleOn: [
+              { type: 'set_property', property: 'state', value: '"on"' },
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"action": "pa_unmute", "state": true}' }
+            ],
+            onToggleOff: [
+              { type: 'set_property', property: 'state', value: '"off"' },
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"action": "pa_mute", "state": false}' }
+            ]
+          }
+        },
+        {
+          id: 'card_master_fader',
+          type: 'slider',
+          label: 'FOH Master Line Level',
+          subtitle: 'Dante Output Bus 1-2',
+          icon: '🎚️',
+          color: '#f59e0b',
+          enabled: true,
+          value: 78,
+          min: 0,
+          max: 100,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onChange: [
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"event": "fader_change", "level": "${widget.value}"}' }
+            ]
+          }
+        },
+        {
+          id: 'card_dsp_preset',
+          type: 'stepper',
+          label: 'DSP Room EQ Preset',
+          subtitle: 'BSS Soundweb London BLU-806',
+          icon: '🎛️',
+          color: '#a855f7',
+          enabled: true,
+          value: 3,
+          min: 1,
+          max: 8,
+          step_value: 1,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onChange: [
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"preset": "${widget.value}"}' }
+            ]
+          }
+        },
+        {
+          id: 'card_dsp_headroom',
+          type: 'gauge',
+          label: 'Stage DSP Headroom',
+          subtitle: 'Peak limiter margin',
+          icon: '📊',
+          color: '#38bdf8',
+          enabled: true,
+          value: 88,
+          min: 0,
+          max: 100,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onInfo: {
+              key: 'audio/dsp_headroom',
+              actions: [
+                { type: 'set_property', property: 'value', value: 'data.headroom !== undefined ? data.headroom : 88' }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      id: 'sec_broadcast_video',
+      title: 'Broadcast Video Wall & Encoders',
+      icon: '📺',
+      subtitle: 'ATEM switchers, playout servers & streamers',
+      cards: [
+        {
+          id: 'card_proj_lamp',
+          type: 'progress',
+          label: 'Projector Lamp Hours',
+          subtitle: 'Christie Boxer 4K30 Laser',
+          icon: '📽️',
+          color: '#f59e0b',
+          enabled: true,
+          value: 71,
+          min: 0,
+          max: 100,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onTap: []
+          }
+        },
+        {
+          id: 'card_stream_toggle',
+          type: 'toggle',
+          label: 'Primary RTMP Live Stream',
+          subtitle: 'Haivision Makito X4 to CDN',
+          icon: '📡',
+          color: '#f85149',
+          enabled: true,
+          state: 'off',
+          cols: 6,
+          rows: 1,
+          automations: {
+            onToggleOn: [
+              { type: 'set_property', property: 'state', value: '"on"' },
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"stream": "LIVE", "bitrate": 6500}' }
+            ],
+            onToggleOff: [
+              { type: 'set_property', property: 'state', value: '"off"' },
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"stream": "STOPPED"}' }
+            ]
+          }
+        },
+        {
+          id: 'card_foh_temp',
+          type: 'graph',
+          label: 'FOH Rack Temperature',
+          subtitle: 'Server Room Ambient Thermostat',
+          icon: '🌡️',
+          color: '#38bdf8',
+          enabled: true,
+          data: [19.5, 20.1, 20.8, 21.2, 21.4],
+          display: '21.4 °C',
+          new_data: 21.4,
+          graph_length: 20,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onInfo: {
+              key: 'env/foh_temp',
+              actions: [
+                { type: 'set_property', property: 'display', value: '(data.temp !== undefined ? data.temp : 21.4) + " °C"' },
+                { type: 'set_property', property: 'new_data', value: 'data.temp !== undefined ? data.temp : 21.4' }
+              ]
+            }
+          }
+        },
+        {
+          id: 'card_cam1_ccu',
+          type: 'button',
+          label: 'Studio Cam 1 SDI Lock',
+          subtitle: '1080p60 • Genlocked',
+          icon: '🎥',
+          color: '#10b981',
+          enabled: true,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onTap: [
+              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"camera": "Cam 1", "ping": true}' }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      id: 'sec_power_infra',
+      title: 'Stage Power & Ingestion Telemetry',
+      icon: '⚡',
+      subtitle: 'Distro, UPS and real-time ingest receivers',
+      cards: [
+        {
+          id: 'card_tablet_stage_left',
+          type: 'gauge',
+          label: 'Stage Left Tablet Battery',
+          subtitle: 'iPad Pro Audio Controller',
+          icon: '📱',
+          color: '#10b981',
+          enabled: true,
+          value: 84,
+          min: 0,
+          max: 100,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onInfo: {
+              key: 'tablets/stage_left',
+              actions: [
+                { type: 'set_property', property: 'value', value: 'data.battery !== undefined ? data.battery : 84' },
+                { type: 'set_property', property: 'subtitle', value: '"Battery: " + (data.battery || 84) + "%" + (data.charging ? " ⚡" : "")' },
+                { type: 'condition', expression: 'data.battery < 20' },
+                { type: 'set_property', property: 'color', value: '"#ef4444"' }
+              ]
+            },
+            onConditionFailed: [
+              { type: 'set_property', property: 'color', value: '"#10b981"' }
+            ]
+          }
+        },
+        {
+          id: 'card_power_mains',
+          type: 'graph',
+          label: '3-Phase Camlock Mains Feed',
+          subtitle: '400A Stage Distribution Panel',
+          icon: '⚡',
+          color: '#f59e0b',
+          enabled: true,
+          data: [120.1, 120.3, 120.2, 120.5, 120.4],
+          display: '120.4 V',
+          new_data: 120.4,
+          graph_length: 20,
+          cols: 6,
+          rows: 1,
+          automations: {
+            onInfo: {
+              key: 'power/mains',
+              actions: [
+                { type: 'set_property', property: 'display', value: '(data.voltage !== undefined ? data.voltage : 120.4) + " V"' },
+                { type: 'set_property', property: 'new_data', value: 'data.voltage !== undefined ? data.voltage : 120.4' }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ];
+}
+
+function getDefaultDashboardBadges() {
+  return [
+    {
+      id: 'badge_dsp_temp',
+      title: 'DSP Temp',
+      icon: '🌡️',
+      infoKey: 'audio/dsp_main',
+      infoExpr: "(data.temp !== undefined ? data.temp : 42.5) + ' °C'",
+      colorExpr: 'data.temp > 70 ? "red" : "green"',
+      fallbackText: '42.5 °C'
+    },
+    {
+      id: 'badge_mains_voltage',
+      title: 'Mains Voltage',
+      icon: '⚡',
+      infoKey: 'power/mains',
+      infoExpr: "(data.voltage !== undefined ? data.voltage : 120.4) + ' V'",
+      colorExpr: 'data.voltage < 110 ? "amber" : "green"',
+      fallbackText: '120.4 V'
+    },
+    {
+      id: 'badge_stage_tablet',
+      title: 'Stage Left Tablet',
+      icon: '📱',
+      infoKey: 'tablets/stage_left',
+      infoExpr: "(data.battery !== undefined ? data.battery : 84) + '%' + (data.charging ? ' ⚡' : '')",
+      colorExpr: '(data.battery !== undefined ? data.battery : 84) < 20 ? "red" : ((data.battery !== undefined ? data.battery : 84) < 50 ? "amber" : "green")',
+      fallbackText: '84% ⚡'
+    },
+    {
+      id: 'badge_dante_clock',
+      title: 'Dante Clock',
+      icon: '📶',
+      infoKey: 'dante/clock',
+      infoExpr: "data.locked !== false ? 'Locked 48kHz' : 'Unlocked ⚠️'",
+      colorExpr: 'data.locked !== false ? "green" : "red"',
+      fallbackText: 'Locked 48kHz'
+    }
+  ];
+}
+
+// Initialize database and seed defaults if empty
+function initDb() {
+  if (fs.existsSync(DB_FILE)) {
+    try {
+      const content = fs.readFileSync(DB_FILE, 'utf-8');
+      const loaded = JSON.parse(content);
+      dbState = {
+        users: loaded.users || [],
+        roles: loaded.roles || [],
+        templates: loaded.templates || [],
+        checklists: loaded.checklists || [],
+        dashboards: loaded.dashboards || [],
+        audit_logs: loaded.audit_logs || [],
+        sessions: loaded.sessions || [],
+        info_state: loaded.info_state || {},
+        settings: Object.assign({ retention_days: DEFAULT_LOG_RETENTION_DAYS }, loaded.settings || {})
+      };
+      console.log(`Database loaded: ${dbState.users.length} users, ${dbState.roles.length} roles, ${dbState.dashboards.length} dashboards`);
+    } catch (e) {
+      console.error('Failed to parse existing DB file, starting fresh seed:', e);
+      seedInitialData();
+    }
+  } else {
+    seedInitialData();
+  }
+
+  // Ensure default roles, admin, and templates exist
+  if (dbState.roles.length === 0 || dbState.users.length === 0 || dbState.templates.length === 0) {
+    seedInitialData();
+  }
+
+  // Ensure default dashboard exists with rich Lovelace sections and badges
+  if (!dbState.dashboards || dbState.dashboards.length === 0) {
+    dbState.dashboards = [
+      {
+        id: 'dash_default_main',
+        name: 'Main Stage Flight Control',
+        description: 'Comprehensive Lovelace-style AV control center and real-time telemetry',
+        color_code: '#58a6ff',
+        allowed_roles: ['*'],
+        created_by: 'system',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        badges: getDefaultDashboardBadges(),
+        sections: getDefaultDashboardSections(),
+        widgets: []
+      }
+    ];
+    saveDb();
+  } else {
+    // Ensure existing dashboards have badges and sections with normalized card schemas
+    let changed = false;
+    dbState.dashboards.forEach(d => {
+      if (!d.badges || d.badges.length === 0) {
+        d.badges = getDefaultDashboardBadges();
+        changed = true;
+      }
+      if (!d.sections || d.sections.length === 0) {
+        d.sections = getDefaultDashboardSections();
+        changed = true;
+      } else {
+        d.sections.forEach(sec => {
+          (sec.cards || []).forEach(card => {
+            if (card.type === 'tile') { card.type = 'button'; changed = true; }
+            if (card.type === 'sparkline' || card.type === 'sensor') { card.type = 'graph'; changed = true; }
+            if (card.type === 'circular_progress') { card.type = 'gauge'; changed = true; }
+            if (card.type === 'linear_progress') { card.type = 'progress'; changed = true; }
+            if (card.title && !card.label) { card.label = card.title; changed = true; }
+            if (card.accentColor && !card.color) { card.color = card.accentColor; changed = true; }
+            if (card.colSpan && !card.cols) { card.cols = card.colSpan; changed = true; }
+            if (card.rowSpan && !card.rows) { card.rows = card.rowSpan; changed = true; }
+            if (card.enabled === undefined) { card.enabled = true; changed = true; }
+          });
+        });
+      }
+    });
+    if (changed) {
+      saveDb();
+    }
+  }
+
+  // Seed default info_state if empty
+  if (!dbState.info_state || Object.keys(dbState.info_state).length === 0) {
+    dbState.info_state = {
+      'tablets/stage_left': { battery: 84, charging: true },
+      'audio/mic1': { active: true, gain: '-18dB' },
+      'audio/pa_mute': { state: 'ON' },
+      'audio/master_fader': { level: 78 },
+      'audio/preset': { preset: 3 },
+      'audio/dsp_headroom': { headroom: 88 },
+      'projectors/main': { hours: 1420 },
+      'broadcast/stream': { live: false },
+      'env/foh_temp': { temp: 21.4 },
+      'cameras/cam1': { locked: true },
+      'power/mains': { voltage: 120.4 },
+      'dante/clock': { locked: true }
+    };
+    saveDb();
+  }
+
+  // Seed default sermon_settings if missing
+  if (!dbState.sermon_settings) {
+    dbState.sermon_settings = {
+      sender_email: '',
+      sender_app_password: '',
+      receiver_email: '',
+      subject_template: '{context} Sermon {date}',
+      body_template: 'God bless you. This is the recording for the sermon delivered on {date}, "{title}."\n\n[This email was automatically generated by AV Audit Sermon Sender]',
+      retention_days: 14,
+      target_file_size_mb: 15
+    };
+    saveDb();
+  }
+
+  // Seed empty sermon_submissions array if missing
+  if (!Array.isArray(dbState.sermon_submissions)) {
+    dbState.sermon_submissions = [];
+    saveDb();
+  }
+
+  // Ensure admin role has all permissions including sermon_sender
+  const allPerms = getAllPermissionKeys();
+  const adminRole = dbState.roles.find(r => r.id === 'role_admin' || r.is_admin);
+  if (adminRole && (!adminRole.permissions || adminRole.permissions.length < allPerms.length)) {
+    adminRole.permissions = allPerms;
+    saveDb();
+  }
+
+  // Ensure default root admin user always retains admin role
+  const defaultAdminName = DEFAULT_ADMIN_USERNAME || 'admin';
+  const defaultAdminUser = dbState.users.find(u => u.username === defaultAdminName || u.id === 'user_admin_01');
+  if (defaultAdminUser && adminRole) {
+    if (!defaultAdminUser.role_ids) defaultAdminUser.role_ids = [];
+    if (!defaultAdminUser.role_ids.includes(adminRole.id)) {
+      defaultAdminUser.role_ids = [adminRole.id, ...defaultAdminUser.role_ids];
+      saveDb();
+    }
+  }
+}
+
+function seedInitialData() {
+  console.log('Seeding initial AV Audit database...');
+
+  const allPerms = getAllPermissionKeys();
+
+  // Seed Roles
+  const adminRoleId = 'role_admin';
+  const managerRoleId = 'role_manager';
+  const techRoleId = 'role_tech';
+  const viewerRoleId = 'role_viewer';
+
+  dbState.roles = [
+    {
+      id: adminRoleId,
+      name: 'Administrator',
+      color_hex: '#f85149',
+      position: 1,
+      permissions: allPerms,
+      is_default: false,
+      is_admin: true,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: managerRoleId,
+      name: 'AV Production Manager',
+      color_hex: '#a371f7',
+      position: 2,
+      permissions: [
+        'checklists.access_nav',
+        'checklists.view_active',
+        'checklists.create_active',
+        'checklists.delete_active',
+        'checklists.edit_templates',
+        'checklists.execute_automations',
+        'roles.access_nav',
+        'roles.manage_roles',
+        'accounts.access_nav',
+        'accounts.view_users',
+        'accounts.admit_pending',
+        'accounts.modify_passwords',
+        'audit.access_nav',
+        'audit.delete_logs',
+        'audit.configure_retention'
+      ],
+      is_default: false,
+      is_admin: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: techRoleId,
+      name: 'AV Lead Technician',
+      color_hex: '#18edb3',
+      position: 3,
+      permissions: [
+        'checklists.access_nav',
+        'checklists.view_active',
+        'checklists.create_active',
+        'checklists.delete_active',
+        'checklists.edit_templates',
+        'checklists.execute_automations',
+        'audit.access_nav'
+      ],
+      is_default: true, // Default role for newly approved accounts
+      is_admin: false,
+      created_at: new Date().toISOString()
+    },
+    {
+      id: viewerRoleId,
+      name: 'Auditor / Observer',
+      color_hex: '#58a6ff',
+      position: 4,
+      permissions: [
+        'checklists.access_nav',
+        'checklists.view_active'
+      ],
+      is_default: false,
+      is_admin: false,
+      created_at: new Date().toISOString()
+    }
+  ];
+
+  // Seed Admin user from config
+  const initialAdminUser = DEFAULT_ADMIN_USERNAME || 'admin';
+  const initialAdminPass = DEFAULT_ADMIN_PASSWORD || 'admin123';
+  const salt = bcrypt.genSaltSync(10);
+  const password_hash = bcrypt.hashSync(initialAdminPass, salt);
+  dbState.users = [
+    {
+      id: 'user_admin_01',
+      username: initialAdminUser,
+      password_hash,
+      role_ids: [adminRoleId],
+      status: 'ACTIVE',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+  ];
+
+  // Seed sample AV Templates
+  dbState.templates = [
+    {
+      id: 'tmpl_live_stage',
+      title: 'Main Arena Live Stage — Rigging & Audio Pre-Flight',
+      description: 'Comprehensive line check, Dante routing, wireless RF scan, PA calibration, and stage DSP un-mute verification.',
+      items: [
+        {
+          id: 'item_1',
+          title: 'Power & Main Distribution',
+          description: 'Verify 3-phase camlock feeds and secondary stage drops',
+          order: 1,
+          has_automation: false,
+          children: [
+            { id: 'item_1_1', title: 'Main 400A Disconnect switch engaged & voltage balanced (120V +/- 3V)', order: 1, children: [] },
+            { id: 'item_1_2', title: 'Stage Left & Stage Right Distro breakers energized', order: 2, children: [] },
+            { id: 'item_1_3', title: 'FOH & Amp Rack uninterruptible power supplies (UPS) online', order: 3, children: [] }
+          ]
+        },
+        {
+          id: 'item_2',
+          title: 'FOH & DSP Network Routing',
+          description: 'Primary/Secondary Gigabit Dante Network synchronization',
+          order: 2,
+          has_automation: true,
+          automation: {
+            method: 'GET',
+            url: 'https://httpbin.org/get?system=foh_dsp&status=ping',
+            headers: '{"Content-Type": "application/json", "X-AV-Network": "Dante-Primary"}',
+            body: ''
+          },
+          children: [
+            { id: 'item_2_1', title: 'Dante Controller shows all 64 channels green (0 packet drops)', order: 1, children: [] },
+            { id: 'item_2_2', title: 'FOH console clock sync locked to Master Word Clock (48kHz)', order: 2, children: [] },
+            { id: 'item_2_3', title: 'DSP Speaker Management Output Limiters verified', order: 3, children: [] }
+          ]
+        },
+        {
+          id: 'item_3',
+          title: 'Wireless RF Spectrum & Microphones',
+          description: 'Shure Axient / Sennheiser RF frequency scan and sync',
+          order: 3,
+          has_automation: false,
+          children: [
+            { id: 'item_3_1', title: 'WWB (Wireless Workbench) spectrum scan completed (no DTV interference)', order: 1, children: [] },
+            { id: 'item_3_2', title: 'Handheld 1-4 battery health > 90% and synced', order: 2, children: [] },
+            { id: 'item_3_3', title: 'Beltpack 1-4 lavalier capsules inspected & gain staged', order: 3, children: [] },
+            { id: 'item_3_4', title: 'IEM Transmitter antenna combiner RF power checked', order: 4, children: [] }
+          ]
+        },
+        {
+          id: 'item_4',
+          title: 'Stage Line Check & Talkback',
+          description: 'Point-to-point analog & digital line verification',
+          order: 4,
+          has_automation: true,
+          automation: {
+            method: 'POST',
+            url: 'https://httpbin.org/post',
+            headers: '{"Content-Type": "application/json"}',
+            body: '{"action": "stage_pink_noise_burst", "channels": ["L", "R", "SUB"]}'
+          },
+          children: [
+            { id: 'item_4_1', title: 'Lead Vocal mic phantom power +48V engaged and signal verified', order: 1, children: [] },
+            { id: 'item_4_2', title: 'Drum Kit 8-channel snake line check', order: 2, children: [] },
+            { id: 'item_4_3', title: 'FOH to Stage Manager / Monitor Engineer Intercom Clear-Com call light test', order: 3, children: [] }
+          ]
+        }
+      ],
+      created_by: 'admin',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: 'tmpl_broadcast_studio',
+      title: 'Broadcast Studio A — Morning Transmission Pre-Flight',
+      description: 'SDI Video switchers, multi-viewer video wall, NDI graphics engines, tally lights, and streaming encoder health check.',
+      items: [
+        {
+          id: 'b_item_1',
+          title: 'Video Switcher & Frame Synchronizers',
+          description: 'Blackmagic ATEM / Grass Valley 4K Production Switcher',
+          order: 1,
+          has_automation: true,
+          automation: {
+            method: 'GET',
+            url: 'https://httpbin.org/status/200',
+            headers: '{"Accept": "application/json"}',
+            body: ''
+          },
+          children: [
+            { id: 'b_item_1_1', title: 'Studio Cameras 1, 2, 3 SDI Genlock locked', order: 1, children: [] },
+            { id: 'b_item_1_2', title: 'CCU Color balance & white balance matched at 5600K', order: 2, children: [] },
+            { id: 'b_item_1_3', title: 'Program & Preview Multi-Viewer layout routed to FOH Wall', order: 3, children: [] }
+          ]
+        },
+        {
+          id: 'b_item_2',
+          title: 'Graphics & Lower Thirds Playout',
+          description: 'CasparCG / Vizrt NDI stream verification',
+          order: 2,
+          has_automation: false,
+          children: [
+            { id: 'b_item_2_1', title: 'Alpha Channel keying verified on Overlays 1 & 2', order: 1, children: [] },
+            { id: 'b_item_2_2', title: 'Ticker RSS data feed updating live', order: 2, children: [] }
+          ]
+        },
+        {
+          id: 'b_item_3',
+          title: 'Primary & Backup RTMP/SRT Encoders',
+          description: 'Redundant hardware encoders transmission to CDN',
+          order: 3,
+          has_automation: true,
+          automation: {
+            method: 'POST',
+            url: 'https://httpbin.org/post',
+            headers: '{"Content-Type": "application/json"}',
+            body: '{"event": "encoder_health_check", "bitrate_kbps": 6500, "fps": 60}'
+          },
+          children: [
+            { id: 'b_item_3_1', title: 'Primary Encoder 1080p60 6500kbps bitrate stable', order: 1, children: [] },
+            { id: 'b_item_3_2', title: 'Secondary Failover Encoder locked on SRT listener', order: 2, children: [] },
+            { id: 'b_item_3_3', title: 'Local ProRes Master recording initialized to NVMe storage', order: 3, children: [] }
+          ]
+        }
+      ],
+      created_by: 'admin',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }
+  ];
+
+  // Seed initial audit log
+  const now = new Date();
+  dbState.audit_logs = [
+    {
+      id: 'log_seed_01',
+      user_id: 'user_admin_01',
+      username: 'admin',
+      action_type: 'AUTH',
+      action_name: 'SYSTEM_INITIALIZATION',
+      details: { message: 'AV Audit platform initialized with default roles and security policies.' },
+      ip_address: '127.0.0.1',
+      timestamp: now.toISOString(),
+      day_key_la: getDayKeyLA(now),
+      formatted_time_la: formatTimeLA(now)
+    }
+  ];
+
+  saveDb();
+}
+
+// Database helper operations
+const db = {
+  // Direct state access
+  get: () => dbState,
+  save: saveDb,
+
+  // Users
+  users: {
+    findAll: () => dbState.users,
+    findById: (id) => dbState.users.find(u => u.id === id),
+    findByUsername: (username) => dbState.users.find(u => u.username.toLowerCase() === username.toLowerCase()),
+    create: (user) => {
+      user.id = user.id || `user_${uuidv4()}`;
+      user.created_at = user.created_at || new Date().toISOString();
+      user.updated_at = new Date().toISOString();
+      dbState.users.push(user);
+      saveDb();
+      return user;
+    },
+    update: (id, updates) => {
+      const idx = dbState.users.findIndex(u => u.id === id);
+      if (idx === -1) return null;
+      dbState.users[idx] = Object.assign({}, dbState.users[idx], updates, { updated_at: new Date().toISOString() });
+      saveDb();
+      return dbState.users[idx];
+    },
+    delete: (id) => {
+      const idx = dbState.users.findIndex(u => u.id === id);
+      if (idx === -1) return false;
+      dbState.users.splice(idx, 1);
+      saveDb();
+      return true;
+    }
+  },
+
+  // Roles
+  roles: {
+    findAll: () => [...dbState.roles].sort((a, b) => a.position - b.position),
+    findById: (id) => dbState.roles.find(r => r.id === id),
+    findDefaultRole: () => dbState.roles.find(r => r.is_default) || dbState.roles[dbState.roles.length - 1],
+    create: (role) => {
+      role.id = role.id || `role_${uuidv4()}`;
+      role.created_at = role.created_at || new Date().toISOString();
+      dbState.roles.push(role);
+      // Sort positions
+      dbState.roles.sort((a, b) => a.position - b.position);
+      saveDb();
+      return role;
+    },
+    update: (id, updates) => {
+      const idx = dbState.roles.findIndex(r => r.id === id);
+      if (idx === -1) return null;
+      dbState.roles[idx] = Object.assign({}, dbState.roles[idx], updates);
+      dbState.roles.sort((a, b) => a.position - b.position);
+      saveDb();
+      return dbState.roles[idx];
+    },
+    delete: (id) => {
+      const idx = dbState.roles.findIndex(r => r.id === id);
+      if (idx === -1) return false;
+      dbState.roles.splice(idx, 1);
+      // Re-index positions
+      dbState.roles.forEach((r, i) => { r.position = i + 1; });
+      saveDb();
+      return true;
+    },
+    reorder: (roleIdList) => {
+      // roleIdList is array of role IDs ordered from highest (pos 1) to lowest
+      roleIdList.forEach((id, index) => {
+        const role = dbState.roles.find(r => r.id === id);
+        if (role) {
+          role.position = index + 1;
+        }
+      });
+      dbState.roles.sort((a, b) => a.position - b.position);
+      saveDb();
+      return [...dbState.roles];
+    }
+  },
+
+  // Templates
+  templates: {
+    findAll: () => dbState.templates,
+    findById: (id) => dbState.templates.find(t => t.id === id),
+    create: (tmpl) => {
+      tmpl.id = tmpl.id || `tmpl_${uuidv4()}`;
+      tmpl.created_at = tmpl.created_at || new Date().toISOString();
+      tmpl.updated_at = new Date().toISOString();
+      dbState.templates.push(tmpl);
+      saveDb();
+      return tmpl;
+    },
+    update: (id, updates) => {
+      const idx = dbState.templates.findIndex(t => t.id === id);
+      if (idx === -1) return null;
+      dbState.templates[idx] = Object.assign({}, dbState.templates[idx], updates, { updated_at: new Date().toISOString() });
+      saveDb();
+      return dbState.templates[idx];
+    },
+    delete: (id) => {
+      const idx = dbState.templates.findIndex(t => t.id === id);
+      if (idx === -1) return false;
+      dbState.templates.splice(idx, 1);
+      saveDb();
+      return true;
+    },
+    deleteAll: () => {
+      const count = dbState.templates.length;
+      dbState.templates = [];
+      saveDb();
+      return count;
+    }
+  },
+
+  // Checklists (Active and Submitted instances)
+  checklists: {
+    findAll: () => dbState.checklists,
+    findById: (id) => dbState.checklists.find(c => c.id === id),
+    create: (chk) => {
+      chk.id = chk.id || `chk_${uuidv4()}`;
+      chk.created_at = chk.created_at || new Date().toISOString();
+      chk.status = chk.status || 'IN_PROGRESS';
+      chk.progress = chk.progress || 0;
+      dbState.checklists.push(chk);
+      saveDb();
+      return chk;
+    },
+    update: (id, updates) => {
+      const idx = dbState.checklists.findIndex(c => c.id === id);
+      if (idx === -1) return null;
+      dbState.checklists[idx] = Object.assign({}, dbState.checklists[idx], updates);
+      saveDb();
+      return dbState.checklists[idx];
+    },
+    delete: (id) => {
+      const idx = dbState.checklists.findIndex(c => c.id === id);
+      if (idx === -1) return false;
+      dbState.checklists.splice(idx, 1);
+      saveDb();
+      return true;
+    },
+    deleteAll: () => {
+      const count = dbState.checklists.length;
+      dbState.checklists = [];
+      saveDb();
+      return count;
+    },
+    purgeSubmittedExpired: () => {
+      const now = new Date().getTime();
+      const beforeCount = dbState.checklists.length;
+      dbState.checklists = dbState.checklists.filter(chk => {
+        if (chk.status === 'SUBMITTED' && chk.purge_at) {
+          const purgeTime = new Date(chk.purge_at).getTime();
+          return now < purgeTime;
+        }
+        return true;
+      });
+      if (dbState.checklists.length !== beforeCount) {
+        saveDb();
+        console.log(`Purged ${beforeCount - dbState.checklists.length} expired submitted checklists.`);
+      }
+    }
+  },
+
+  // Audit Logs
+  audit: {
+    findAll: () => dbState.audit_logs,
+    log: ({ userId, username, actionType, actionName, details, ipAddress }) => {
+      const now = new Date();
+      const entry = {
+        id: `log_${uuidv4()}`,
+        user_id: userId || 'system',
+        username: username || 'System',
+        action_type: actionType || 'GENERAL',
+        action_name: actionName || 'UNKNOWN',
+        details: details || {},
+        ip_address: ipAddress || '127.0.0.1',
+        timestamp: now.toISOString(),
+        day_key_la: getDayKeyLA(now),
+        formatted_time_la: formatTimeLA(now)
+      };
+      dbState.audit_logs.unshift(entry); // newest first
+      saveDb();
+      return entry;
+    },
+    purgeRetention: (days) => {
+      const cutoffDays = days !== undefined ? days : (dbState.settings.retention_days || DEFAULT_LOG_RETENTION_DAYS);
+      const cutoffTime = Date.now() - (cutoffDays * 24 * 60 * 60 * 1000);
+      const beforeCount = dbState.audit_logs.length;
+      dbState.audit_logs = dbState.audit_logs.filter(log => {
+        const logTime = new Date(log.timestamp).getTime();
+        return logTime >= cutoffTime;
+      });
+      if (dbState.audit_logs.length !== beforeCount) {
+        saveDb();
+      }
+      return beforeCount - dbState.audit_logs.length;
+    },
+    purgeToday: () => {
+      const todayKey = getDayKeyLA(new Date());
+      const beforeCount = dbState.audit_logs.length;
+      dbState.audit_logs = dbState.audit_logs.filter(log => log.day_key_la !== todayKey);
+      saveDb();
+      return beforeCount - dbState.audit_logs.length;
+    },
+    purgeAll: () => {
+      const count = dbState.audit_logs.length;
+      dbState.audit_logs = [];
+      saveDb();
+      return count;
+    }
+  },
+
+  // Sessions
+  sessions: {
+    create: (userId, token, durationMs) => {
+      const expiresAt = new Date(Date.now() + durationMs).toISOString();
+      // Remove any existing sessions for token
+      dbState.sessions = dbState.sessions.filter(s => s.token !== token);
+      dbState.sessions.push({ token, user_id: userId, expires_at: expiresAt });
+      saveDb();
+    },
+    get: (token) => {
+      if (!token) return null;
+      const now = new Date().toISOString();
+      const sess = dbState.sessions.find(s => s.token === token && s.expires_at > now);
+      return sess || null;
+    },
+    extend: (token, durationMs) => {
+      if (!token) return null;
+      const now = new Date().toISOString();
+      const sess = dbState.sessions.find(s => s.token === token && s.expires_at > now);
+      if (!sess) return null;
+      sess.expires_at = new Date(Date.now() + durationMs).toISOString();
+      saveDb();
+      return sess;
+    },
+    delete: (token) => {
+      dbState.sessions = dbState.sessions.filter(s => s.token !== token);
+      saveDb();
+    },
+    purgeExpired: () => {
+      const now = new Date().toISOString();
+      dbState.sessions = dbState.sessions.filter(s => s.expires_at > now);
+      saveDb();
+    }
+  },
+
+  // Dashboards
+  dashboards: {
+    findAll: () => dbState.dashboards || [],
+    findById: (id) => (dbState.dashboards || []).find(d => d.id === id),
+    findForUser: (user) => {
+      const all = dbState.dashboards || [];
+      if (!user) return [];
+      if (user.isAdmin || user.is_admin) return all;
+      
+      const userRoles = Array.isArray(user.roles) 
+        ? user.roles.map(r => typeof r === 'string' ? r : r.id) 
+        : (user.role_ids || []);
+
+      return all.filter(dash => {
+        if (!dash.allowed_roles || dash.allowed_roles.includes('*')) return true;
+        return dash.allowed_roles.some(roleId => userRoles.includes(roleId));
+      });
+    },
+    create: ({ name, description, color_code, allowed_roles, created_by }) => {
+      const newDash = {
+        id: `dash_${uuidv4()}`,
+        name: (name || 'New Dashboard').trim(),
+        description: (description || '').trim(),
+        color_code: color_code || '#58a6ff',
+        allowed_roles: Array.isArray(allowed_roles) && allowed_roles.length > 0 ? allowed_roles : ['*'],
+        created_by: created_by || 'system',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        widgets: []
+      };
+      if (!dbState.dashboards) dbState.dashboards = [];
+      dbState.dashboards.push(newDash);
+      saveDb();
+      return newDash;
+    },
+    update: (id, updates) => {
+      if (!dbState.dashboards) dbState.dashboards = [];
+      const index = dbState.dashboards.findIndex(d => d.id === id);
+      if (index === -1) return null;
+      
+      const existing = dbState.dashboards[index];
+      const updated = {
+        ...existing,
+        ...updates,
+        id: existing.id,
+        created_at: existing.created_at,
+        updated_at: new Date().toISOString()
+      };
+      
+      if (updates.name !== undefined) updated.name = updates.name.trim();
+      if (updates.description !== undefined) updated.description = (updates.description || '').trim();
+      if (updates.color_code !== undefined) updated.color_code = updates.color_code;
+      if (updates.allowed_roles !== undefined) {
+        updated.allowed_roles = Array.isArray(updates.allowed_roles) && updates.allowed_roles.length > 0 ? updates.allowed_roles : ['*'];
+      }
+      if (updates.badges !== undefined) updated.badges = updates.badges;
+      if (updates.sections !== undefined) updated.sections = updates.sections;
+      if (updates.widgets !== undefined) updated.widgets = updates.widgets;
+      
+      dbState.dashboards[index] = updated;
+      saveDb();
+      return updated;
+    },
+    delete: (id) => {
+      if (!dbState.dashboards) return false;
+      const index = dbState.dashboards.findIndex(d => d.id === id);
+      if (index === -1) return false;
+      dbState.dashboards.splice(index, 1);
+      saveDb();
+      return true;
+    }
+  },
+
+  // Info State for /info/:key Ingestion Engine
+  infoState: {
+    getAll: () => dbState.info_state || {},
+    get: (key) => {
+      if (!dbState.info_state) dbState.info_state = {};
+      return dbState.info_state[key] !== undefined ? dbState.info_state[key] : null;
+    },
+    set: (key, data) => {
+      if (!dbState.info_state) dbState.info_state = {};
+      // If data is an object and previous state was an object, merge or replace
+      if (typeof data === 'object' && data !== null && typeof dbState.info_state[key] === 'object' && dbState.info_state[key] !== null) {
+        dbState.info_state[key] = Object.assign({}, dbState.info_state[key], data);
+      } else {
+        dbState.info_state[key] = data;
+      }
+      saveDb();
+      return dbState.info_state[key];
+    },
+    delete: (key) => {
+      if (!dbState.info_state) return false;
+      delete dbState.info_state[key];
+      saveDb();
+      return true;
+    }
+  },
+
+  // Settings
+  settings: {
+    get: () => dbState.settings,
+    set: (key, val) => {
+      dbState.settings[key] = val;
+      saveDb();
+      return dbState.settings;
+    }
+  },
+
+  // Sermon Sender Settings & Submissions
+  sermons: {
+    getSettings: () => {
+      if (!dbState.sermon_settings) {
+        dbState.sermon_settings = {
+          sender_email: '',
+          sender_app_password: '',
+          receiver_email: '',
+          subject_template: '{context} Sermon {date}',
+          body_template: 'God bless you. This is the recording for the sermon delivered on {date}, "{title}."\n\n[This email was automatically generated by AV Audit Sermon Sender]',
+          retention_days: 14,
+          target_file_size_mb: 15
+        };
+      }
+      return { ...dbState.sermon_settings };
+    },
+    updateSettings: (updates = {}) => {
+      if (!dbState.sermon_settings) {
+        dbState.sermon_settings = {};
+      }
+      if (updates.sender_email !== undefined) dbState.sermon_settings.sender_email = updates.sender_email.trim();
+      if (updates.sender_app_password !== undefined) dbState.sermon_settings.sender_app_password = updates.sender_app_password.trim();
+      if (updates.receiver_email !== undefined) dbState.sermon_settings.receiver_email = updates.receiver_email.trim();
+      if (updates.subject_template !== undefined) dbState.sermon_settings.subject_template = updates.subject_template;
+      if (updates.body_template !== undefined) dbState.sermon_settings.body_template = updates.body_template;
+      if (updates.retention_days !== undefined) dbState.sermon_settings.retention_days = Math.max(1, parseInt(updates.retention_days, 10) || 14);
+      if (updates.target_file_size_mb !== undefined) dbState.sermon_settings.target_file_size_mb = Math.max(1, parseInt(updates.target_file_size_mb, 10) || 15);
+      saveDb();
+      return { ...dbState.sermon_settings };
+    },
+    getAllSubmissions: () => {
+      if (!Array.isArray(dbState.sermon_submissions)) dbState.sermon_submissions = [];
+      return [...dbState.sermon_submissions].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    },
+    getSubmissionById: (id) => {
+      if (!Array.isArray(dbState.sermon_submissions)) return null;
+      return dbState.sermon_submissions.find(s => s.id === id) || null;
+    },
+    createSubmission: (data) => {
+      if (!Array.isArray(dbState.sermon_submissions)) dbState.sermon_submissions = [];
+      const submission = {
+        id: 'sermon_' + uuidv4().slice(0, 8),
+        title: data.title || 'Untitled Sermon',
+        context: data.context || 'General',
+        is_custom_context: Boolean(data.is_custom_context),
+        original_filename: data.original_filename || '',
+        compressed_filename: data.compressed_filename || '',
+        file_path: data.file_path || '',
+        original_size_bytes: data.original_size_bytes || 0,
+        compressed_size_bytes: data.compressed_size_bytes || 0,
+        recipient_email: data.recipient_email || '',
+        sender_email: data.sender_email || '',
+        email_subject: data.email_subject || '',
+        status: data.status || 'sent', // 'sent', 'failed', 'resending'
+        error_message: data.error_message || null,
+        created_by_user_id: data.created_by_user_id || null,
+        created_by_username: data.created_by_username || 'System',
+        created_at: new Date().toISOString(),
+        last_sent_at: new Date().toISOString(),
+        send_count: 1
+      };
+      dbState.sermon_submissions.unshift(submission);
+      saveDb();
+      return submission;
+    },
+    updateSubmission: (id, updates = {}) => {
+      if (!Array.isArray(dbState.sermon_submissions)) return null;
+      const index = dbState.sermon_submissions.findIndex(s => s.id === id);
+      if (index === -1) return null;
+      const current = dbState.sermon_submissions[index];
+      const updated = { ...current, ...updates };
+      dbState.sermon_submissions[index] = updated;
+      saveDb();
+      return updated;
+    },
+    deleteSubmission: (id) => {
+      if (!Array.isArray(dbState.sermon_submissions)) return false;
+      const index = dbState.sermon_submissions.findIndex(s => s.id === id);
+      if (index === -1) return false;
+      const [removed] = dbState.sermon_submissions.splice(index, 1);
+      saveDb();
+      return removed;
+    },
+    cleanupExpired: (retentionDays = 14) => {
+      if (!Array.isArray(dbState.sermon_submissions)) return [];
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - retentionDays);
+      const expired = [];
+      const kept = [];
+
+      dbState.sermon_submissions.forEach(sub => {
+        const subDate = new Date(sub.created_at);
+        if (subDate < cutoff) {
+          expired.push(sub);
+        } else {
+          kept.push(sub);
+        }
+      });
+
+      if (expired.length > 0) {
+        dbState.sermon_submissions = kept;
+        saveDb();
+      }
+      return expired;
+    }
+  }
+};
+
+// Initialize right away
+initDb();
+
+module.exports = {
+  db,
+  initDb,
+  seedInitialData
+};

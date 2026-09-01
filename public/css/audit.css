@@ -1,0 +1,669 @@
+/* ==========================================================================
+   AV AUDIT - OVERHAULED AUDIT LOG & RETENTION STYLING
+   ========================================================================== */
+
+.audit-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Settings Modal Elements */
+#modal-audit-settings .modal-body .form-control,
+#modal-audit-settings .modal-body .btn,
+#modal-audit-settings .modal-footer .btn {
+  height: 42px !important;
+  min-height: 42px !important;
+  box-sizing: border-box !important;
+}
+
+/* Settings Icon Button */
+#btn-audit-settings {
+  width: 38px;
+  height: 38px;
+  min-width: 38px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   FILTER TOOLBAR (4 FIELDS: SEARCH, CATEGORY, USER, DATE + CLEAR)
+   ========================================================================== */
+.audit-toolbar {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 0.85rem 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.audit-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.audit-filter-item {
+  position: relative;
+}
+
+.audit-filter-search {
+  flex: 1 1 220px;
+  min-width: 180px;
+}
+
+.audit-filter-date {
+  flex: 0 1 230px;
+  min-width: 190px;
+}
+
+.audit-input-icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.audit-input-icon {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.audit-input-icon-wrapper input {
+  padding-left: 2.25rem !important;
+  width: 100%;
+  height: 38px;
+}
+
+/* Custom Dropdown Styling */
+.audit-custom-dropdown {
+  position: relative;
+  flex: 0 1 auto;
+}
+
+.audit-dropdown-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 0.45rem 0.85rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  min-height: 38px;
+  min-width: 160px;
+  transition: none !important;
+  user-select: none;
+}
+
+.audit-dropdown-btn:hover {
+  border-color: var(--border-focus);
+  background: var(--bg-surface-hover);
+}
+
+.audit-dropdown-btn[aria-expanded="true"] {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px var(--border-glow);
+}
+
+.audit-dropdown-selected {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dropdown-chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.audit-dropdown-btn[aria-expanded="true"] .dropdown-chevron {
+  transform: rotate(180deg);
+}
+
+.audit-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1000;
+  min-width: 220px;
+  max-width: 320px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.audit-dropdown-menu.show {
+  display: flex;
+}
+
+.audit-dropdown-search-box {
+  position: relative;
+  padding: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+}
+
+.audit-dropdown-search-box svg {
+  position: absolute;
+  left: 0.85rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.audit-dropdown-search-box input {
+  padding-left: 1.85rem !important;
+  font-size: 0.8rem;
+  height: 30px;
+}
+
+.audit-dropdown-list {
+  max-height: 260px;
+  overflow-y: auto;
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.audit-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+  transition: none !important;
+}
+
+.audit-dropdown-item:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.audit-dropdown-item.active {
+  background: rgba(24, 237, 179, 0.12);
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+/* Category Badges & Pills */
+.cat-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  font-size: 0.775rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+.cat-pill svg {
+  flex-shrink: 0;
+}
+
+.cat-ALL { background: rgba(139, 148, 158, 0.15); color: var(--text-secondary); border-color: rgba(139, 148, 158, 0.3); }
+.cat-AUTH { background: rgba(88, 166, 255, 0.15); color: #58a6ff; border-color: rgba(88, 166, 255, 0.35); }
+.cat-ACCOUNT { background: rgba(210, 153, 34, 0.15); color: #e3b341; border-color: rgba(210, 153, 34, 0.35); }
+.cat-ROLE { background: rgba(188, 140, 255, 0.15); color: #d2a8ff; border-color: rgba(188, 140, 255, 0.35); }
+.cat-CHECKLIST { background: rgba(24, 237, 179, 0.15); color: #18edb3; border-color: rgba(24, 237, 179, 0.35); }
+.cat-TEMPLATE { background: rgba(235, 126, 172, 0.15); color: #f778ba; border-color: rgba(235, 126, 172, 0.35); }
+.cat-AUTOMATION { background: rgba(121, 192, 255, 0.15); color: #79c0ff; border-color: rgba(121, 192, 255, 0.35); }
+.cat-DASHBOARD { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); }
+.cat-SERMON_SENDER { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.35); }
+.cat-AUDIT { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.35); }
+.cat-GENERAL { background: rgba(139, 148, 158, 0.15); color: var(--text-muted); border-color: rgba(139, 148, 158, 0.3); }
+
+/* User Role Display */
+.user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.user-role-subtext {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  margin-left: auto;
+  font-weight: 400;
+}
+
+/* ==========================================================================
+   DAY GROUPED TIMELINE & GRID-STYLE CARDS
+   ========================================================================== */
+.audit-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+}
+
+.audit-day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.audit-day-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.25rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.audit-day-label {
+  font-size: 0.925rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.audit-day-count {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg-surface-elevated);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   COLUMN TITLES HEADER BAR
+   Columns: [ TIME ] | [ CATEGORY ] | [ WHO ] | [ ACTION ] | [ ACTION SUMMARY ]
+   ========================================================================== */
+.audit-grid-header {
+  display: grid;
+  grid-template-columns: 120px 165px 145px 180px 1fr;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.5rem 0;
+  margin-bottom: 0.25rem;
+}
+
+.audit-header-col {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.audit-header-col:last-child {
+  border-right: none;
+}
+
+.audit-log-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* ==========================================================================
+   5-COLUMN GRID CARD STRUCTURE (EQUAL/PROPORTIONAL WIDTHS WITH VERTICAL DIVIDERS)
+   All cells centered horizontally and vertically on desktop
+   Instant Hover (transition: none)
+   ========================================================================== */
+.audit-grid-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  display: grid;
+  grid-template-columns: 120px 165px 145px 180px 1fr;
+  align-items: stretch;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: none !important;
+}
+
+.audit-grid-card:hover {
+  border-color: var(--border-muted);
+  background: var(--bg-surface-hover);
+  box-shadow: var(--shadow-md);
+  transition: none !important;
+}
+
+/* Grid Columns Cells (All centered horizontally & vertically) */
+.audit-cell {
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-width: 0;
+  border-right: 1px solid var(--border-subtle);
+  box-sizing: border-box;
+}
+
+.audit-cell:last-child {
+  border-right: none;
+}
+
+/* Column 1: Time (LA) */
+.audit-cell-time {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+/* Column 2: Category (Centered badge without border overflow) */
+.audit-cell-category {
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Column 3: Who (Just username in role color, centered) */
+.audit-cell-who {
+  font-size: 0.875rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  justify-content: center;
+}
+
+.audit-who-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Column 4: Plain English Action (Centered) */
+.audit-cell-action {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  justify-content: center;
+}
+
+/* Column 5: Action Summary (Centered) */
+.audit-cell-summary {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  word-break: break-word;
+  justify-content: center;
+  text-align: center;
+}
+
+/* ==========================================================================
+   FLATPICKR DARK THEME CUSTOMIZATION
+   ========================================================================== */
+.flatpickr-calendar {
+  background: var(--bg-surface-elevated) !important;
+  border: 1px solid var(--border-muted) !important;
+  box-shadow: var(--shadow-lg) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.flatpickr-calendar.arrowTop:before,
+.flatpickr-calendar.arrowTop:after {
+  border-bottom-color: var(--bg-surface-elevated) !important;
+}
+
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background: var(--accent-primary) !important;
+  border-color: var(--accent-primary) !important;
+  color: #090d12 !important;
+  font-weight: 700 !important;
+}
+
+.flatpickr-day.inRange {
+  background: rgba(24, 237, 179, 0.2) !important;
+  border-color: transparent !important;
+  color: var(--text-primary) !important;
+  box-shadow: none !important;
+}
+
+.flatpickr-day:hover {
+  background: var(--bg-surface-hover) !important;
+}
+
+.flatpickr-months .flatpickr-month,
+.flatpickr-current-month .flatpickr-monthDropdown-months,
+.flatpickr-current-month input.cur-year {
+  color: var(--text-primary) !important;
+}
+
+span.flatpickr-weekday {
+  color: var(--text-muted) !important;
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYOUT & MOBILE FIXES (iPhone 12, Tablets, & Small Screens)
+   ========================================================================== */
+@media (max-width: 992px) {
+  .audit-grid-header {
+    grid-template-columns: 110px 150px 135px 165px 1fr;
+  }
+
+  .audit-grid-card {
+    grid-template-columns: 110px 150px 135px 165px 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  #view-audit {
+    padding: 0;
+  }
+
+  /* Keep View Header aligned with icon button on right */
+  #view-audit .view-header {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.85rem;
+  }
+
+  #view-audit .view-header-left {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #view-audit .view-header-actions {
+    width: auto !important;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+  }
+
+  #view-audit .view-header-actions .btn,
+  #view-audit #btn-audit-settings {
+    flex: none !important;
+    width: 38px !important;
+    height: 38px !important;
+    min-width: 38px !important;
+    padding: 0 !important;
+  }
+
+  /* Hide desktop column titles on mobile */
+  .audit-grid-header {
+    display: none;
+  }
+
+  /* Clean, compact mobile toolbar */
+  .audit-toolbar {
+    padding: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+  }
+
+  .audit-filter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  .audit-filter-item,
+  .audit-filter-search,
+  .audit-filter-date,
+  .audit-custom-dropdown {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+  }
+
+  .audit-dropdown-btn {
+    width: 100%;
+    min-width: 0;
+    height: 40px;
+    padding: 0.45rem 0.85rem;
+  }
+
+  .audit-input-icon-wrapper input {
+    height: 40px;
+    font-size: 0.875rem;
+  }
+
+  .audit-dropdown-menu {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  #btn-clear-audit-filters {
+    width: 100%;
+    height: 38px;
+    justify-content: center;
+    padding: 0.55rem;
+    font-size: 0.875rem;
+  }
+
+  /* Clear, intuitive 3-row structured audit card on mobile */
+  .audit-grid-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 0.65rem;
+    overflow: hidden;
+  }
+
+  /* Row 1: Top Bar with Category (Left) and Time (Right) */
+  .audit-cell-category {
+    grid-column: 1 / 2;
+    grid-row: 1 / 2;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.02);
+    justify-content: flex-start;
+    padding: 0.55rem 0.85rem;
+  }
+
+  .audit-cell-time {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.02);
+    justify-content: flex-end;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 0.55rem 0.85rem;
+  }
+
+  /* Row 2: Actor (Left) and Action (Right) */
+  .audit-cell-who {
+    grid-column: 1 / 2;
+    grid-row: 2 / 3;
+    border-right: none;
+    border-bottom: none;
+    justify-content: flex-start;
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.65rem 0.85rem 0.25rem 0.85rem;
+  }
+
+  .audit-cell-action {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+    border-right: none;
+    border-bottom: none;
+    justify-content: flex-end;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    padding: 0.65rem 0.85rem 0.25rem 0.85rem;
+  }
+
+  /* Row 3: Action Summary (Full Width, Left Aligned, Legible) */
+  .audit-cell-summary {
+    grid-column: 1 / 3;
+    grid-row: 3 / 4;
+    border-right: none;
+    border-bottom: none;
+    justify-content: flex-start;
+    text-align: left;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    line-height: 1.45;
+    padding: 0.25rem 0.85rem 0.75rem 0.85rem;
+  }
+}

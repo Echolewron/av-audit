@@ -1,0 +1,472 @@
+/* ==========================================================================
+   AV AUDIT - ACCOUNT MANAGEMENT STYLING
+   ========================================================================== */
+
+.accounts-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Perfect Circular Avatars (Zero Squishing) */
+.user-avatar,
+.pending-avatar {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  max-width: 34px !important;
+  max-height: 34px !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  flex-shrink: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+/* Compact Square Icon Buttons */
+.btn-square-sm {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--radius-sm) !important;
+  flex-shrink: 0 !important;
+  cursor: pointer;
+  transition: none !important;
+}
+
+/* Pending Approvals Queue */
+.pending-queue-section {
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(210, 153, 34, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem 1.5rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pending-queue-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.pending-queue-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--status-warning);
+}
+
+.pending-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.pending-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  transition: none;
+}
+
+.pending-user-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-width: 0;
+}
+
+.pending-avatar {
+  background: var(--bg-surface-elevated);
+  border: 1px dashed var(--status-warning);
+  font-weight: 600;
+  color: var(--status-warning);
+}
+
+.pending-username {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pending-date {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+}
+
+.pending-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+/* User Directory Section */
+.directory-section {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  padding-bottom: 8rem;
+  overflow: visible;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.directory-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.search-input-group {
+  position: relative;
+  min-width: 260px;
+  flex: 1;
+  max-width: 400px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow: visible;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.data-table th {
+  background: var(--bg-surface);
+  padding: 0.75rem 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.data-table td {
+  padding: 0.85rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  vertical-align: middle;
+  transition: none;
+}
+
+.data-table tr:hover td {
+  background: var(--bg-surface-hover);
+}
+
+.user-table-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.user-avatar {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-muted);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.user-identity {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.user-name-text {
+  color: var(--text-primary);
+  font-size: 0.9rem;
+}
+
+.user-self-badge {
+  font-size: 0.65rem;
+}
+
+.user-roles-list {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.user-date-text {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   ACCOUNT ACTIONS DROPDOWN POPUP
+   ========================================================================== */
+.account-actions-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.account-actions-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-muted);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: none !important;
+}
+
+.account-actions-btn:hover,
+.account-actions-btn[aria-expanded="true"] {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border-color: var(--border-focus);
+}
+
+.account-actions-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  z-index: 1050;
+  min-width: 175px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  display: none;
+  flex-direction: column;
+  padding: 0.35rem;
+  gap: 0.2rem;
+}
+
+.account-actions-menu.show {
+  display: flex;
+}
+
+.account-action-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 0.825rem;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: none !important;
+  user-select: none;
+}
+
+.account-action-item:hover {
+  background: var(--bg-surface-hover);
+}
+
+.account-action-item.danger-action {
+  color: var(--status-danger);
+}
+
+.account-action-item.danger-action:hover {
+  background: rgba(248, 81, 73, 0.12);
+  color: #ff7b72;
+}
+
+.account-action-item svg {
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE LAYOUT (iPhone 12 & Small Devices - Zero Scrolling)
+   ========================================================================== */
+@media (max-width: 768px) {
+  .accounts-container {
+    gap: 1rem;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .pending-queue-section {
+    padding: 0.85rem;
+    border-radius: var(--radius-md);
+  }
+
+  .pending-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .pending-card {
+    padding: 0.75rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .directory-section {
+    padding: 0.85rem;
+    padding-bottom: 6rem;
+    border-radius: var(--radius-md);
+  }
+
+  .directory-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    margin-bottom: 1rem;
+  }
+
+  .search-input-group {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .directory-toolbar select {
+    width: 100% !important;
+  }
+
+  .table-responsive {
+    overflow: visible;
+    width: 100%;
+  }
+
+  /* Transform table into structured responsive card stack on mobile */
+  .data-table {
+    display: block;
+    width: 100%;
+    border: none;
+  }
+
+  .data-table thead {
+    display: none;
+  }
+
+  .data-table tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .data-table tr.user-row-item {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-muted);
+    border-radius: var(--radius-md);
+    padding: 0.85rem;
+    gap: 0.5rem;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  .data-table tr.user-row-item:hover td {
+    background: transparent;
+  }
+
+  .data-table td {
+    padding: 0 !important;
+    border: none !important;
+    width: 100%;
+  }
+
+  /* Line 1: User Avatar & Username */
+  .user-cell-main {
+    padding-right: 2.5rem !important; /* Space for the top-right 3-dots button */
+  }
+
+  /* Line 2: Assigned Roles list */
+  .user-cell-roles {
+    margin-top: 0.15rem;
+  }
+
+  /* Line 3: Bottom info row (Status badge & Created date) */
+  .user-cell-status {
+    display: inline-flex !important;
+    width: auto !important;
+  }
+
+  .user-cell-date {
+    display: inline-flex !important;
+    width: auto !important;
+    margin-left: auto !important;
+  }
+
+  .data-table tr.user-row-item {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "main actions"
+      "roles roles"
+      "status date";
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .user-cell-main {
+    grid-area: main;
+    padding-right: 0 !important;
+  }
+
+  .user-cell-actions {
+    grid-area: actions;
+    text-align: right;
+  }
+
+  .user-cell-roles {
+    grid-area: roles;
+  }
+
+  .user-cell-status {
+    grid-area: status;
+  }
+
+  .user-cell-date {
+    grid-area: date;
+    text-align: right;
+    justify-self: end;
+  }
+}

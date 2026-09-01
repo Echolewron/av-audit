@@ -1,0 +1,2464 @@
+/* ==========================================================================
+   AV AUDIT - ACTIVE CHECKLISTS & EXECUTION STYLING
+   ========================================================================== */
+
+/* Sub-Panes */
+#pane-active-checklists,
+#pane-templates-management {
+  min-height: 0;
+  touch-action: pan-y;
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+
+/* Grid Layout */
+.checklists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+  touch-action: pan-y;
+}
+
+/* Base Checklist Card */
+.checklist-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 220px;
+  position: relative;
+  transition: none;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  touch-action: pan-y;
+}
+
+.checklist-card:hover {
+  border-color: var(--border-muted);
+  box-shadow: var(--shadow-md);
+}
+
+.checklist-card.in-progress:hover {
+  border-color: rgba(24, 237, 179, 0.4);
+  box-shadow: 0 4px 20px rgba(24, 237, 179, 0.08);
+}
+
+/* Submitted / Dimmed Card (24h Retention State) */
+.checklist-card.submitted {
+  background: rgba(22, 27, 34, 0.45);
+  border-color: rgba(48, 54, 61, 0.4);
+  opacity: 0.72;
+  filter: grayscale(20%);
+}
+
+.checklist-card.submitted:hover {
+  opacity: 0.95;
+  border-color: var(--border-muted);
+}
+
+/* Add Checklist Special Card */
+.checklist-card.card-add {
+  border: 2px dashed var(--border-muted);
+  background: rgba(13, 17, 23, 0.4);
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 220px;
+}
+
+.checklist-card.card-add:hover {
+  border-color: var(--accent-primary);
+  background: rgba(24, 237, 179, 0.03);
+}
+
+.card-add-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary);
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  transition: none;
+}
+
+.checklist-card.card-add:hover .card-add-icon {
+  background: var(--accent-primary);
+  color: #04100c;
+  box-shadow: var(--shadow-glow);
+}
+
+/* Card Elements */
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.card-title-group {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin-bottom: 0.25rem;
+}
+
+.card-template-name {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Circular SVG Progress Ring */
+.progress-ring-container {
+  width: 52px;
+  height: 52px;
+  min-width: 52px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: visible;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.progress-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  overflow: visible;
+  display: block;
+}
+
+.progress-ring-circle-bg {
+  stroke: var(--border-muted);
+  fill: transparent;
+}
+
+.progress-ring-circle {
+  stroke: var(--accent-primary);
+  stroke-linecap: round;
+  fill: transparent;
+  transition: stroke-dashoffset 0.4s ease, stroke 0.3s ease;
+}
+
+.progress-ring-circle.blocked {
+  stroke: var(--status-danger);
+}
+
+.progress-ring-circle.complete {
+  stroke: var(--accent-primary);
+}
+
+.progress-ring-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.725rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  line-height: 1;
+  text-align: center;
+  pointer-events: none;
+}
+
+/* Card Bottom Info */
+.card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-subtle);
+  margin-top: auto;
+}
+
+.card-tags {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.card-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Subtle Disappearing Message Clock Badge (Signal-style) */
+.badge-disappearing {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.675rem;
+  color: var(--text-muted);
+  background: rgba(110, 118, 129, 0.15);
+  border: 1px solid rgba(110, 118, 129, 0.25);
+  padding: 0.12rem 0.4rem;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  opacity: 0.75;
+  transition: opacity var(--transition-fast);
+}
+
+.checklist-card:hover .badge-disappearing {
+  opacity: 1;
+  color: var(--text-secondary);
+}
+
+/* Vertical Template Picker List for Instant Instantiation */
+.template-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 0.25rem 0.1rem;
+}
+
+.template-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.15rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: none;
+  text-align: left;
+  width: 100%;
+}
+
+.template-picker-item:hover {
+  border-color: var(--accent-primary);
+  background: rgba(24, 237, 179, 0.05);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.template-picker-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.template-picker-desc {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.template-picker-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.template-picker-badge {
+  font-size: 0.725rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  background: var(--bg-surface-elevated);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+
+.template-picker-action-icon {
+  font-size: 1.1rem;
+  color: var(--accent-primary);
+}
+
+/* Template Card 3-Dots Dropdown Menu */
+.template-menu-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.template-menu-container:has(.template-dropdown-menu.is-open),
+.checklist-card:has(.template-dropdown-menu.is-open) {
+  z-index: 200;
+  position: relative;
+}
+
+.template-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 0.35rem;
+  display: none;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 140px;
+  z-index: 250;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+.template-dropdown-menu.is-open {
+  display: flex;
+}
+
+.template-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.825rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  transition: none;
+  user-select: none;
+}
+
+.template-dropdown-item:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+}
+
+.template-dropdown-item.dropdown-item-danger {
+  color: var(--status-danger);
+}
+
+.template-dropdown-item.dropdown-item-danger:hover {
+  background: var(--status-danger-bg);
+  color: #ff7b72;
+}
+
+/* ==========================================================================
+   CHECKLIST EXECUTION VIEW
+   ========================================================================== */
+
+#view-execution {
+  min-height: 0;
+  touch-action: pan-y;
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+
+.execution-container {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: visible; /* Allows sticky execution-header and popovers to stay visible */
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  touch-action: pan-y;
+}
+
+.execution-header {
+  padding: 1.25rem 1.5rem;
+  background: rgba(18, 26, 36, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  position: sticky;
+  top: -1.75rem; /* Stays glued to top when scrolling down #content-stage */
+  z-index: 80;
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.exec-progress-box {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.exec-progress-bar-track {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.exec-progress-bar-fill {
+  height: 100%;
+  background: var(--accent-primary);
+  box-shadow: 0 0 8px var(--accent-primary-glow);
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.exec-progress-bar-fill.blocked {
+  background: var(--status-danger);
+  box-shadow: 0 0 8px rgba(248, 81, 73, 0.6);
+}
+
+.execution-title-area {
+  flex: 1;
+}
+
+.execution-viewers-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.775rem;
+  color: var(--text-secondary);
+  background: var(--bg-surface-elevated);
+  padding: 0.35rem 0.75rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+}
+
+.execution-viewers-list {
+  color: var(--accent-primary);
+  font-weight: 600;
+}
+
+/* Task Tree Hierarchy (Compact Linear / GitHub Style) */
+.task-tree {
+  padding: 0.25rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  touch-action: pan-y;
+}
+
+/* Bottom spacing buffer */
+.execution-bottom-spacer {
+  height: 1.5rem;
+  height: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  width: 100%;
+  pointer-events: none;
+  display: block;
+}
+
+.task-node {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-subtle);
+  border-radius: 0;
+  padding: 0.65rem 0;
+  transition: none;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.task-node:last-child {
+  border-bottom: none;
+}
+
+.task-node:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.task-node.has-issue {
+  border-left: 3px solid var(--status-danger);
+  background: rgba(248, 81, 73, 0.05);
+}
+
+.task-node.is-checked {
+  background: transparent;
+}
+
+.task-node.is-checked:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+/* Task Row & Tree Layout with Global Breathing Room */
+.task-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 28px;
+  width: 100%;
+  box-sizing: border-box;
+  padding-left: calc(1.25rem + var(--depth, 0) * 1.65rem);
+  padding-right: 1.25rem;
+}
+
+/* Checklists Sub-Tabs Header */
+.checklists-subtabs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.35rem;
+  margin-bottom: 1.25rem;
+  width: fit-content;
+}
+
+.checklists-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  transition: all var(--transition-fast);
+}
+
+.checklists-tab-btn:hover {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+.checklists-tab-btn.active {
+  background: var(--bg-surface-elevated);
+  color: var(--accent-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Header Execution Actions Equal Sizing */
+.btn-exec-action {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  padding: 0 1.15rem;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.btn-exec-action.btn-outline-danger {
+  border: 1px solid rgba(248, 81, 73, 0.4);
+  color: var(--status-danger);
+  background: rgba(248, 81, 73, 0.08);
+}
+
+.btn-exec-action.btn-outline-danger:hover {
+  background: var(--status-danger);
+  color: #ffffff;
+  border-color: var(--status-danger);
+  box-shadow: 0 0 10px rgba(248, 81, 73, 0.35);
+}
+
+/* Checkbox Button with 4-State Morphing Shapes */
+.task-check-btn {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border-muted);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.task-check-btn:hover {
+  border-color: var(--accent-primary);
+  transform: scale(1.1);
+}
+
+/* 2. Required + Hook (Hollow Cyan Rhombus ◇) */
+.task-check-btn.is-rhombus:not(.is-optional) {
+  border-radius: 3px !important;
+  transform: rotate(45deg) scale(0.92);
+  border: 2px solid var(--accent-secondary) !important;
+  background: transparent !important;
+}
+
+.task-check-btn.is-rhombus:not(.is-optional) svg {
+  transform: rotate(-45deg);
+}
+
+/* 3. Optional Task, No Hook (Dashed Yellow Circle ◌) */
+.task-check-btn.is-optional:not(.is-rhombus) {
+  border-radius: 50% !important;
+  border: 2px dashed #d29922 !important;
+  background: transparent !important;
+  clip-path: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.task-check-btn.is-optional:not(.is-rhombus):hover {
+  border-color: #e3b341 !important;
+  box-shadow: 0 0 8px rgba(227, 179, 65, 0.35) !important;
+}
+
+/* 4. Optional Task + Hook (Dashed Cyan Rhombus ⬪) */
+.task-check-btn.is-optional.is-rhombus,
+.task-check-btn.is-hexagon {
+  border-radius: 3px !important;
+  border: 2px dashed var(--accent-secondary) !important;
+  background: transparent !important;
+  clip-path: none !important;
+  transform: rotate(45deg) scale(0.92) !important;
+  box-shadow: none !important;
+}
+
+.task-check-btn.is-optional.is-rhombus svg,
+.task-check-btn.is-hexagon svg {
+  transform: rotate(-45deg);
+}
+
+.task-check-btn.is-optional.is-rhombus:hover,
+.task-check-btn.is-hexagon:hover {
+  border-color: #79c0ff !important;
+  box-shadow: 0 0 8px rgba(88, 166, 255, 0.4) !important;
+}
+
+/* Checked States */
+.task-node.is-checked .task-check-btn {
+  background: var(--accent-primary) !important;
+  border: 2px solid var(--accent-primary) !important;
+  border-style: solid !important;
+  color: #04100c !important;
+  box-shadow: 0 0 8px var(--accent-primary-glow);
+}
+
+/* Optional checked (no hook): Solid yellow with dark checkmark */
+.task-node.is-checked .task-check-btn.is-optional:not(.is-rhombus) {
+  background: #eab308 !important;
+  border: 2px solid #eab308 !important;
+  color: #04100c !important;
+  border-radius: 50% !important;
+  clip-path: none !important;
+  transform: none !important;
+  box-shadow: 0 0 8px rgba(234, 179, 8, 0.45) !important;
+}
+
+/* Optional + Hook checked: Solid yellow rhombus with dark checkmark */
+.task-node.is-checked .task-check-btn.is-optional.is-rhombus,
+.task-node.is-checked .task-check-btn.is-hexagon {
+  background: #eab308 !important;
+  border: 2px solid #eab308 !important;
+  color: #04100c !important;
+  border-radius: 3px !important;
+  clip-path: none !important;
+  transform: rotate(45deg) scale(0.92) !important;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.45) !important;
+}
+
+.task-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.task-node.is-checked .task-title {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+.task-desc {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+  line-height: 1.3;
+}
+
+/* Checker Avatar Badge */
+.task-checked-badge-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.task-checked-avatar {
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--user-color, var(--accent-primary));
+  background: var(--bg-surface-elevated);
+  color: var(--user-color, var(--accent-primary));
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  padding: 0;
+  line-height: 1;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+}
+
+.task-checked-avatar:hover {
+  transform: scale(1.15);
+  box-shadow: 0 0 10px var(--user-color, var(--accent-primary));
+}
+
+/* Checked By Popover Dropdown */
+.task-node:has(.checker-popover-menu.is-open),
+.task-checked-badge-wrap:has(.checker-popover-menu.is-open),
+.exec-section-card:has(.checker-popover-menu.is-open),
+.execution-container:has(.checker-popover-menu.is-open) {
+  z-index: 500;
+  position: relative;
+  overflow: visible !important;
+}
+
+.checker-popover-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 500;
+  width: max-content;
+  min-width: 190px;
+  max-width: 260px;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  padding: 0.75rem;
+  display: none;
+  animation: popoverFadeIn 0.15s ease-out;
+}
+
+.checker-popover-menu.is-open {
+  display: block;
+}
+
+@keyframes popoverFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.checker-popover-header {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.checker-popover-avatar {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  border-radius: 50%;
+  border: 2px solid var(--user-color, var(--accent-primary));
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--user-color, var(--accent-primary));
+  font-size: 0.875rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.checker-popover-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.checker-popover-name {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffffff !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.checker-popover-role {
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-full);
+  display: inline-block;
+  width: fit-content;
+  border: 1px solid transparent;
+}
+
+.checker-popover-time {
+  font-size: 0.725rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Compact Right-Aligned Task Action Buttons */
+.task-right-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-left: 0.5rem;
+  flex-shrink: 0;
+}
+
+.btn-task-icon {
+  height: 26px;
+  min-width: 26px;
+  padding: 0 0.55rem;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  font-size: 0.725rem;
+  font-weight: 500;
+  transition: none;
+  white-space: nowrap;
+}
+
+.btn-task-icon .btn-icon-symbol {
+  font-size: 0.8rem;
+}
+
+.btn-task-icon .btn-icon-text {
+  display: inline;
+}
+
+@media (max-width: 768px) {
+  .btn-task-icon {
+    width: 26px;
+    padding: 0;
+  }
+
+  .btn-task-icon .btn-icon-text {
+    display: none;
+  }
+}
+
+.btn-task-icon:hover {
+  color: var(--text-primary);
+  border-color: var(--border-muted);
+  background: var(--bg-surface-hover);
+}
+
+.btn-task-icon.active-issue {
+  background: rgba(248, 81, 73, 0.2);
+  border-color: rgba(248, 81, 73, 0.5);
+  color: var(--status-danger);
+  box-shadow: 0 0 8px rgba(248, 81, 73, 0.25);
+}
+
+.btn-task-icon.active-note {
+  background: rgba(210, 153, 34, 0.15);
+  border-color: rgba(210, 153, 34, 0.4);
+  color: var(--status-warning);
+}
+
+.btn-task-icon.btn-auto-icon {
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(188, 140, 255, 0.15));
+  border-color: rgba(88, 166, 255, 0.35);
+  color: var(--accent-secondary);
+  font-family: var(--font-mono);
+}
+
+.btn-task-icon.btn-auto-icon:hover {
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 8px rgba(88, 166, 255, 0.25);
+}
+
+.btn-task-icon.btn-auto-icon.btn-auto-success {
+  background: rgba(24, 237, 179, 0.15);
+  border-color: rgba(24, 237, 179, 0.55);
+  color: var(--accent-primary);
+  box-shadow: 0 0 8px rgba(24, 237, 179, 0.3);
+}
+
+.btn-task-icon.btn-auto-icon.btn-auto-success:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(24, 237, 179, 0.45);
+}
+
+/* Automation cURL Button */
+.btn-automation-trigger {
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.15), rgba(188, 140, 255, 0.15));
+  border: 1px solid rgba(88, 166, 255, 0.35);
+  color: var(--accent-secondary);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.725rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all var(--transition-fast);
+}
+
+.btn-automation-trigger:hover {
+  background: linear-gradient(135deg, rgba(88, 166, 255, 0.3), rgba(188, 140, 255, 0.3));
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+}
+
+/* Issue Note Drawer */
+.issue-note-box {
+  margin-top: 0.35rem;
+  padding: 0.45rem 0.7rem;
+  background: rgba(248, 81, 73, 0.08);
+  border: 1px solid rgba(248, 81, 73, 0.25);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  color: #ff7b72;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+}
+
+/* Nested Subtasks Tree Container */
+.task-children {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: none;
+  margin-top: 0;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  width: 100%;
+}
+
+.task-children>.task-node:last-child {
+  border-bottom: none;
+}
+
+/* Mobile Responsive Optimization */
+@media (max-width: 768px) {
+  .task-row {
+    padding-left: calc(0.75rem + var(--depth, 0) * 1.15rem) !important;
+    padding-right: 0.75rem !important;
+    gap: 0.5rem;
+  }
+
+  .btn-exec-action {
+    height: 38px !important;
+    padding: 0 0.65rem !important;
+    min-width: 38px !important;
+    gap: 0 !important;
+  }
+
+  .btn-exec-action .btn-text {
+    display: none !important;
+  }
+
+  .checklists-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .checklists-subtabs {
+    width: 100%;
+    display: flex;
+    padding: 0.25rem;
+    gap: 0.35rem;
+    box-sizing: border-box;
+  }
+
+  .checklists-tab-btn {
+    flex: 1 1 0;
+    justify-content: center;
+    text-align: center;
+    padding: 0.45rem 0.5rem;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  #pane-active-checklists,
+  #pane-templates-management {
+    padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .checklist-card {
+    min-height: auto;
+    padding: 1rem;
+    touch-action: pan-y;
+  }
+
+  #view-execution {
+    padding-bottom: calc(2.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .execution-container {
+    border-radius: var(--radius-md);
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+    overflow: visible;
+    touch-action: pan-y;
+  }
+
+  .execution-bottom-spacer {
+    height: 2rem;
+    height: calc(2rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .execution-header {
+    padding: 0.65rem 0.85rem 0.75rem 0.85rem;
+    position: sticky;
+    top: -0.85rem;
+    z-index: 90;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    background: rgba(13, 17, 23, 0.96);
+    border-bottom: 1px solid var(--border-muted);
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+  }
+
+  .exec-progress-box {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .progress-ring-container {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    overflow: visible;
+  }
+
+  .card-top {
+    align-items: center;
+  }
+
+  #exec-progress-label {
+    font-size: 0.95rem !important;
+    font-weight: 700;
+  }
+
+  #exec-status-tag {
+    font-size: 0.725rem !important;
+  }
+
+  .execution-viewers-bar {
+    width: fit-content;
+  }
+
+  .task-tree {
+    padding: 0 0 2rem 0;
+    touch-action: pan-y;
+  }
+
+  .task-node {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .task-row {
+    gap: 0.5rem;
+  }
+
+  .task-title {
+    font-size: 0.825rem;
+  }
+
+  .task-desc {
+    font-size: 0.725rem;
+  }
+
+  .task-children {
+    margin-left: 0.75rem;
+    padding-left: 0.5rem;
+    border-left-width: 1.5px;
+  }
+
+  .task-children>.task-node {
+    padding: 0.35rem 0.25rem 0.35rem 0.35rem;
+  }
+
+  .checker-popover-menu {
+    right: -10px;
+    max-width: calc(100vw - 32px);
+    min-width: 175px;
+    padding: 0.65rem;
+  }
+
+  .task-right-actions {
+    gap: 0.25rem;
+    padding-left: 0.25rem;
+  }
+}
+
+/* ==========================================================================
+   TODOIST-STYLE TEMPLATE BUILDER & EDITOR
+   ========================================================================== */
+
+.todoist-editor-dialog {
+  max-width: 760px;
+  width: 95%;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.todoist-editor-header {
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+}
+
+.todoist-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.todoist-editor-body {
+  padding: 1.5rem 1.75rem;
+  max-height: 75vh;
+  overflow-y: auto;
+  background: var(--bg-base);
+}
+
+.todoist-editor-footer {
+  padding: 1rem 1.5rem;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* On-Submission Webhook Collapsible Panel */
+.todoist-webhook-drawer {
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(88, 166, 255, 0.3);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.25rem;
+  animation: fadeIn 0.2s ease;
+}
+
+.todoist-webhook-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.35rem;
+}
+
+.btn-text-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0 0.25rem;
+  line-height: 1;
+}
+
+.btn-text-close:hover {
+  color: var(--text-primary);
+}
+
+/* Document Canvas */
+.todoist-canvas {
+  display: flex;
+  flex-direction: column;
+}
+
+.todoist-title-input {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 1.5px solid transparent;
+  padding: 0.4rem 0;
+  width: 100%;
+  outline: none;
+  transition: border-color var(--transition-fast);
+  letter-spacing: -0.01em;
+}
+
+.todoist-title-input:focus {
+  border-bottom-color: var(--accent-primary);
+}
+
+.todoist-title-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.todoist-desc-input {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  resize: none;
+  margin-top: 0.35rem;
+  line-height: 1.45;
+  font-family: inherit;
+}
+
+.todoist-desc-input::placeholder {
+  color: var(--text-muted);
+}
+
+.todoist-divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 1.15rem 0 0.85rem 0;
+}
+
+/* Task List */
+.todoist-tasks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+/* Todoist Task Item */
+.todoist-task-node {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.todoist-task-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius-md);
+  transition: none;
+  position: relative;
+}
+
+.todoist-task-row:hover,
+.todoist-task-row:focus-within {
+  background: var(--bg-surface-elevated);
+}
+
+/* 1. Required Task, No Hook: Default Circle (○) */
+.todoist-circle {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border: 1.5px solid var(--border-muted);
+  border-radius: 50%;
+  margin-top: 0.3rem;
+  margin-right: 0.15rem;
+  transition: none;
+  flex-shrink: 0;
+  display: inline-block;
+  box-sizing: border-box;
+}
+
+.todoist-task-row:hover .todoist-circle {
+  border-color: var(--accent-primary);
+}
+
+/* 2. Required Task + Hook: Hollow Cyan Rhombus / Diamond (◇) */
+.todoist-circle.is-rhombus:not(.is-optional),
+.todoist-circle.has-automation:not(.is-optional) {
+  border-radius: 2px !important;
+  transform: rotate(45deg) scale(0.92);
+  border: 1.5px solid var(--accent-secondary) !important;
+  background: transparent !important;
+  box-shadow: none;
+}
+
+.todoist-task-row:hover .todoist-circle.is-rhombus:not(.is-optional),
+.todoist-task-row:hover .todoist-circle.has-automation:not(.is-optional) {
+  border-color: #79c0ff !important;
+  box-shadow: 0 0 8px rgba(88, 166, 255, 0.5);
+}
+
+/* 3. Optional Task, No Hook: Dashed Yellow Circle (◌) */
+.todoist-circle.is-optional:not(.is-rhombus) {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 50% !important;
+  border: 1.5px dashed #d29922 !important;
+  background: transparent !important;
+  clip-path: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.todoist-task-row:hover .todoist-circle.is-optional:not(.is-rhombus) {
+  border-color: #e3b341 !important;
+  box-shadow: 0 0 8px rgba(227, 179, 65, 0.4);
+}
+
+/* 4. Optional Task + Hook: Dashed Cyan Rhombus (⬪) */
+.todoist-circle.is-optional.is-rhombus,
+.todoist-circle.is-hexagon {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 2px !important;
+  border: 1.5px dashed var(--accent-secondary) !important;
+  background: transparent !important;
+  clip-path: none !important;
+  transform: rotate(45deg) scale(0.92) !important;
+  box-shadow: none !important;
+}
+
+.todoist-task-row:hover .todoist-circle.is-optional.is-rhombus,
+.todoist-task-row:hover .todoist-circle.is-hexagon {
+  border-color: #79c0ff !important;
+  box-shadow: 0 0 10px rgba(121, 192, 255, 0.6);
+}
+
+.todoist-inputs-group {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.todoist-item-title-input {
+  font-size: 0.925rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  line-height: 1.4;
+  font-family: inherit;
+  resize: none;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  min-height: 22px;
+  display: block;
+}
+
+.todoist-item-title-input::placeholder {
+  color: var(--text-muted);
+}
+
+.todoist-item-desc-input {
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0;
+  line-height: 1.35;
+  font-family: inherit;
+  resize: none;
+  overflow: hidden;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  min-height: 18px;
+  display: block;
+}
+
+.todoist-item-desc-input::placeholder {
+  color: rgba(139, 148, 158, 0.4);
+}
+
+/* Hover Action Bar */
+.todoist-actions-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0;
+  transition: none;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  margin-left: 0.5rem;
+}
+
+.todoist-task-row:hover .todoist-actions-bar,
+.todoist-task-row:focus-within .todoist-actions-bar {
+  opacity: 1;
+}
+
+.todoist-btn-action {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  padding: 3px 2px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md, 6px);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: none;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.todoist-btn-action .btn-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.todoist-btn-action .btn-text {
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.1px;
+  max-width: 40px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.todoist-btn-action:hover {
+  background: var(--bg-surface-hover);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.todoist-btn-action.has-hook {
+  color: var(--accent-secondary);
+  border-color: rgba(88, 166, 255, 0.4);
+  background: rgba(88, 166, 255, 0.08);
+}
+
+.todoist-btn-action.has-days {
+  color: #c084fc;
+  border-color: rgba(192, 132, 252, 0.4);
+  background: rgba(192, 132, 252, 0.08);
+}
+
+.todoist-btn-delete {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md, 6px);
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: none;
+  line-height: 1;
+}
+
+.todoist-btn-delete:hover {
+  background: rgba(248, 81, 73, 0.12);
+  border-color: rgba(248, 81, 73, 0.3);
+  color: var(--status-danger);
+}
+
+/* Task Webhook Popover Drawer */
+.todoist-task-webhook-drawer {
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(88, 166, 255, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.85rem;
+  margin: 0.4rem 0 0.4rem 2rem;
+  animation: fadeIn 0.18s ease;
+}
+
+/* Task & Section Day Dependency Popover Drawers */
+.todoist-task-days-drawer,
+.todoist-section-days-drawer {
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  border-radius: var(--radius-md);
+  padding: 0.95rem;
+  margin: 0.4rem 0 0.4rem 2rem;
+  animation: fadeIn 0.18s ease;
+}
+
+.todoist-section-days-drawer {
+  margin: 0.5rem 0.5rem 0.5rem 0.5rem;
+}
+
+.btn-toggle-optional.has-days {
+  border-color: rgba(192, 132, 252, 0.5) !important;
+  color: #c084fc !important;
+  background: rgba(192, 132, 252, 0.12) !important;
+}
+
+.todoist-days-pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 0.5rem;
+}
+
+/* Bigger, touch-friendly day selection buttons */
+.day-pill-btn {
+  padding: 0.5rem 0.95rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  min-width: 50px;
+  min-height: 38px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.day-pill-btn:hover {
+  border-color: #c084fc;
+  color: #c084fc;
+  background: rgba(192, 132, 252, 0.08);
+}
+
+.day-pill-btn.is-selected {
+  border-color: #c084fc;
+  background: rgba(192, 132, 252, 0.25);
+  color: #f3e8ff;
+  box-shadow: 0 0 10px rgba(192, 132, 252, 0.35);
+}
+
+/* Week Day Badges to the left of task name */
+.tmpl-task-title-wrap {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.tmpl-day-inline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.15rem 0.45rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  border-radius: var(--radius-sm);
+  background: rgba(192, 132, 252, 0.18);
+  color: #d8b4fe;
+  border: 1px solid rgba(192, 132, 252, 0.38);
+  line-height: 1.25;
+  white-space: nowrap;
+  vertical-align: middle;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tmpl-day-inline-badge.section-badge {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.55rem;
+  margin-top: 0;
+}
+
+/* Nested Subtasks */
+.todoist-children-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-left: 1.1rem;
+  padding-left: 0.75rem;
+  border-left: 1.5px solid var(--border-subtle);
+  margin-top: 0.1rem;
+}
+
+/* Add Task Button */
+.todoist-add-task-wrap {
+  margin-top: 0.65rem;
+  padding-left: 0.65rem;
+}
+
+.todoist-add-task-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.4rem 0.6rem;
+  border-radius: var(--radius-md);
+  transition: none;
+}
+
+.todoist-add-task-btn:hover {
+  color: var(--accent-primary);
+  background: rgba(24, 237, 179, 0.08);
+}
+
+.todoist-add-plus {
+  font-size: 1.1rem;
+  line-height: 1;
+  font-weight: 600;
+}
+
+/* Mobile 3-Dots More Menu Button */
+.todoist-btn-more-menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: none;
+  padding: 0;
+  line-height: 1;
+}
+
+.todoist-btn-more-menu:hover,
+.todoist-btn-more-menu:active {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+/* Mobile Action Sheet */
+.todoist-action-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 7, 10, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 10500;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+.todoist-action-sheet {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  border-bottom: none;
+  border-radius: 16px 16px 0 0;
+  width: 100%;
+  max-width: 500px;
+  padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px)) 1.25rem;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+  animation: slideUpSheet 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpSheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.todoist-action-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 0.75rem;
+}
+
+.todoist-action-sheet-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 80%;
+}
+
+.todoist-action-sheet-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.todoist-sheet-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: none;
+}
+
+.todoist-sheet-btn:hover,
+.todoist-sheet-btn:active {
+  background: var(--bg-surface-hover);
+  border-color: var(--accent-primary);
+  color: var(--accent-primary);
+}
+
+.todoist-sheet-btn.danger {
+  color: var(--status-danger);
+}
+
+.todoist-sheet-btn.danger:hover,
+.todoist-sheet-btn.danger:active {
+  background: rgba(248, 81, 73, 0.1);
+  border-color: var(--status-danger);
+}
+
+.sheet-icon {
+  font-size: 1.15rem;
+  width: 24px;
+  text-align: center;
+}
+
+/* Mobile Responsive Overrides for Template Editor */
+@media (max-width: 768px) {
+  .todoist-editor-dialog {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    border: none !important;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .todoist-editor-header {
+    padding: 0.55rem 0.85rem;
+    height: 56px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .todoist-editor-header .modal-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .todoist-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-shrink: 0;
+  }
+
+  /* Mobile icon-only header action buttons */
+  #label-relevance-settings-btn,
+  #label-tmpl-webhook-btn {
+    display: none !important;
+  }
+
+  .todoist-header-actions .btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-muted);
+    color: var(--text-primary);
+    position: relative;
+    flex: none !important;
+  }
+
+  #btn-toggle-relevance-settings.has-rules::after {
+    content: attr(data-badge);
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    background: var(--accent-primary);
+    color: #04100c;
+    font-size: 0.65rem;
+    font-weight: 800;
+    border-radius: var(--radius-full);
+    min-width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 2px;
+    box-shadow: 0 0 6px var(--accent-primary-glow);
+  }
+
+  #btn-toggle-tmpl-submission-hook.has-hook {
+    color: var(--accent-secondary) !important;
+    border-color: var(--accent-secondary) !important;
+    background: rgba(88, 166, 255, 0.15) !important;
+    box-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
+  }
+
+  .todoist-header-actions .modal-close {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    border-radius: var(--radius-md);
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-muted);
+    color: var(--text-muted);
+    margin: 0;
+    padding: 0;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .todoist-editor-body {
+    flex: 1;
+    padding: 0.85rem;
+    max-height: none;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .todoist-editor-footer {
+    padding: 0.75rem 0.85rem;
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.65rem;
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .todoist-editor-footer .btn {
+    height: 44px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    flex: 1;
+    justify-content: center;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .todoist-actions-bar {
+    display: none !important; /* Hide wide desktop buttons on mobile */
+  }
+
+  /* Medium comfortable touch buttons on mobile */
+  .todoist-btn-more-menu {
+    display: inline-flex !important; /* Show single 3-dots context menu button */
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    font-size: 1.25rem;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    align-items: center;
+    justify-content: center;
+  }
+
+  .todoist-btn-more-menu:hover,
+  .todoist-btn-more-menu:active {
+    background: var(--bg-surface-hover);
+    color: var(--text-primary);
+    border-color: var(--border-muted);
+  }
+
+  .todoist-task-row {
+    padding: 0.5rem 0.4rem;
+    gap: 0.55rem;
+    min-height: 44px;
+    align-items: flex-start;
+  }
+
+  .todoist-drag-handle {
+    opacity: 0.85 !important;
+    padding: 0.35rem 0.45rem;
+    min-width: 34px;
+    min-height: 34px;
+    font-size: 1.25rem;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+  }
+
+  .todoist-circle {
+    width: 18px !important;
+    height: 18px !important;
+    min-width: 18px !important;
+    margin-top: 0.35rem;
+  }
+
+  .todoist-title-input {
+    font-size: 1.15rem;
+  }
+
+  .todoist-item-title-input {
+    font-size: 0.925rem;
+    min-height: 22px;
+  }
+
+  .todoist-item-desc-input {
+    font-size: 0.775rem;
+    min-height: 18px;
+  }
+
+  .todoist-section-block {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .todoist-section-header {
+    gap: 0.45rem;
+  }
+
+  .section-color-trigger-btn {
+    width: 24px;
+    height: 24px;
+    min-width: 24px;
+  }
+
+  .tmpl-btn-section-optional {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.75rem;
+    min-height: 32px;
+  }
+
+  .tmpl-btn-delete-section {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    font-size: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .todoist-add-task-wrap {
+    margin-top: 0.85rem;
+    padding-left: 0.25rem;
+    display: flex;
+    gap: 0.65rem;
+  }
+
+  .todoist-add-task-btn {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-radius: var(--radius-md);
+    min-height: 36px;
+  }
+
+  .todoist-task-webhook-drawer {
+    margin: 0.4rem 0 0.4rem 0.5rem;
+    padding: 0.65rem;
+  }
+
+  .todoist-children-container {
+    margin-left: 0.65rem;
+    padding-left: 0.5rem;
+  }
+}
+
+/* ================= RELEVANCE SCORE SETTINGS & ALARM UI ================= */
+.relevance-rule-card {
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  transition: border-color var(--transition-fast);
+}
+
+.relevance-rule-card:hover {
+  border-color: var(--border-muted);
+}
+
+.alarm-days-group {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.alarm-day-pill {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border-muted);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  font-size: 0.775rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: all var(--transition-fast);
+}
+
+.alarm-day-pill:hover {
+  background: var(--bg-surface-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+.alarm-day-pill.active {
+  background: var(--accent-primary);
+  color: #04100c;
+  border-color: var(--accent-primary);
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(24, 237, 179, 0.3);
+}
+
+.alarm-time-input {
+  width: 125px;
+  font-size: 0.825rem;
+  font-family: var(--font-mono);
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius-sm);
+}
+
+/* ================= DRAG & DROP REORDERING ================= */
+.todoist-drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  font-size: 1.15rem;
+  opacity: 0.4;
+  transition: opacity var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+  padding: 0.2rem 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  flex-shrink: 0;
+  border-radius: var(--radius-sm);
+}
+
+.todoist-task-row:hover .todoist-drag-handle,
+.todoist-section-header:hover .todoist-drag-handle {
+  opacity: 0.9;
+  color: var(--accent-primary);
+}
+
+.todoist-drag-handle:active,
+.todoist-drag-handle.is-active-drag {
+  cursor: grabbing;
+  color: var(--accent-primary);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.todoist-drag-ghost {
+  position: fixed;
+  z-index: 10600;
+  pointer-events: none;
+  box-sizing: border-box;
+  opacity: 0.96;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 0 1.5px var(--accent-primary), 0 0 24px rgba(24, 237, 179, 0.25);
+  background: var(--bg-surface-elevated);
+  border: 1px solid rgba(24, 237, 179, 0.4);
+  border-radius: var(--radius-md);
+  will-change: transform, top, left;
+  transform: translate3d(0, 0, 0) scale(1.02);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.is-dragging {
+  opacity: 0.25 !important;
+  outline: 2px dashed rgba(24, 237, 179, 0.55) !important;
+  outline-offset: -2px;
+  background: rgba(24, 237, 179, 0.04) !important;
+  border-radius: var(--radius-md);
+}
+
+.drag-target-above {
+  position: relative;
+}
+
+.drag-target-above::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
+  border-radius: 3px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.drag-target-below {
+  position: relative;
+}
+
+.drag-target-below::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
+  border-radius: 3px;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.drag-target-inside {
+  outline: 2px dashed #a371f7 !important;
+  outline-offset: 2px;
+  background: rgba(163, 113, 247, 0.12) !important;
+  border-radius: var(--radius-md);
+  position: relative;
+}
+
+/* Template Editor Undo / Redo Toolbar */
+.todoist-undo-redo-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.tmpl-history-btn {
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  line-height: 1;
+  transition: all var(--transition-fast);
+}
+
+.tmpl-history-btn svg {
+  width: 15px;
+  height: 15px;
+  stroke: currentColor;
+  pointer-events: none;
+  display: block;
+}
+
+.tmpl-history-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.tmpl-history-btn:not(:disabled):hover {
+  background: var(--bg-surface-hover);
+  color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+/* ================= TEMPLATE SECTIONS ================= */
+.todoist-section-block {
+  margin-top: 1.25rem;
+  margin-bottom: 0.85rem;
+  background: rgba(255, 255, 255, 0.015);
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--section-color, #4986e7);
+  border-radius: 0 !important; /* Flat section cards */
+  padding: 0.75rem 0.85rem;
+  transition: none;
+}
+
+.todoist-section-block:hover {
+  border-color: var(--border-muted);
+}
+
+.todoist-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.65rem;
+  border-radius: 0 !important;
+}
+
+.todoist-section-title-input {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 0;
+  padding: 0.25rem 0.5rem;
+  flex: 1;
+  min-width: 0;
+  transition: none;
+}
+
+.todoist-section-title-input:hover,
+.todoist-section-title-input:focus {
+  border-color: var(--border-muted);
+  background: var(--bg-surface);
+}
+
+/* Single Circle Color Picker & Google Drive Palette Popover */
+.section-color-picker-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.section-color-trigger-btn {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+  transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  padding: 0;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.section-color-trigger-btn:hover {
+  transform: scale(1.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.section-color-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1050;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  padding: 0.65rem;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  animation: fadeIn 0.15s ease;
+}
+
+.section-color-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 22px);
+  gap: 6px;
+}
+
+.section-color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  padding: 0;
+  outline: none;
+}
+
+.section-color-dot:hover {
+  transform: scale(1.25);
+  border-color: #ffffff;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  z-index: 2;
+}
+
+.section-color-dot.active {
+  border-color: #ffffff;
+  transform: scale(1.15);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+}
+
+.btn-toggle-optional {
+  font-size: 0.725rem;
+  font-weight: 600;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--border-muted);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  transition: all var(--transition-fast);
+}
+
+.btn-toggle-optional:hover {
+  border-color: #d29922;
+  color: #e3b341;
+}
+
+.btn-toggle-optional.is-optional {
+  background: rgba(210, 153, 34, 0.15);
+  border-color: #d29922;
+  color: #e3b341;
+}
+
+/* ================= EXECUTION VIEW COLLAPSIBLE SECTIONS ================= */
+.exec-section-card {
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--section-color, #4986e7);
+  border-radius: 0 !important; /* Flat section cards */
+  background: var(--bg-surface);
+  overflow: visible;
+  position: relative;
+  transition: none;
+}
+
+.exec-section-card:last-child {
+  margin-bottom: 0;
+}
+
+.exec-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  background: var(--bg-surface-elevated);
+  border-radius: 0 !important;
+  transition: none;
+}
+
+.exec-section-header:hover {
+  background: var(--bg-surface-hover);
+}
+
+.exec-section-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.exec-section-chevron {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  transition: transform 0.22s ease;
+  display: inline-block;
+}
+
+.exec-section-card.is-collapsed .exec-section-chevron {
+  transform: rotate(-90deg);
+}
+
+.exec-section-card.is-collapsed .exec-section-body {
+  display: none;
+}
+
+.exec-section-body {
+  padding: 0;
+  overflow: visible;
+}

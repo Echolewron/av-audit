@@ -1,0 +1,17 @@
+{
+  "githubRepo": "Echolewron/av-audit",
+  "server": {
+    "port": 3011,
+    "timezone": "America/Los_Angeles"
+  },
+  "auth": {
+    "defaultAdminUsername": "admin",
+    "defaultAdminPassword": "admin123",
+    "sessionDurationHours": 2,
+    "inactivityWarningMinutes": 10
+  },
+  "retention": {
+    "defaultLogRetentionDays": 30,
+    "checklistSubmissionPurgeHours": 6
+  }
+}

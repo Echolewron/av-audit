@@ -1,0 +1,2022 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AV Audit — Real-Time Operational Checklist & Auditing Platform</title>
+  <meta name="description"
+    content="Real-time multi-user operational checklist platform, Discord-style role hierarchy, and smart auditing system for AV environments.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/css/main.css?v=4.0">
+  <link rel="stylesheet" href="/css/layout.css?v=4.1">
+  <link rel="stylesheet" href="/css/checklists.css?v=4.0">
+  <link rel="stylesheet" href="/css/roles.css?v=3.9">
+  <link rel="stylesheet" href="/css/accounts.css?v=3.9">
+  <link rel="stylesheet" href="/css/flatpickr.min.css">
+  <link rel="stylesheet" href="/css/audit.css?v=3.8">
+  <link rel="stylesheet" href="/css/dashboard.css?v=4.0">
+  <link rel="stylesheet" href="/css/sermon-sender.css?v=3.8">
+</head>
+
+<body>
+
+  <!-- ================= DEDICATED FULL-PAGE AUTH VIEW ================= -->
+  <div id="auth-page" style="display: none;">
+    <!-- Deep Tech Circuit Trace Background -->
+    <div class="auth-bg-circuit-wrapper" aria-hidden="true">
+      <div class="auth-vignette-overlay"></div>
+      <svg class="auth-circuit-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="circuitGradMint" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#1fe5a8" stop-opacity="0.85" />
+            <stop offset="60%" stop-color="#18edb3" stop-opacity="0.45" />
+            <stop offset="100%" stop-color="#1fe5a8" stop-opacity="0.05" />
+          </linearGradient>
+          <linearGradient id="circuitGradCyan" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#38ef7d" stop-opacity="0.9" />
+            <stop offset="50%" stop-color="#11998e" stop-opacity="0.5" />
+            <stop offset="100%" stop-color="#1fe5a8" stop-opacity="0.05" />
+          </linearGradient>
+          <filter id="nodeGlow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        <!-- Static Background Grid Pattern Dots -->
+        <g class="circuit-grid-dots" opacity="0.12" fill="#1fe5a8">
+          <circle cx="100" cy="100" r="1.5" /><circle cx="200" cy="100" r="1.5" /><circle cx="300" cy="100" r="1.5" />
+          <circle cx="1200" cy="100" r="1.5" /><circle cx="1300" cy="100" r="1.5" /><circle cx="1400" cy="100" r="1.5" />
+          <circle cx="100" cy="800" r="1.5" /><circle cx="200" cy="800" r="1.5" /><circle cx="300" cy="800" r="1.5" />
+          <circle cx="1200" cy="800" r="1.5" /><circle cx="1300" cy="800" r="1.5" /><circle cx="1400" cy="800" r="1.5" />
+          <circle cx="200" cy="300" r="1.5" /><circle cx="1240" cy="300" r="1.5" /><circle cx="200" cy="600" r="1.5" /><circle cx="1240" cy="600" r="1.5" />
+        </g>
+
+        <!-- Static Bus Lines (45-degree isometric schematic traces) -->
+        <g class="circuit-static-lines" stroke="rgba(31, 229, 168, 0.14)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Top Left Quadrant -->
+          <path d="M-20,40 L180,40 L260,120 L420,120 L480,180 L560,180" />
+          <path d="M40,-20 L40,140 L160,260 L160,400 L240,480 L380,480" />
+          <path d="M-20,180 L120,180 L220,280 L340,280 L400,340 L480,340" />
+          <path d="M120,-20 L120,80 L280,240 L380,240" />
+
+          <!-- Top Right Quadrant -->
+          <path d="M1460,40 L1260,40 L1180,120 L1020,120 L960,180 L880,180" />
+          <path d="M1400,-20 L1400,140 L1280,260 L1280,400 L1200,480 L1060,480" />
+          <path d="M1460,180 L1320,180 L1220,280 L1100,280 L1040,340 L960,340" />
+          <path d="M1320,-20 L1320,80 L1160,240 L1060,240" />
+
+          <!-- Bottom Left Quadrant -->
+          <path d="M-20,860 L180,860 L260,780 L420,780 L480,720 L560,720" />
+          <path d="M40,920 L40,760 L160,640 L160,500 L240,420 L380,420" />
+          <path d="M-20,720 L120,720 L220,620 L340,620 L400,560 L480,560" />
+          <path d="M120,920 L120,820 L280,660 L380,660" />
+
+          <!-- Bottom Right Quadrant -->
+          <path d="M1460,860 L1260,860 L1180,780 L1020,780 L960,720 L880,720" />
+          <path d="M1400,920 L1400,760 L1280,640 L1280,500 L1200,420 L1060,420" />
+          <path d="M1460,720 L1320,720 L1220,620 L1100,620 L1040,560 L960,560" />
+          <path d="M1320,920 L1320,820 L1160,660 L1060,660" />
+        </g>
+
+        <!-- Active Data Pulse Paths (CSS Animated Electrical Pulses) -->
+        <g class="circuit-pulse-lines" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <!-- Pulse 1: Top-Left Upper Bus -->
+          <path class="circuit-pulse-path pulse-1" d="M-20,40 L180,40 L260,120 L420,120 L480,180 L560,180" stroke="url(#circuitGradMint)" stroke-width="2.5" />
+          <!-- Pulse 2: Bottom-Right Lower Bus -->
+          <path class="circuit-pulse-path pulse-2" d="M1460,860 L1260,860 L1180,780 L1020,780 L960,720 L880,720" stroke="url(#circuitGradCyan)" stroke-width="2.5" />
+          <!-- Pulse 3: Top-Right Vertical Feed -->
+          <path class="circuit-pulse-path pulse-3" d="M1400,-20 L1400,140 L1280,260 L1280,400 L1200,480 L1060,480" stroke="url(#circuitGradMint)" stroke-width="2.2" />
+          <!-- Pulse 4: Bottom-Left Vertical Feed -->
+          <path class="circuit-pulse-path pulse-4" d="M40,920 L40,760 L160,640 L160,500 L240,420 L380,420" stroke="url(#circuitGradCyan)" stroke-width="2.2" />
+          <!-- Pulse 5: Top-Right Upper Bus -->
+          <path class="circuit-pulse-path pulse-5" d="M1460,40 L1260,40 L1180,120 L1020,120 L960,180 L880,180" stroke="url(#circuitGradMint)" stroke-width="2.5" />
+          <!-- Pulse 6: Bottom-Left Lower Bus -->
+          <path class="circuit-pulse-path pulse-6" d="M-20,860 L180,860 L260,780 L420,780 L480,720 L560,720" stroke="url(#circuitGradMint)" stroke-width="2.5" />
+          <!-- Pulse 7: Top-Left Diagonal Branch -->
+          <path class="circuit-pulse-path pulse-7" d="M120,-20 L120,80 L280,240 L380,240" stroke="url(#circuitGradCyan)" stroke-width="2" />
+          <!-- Pulse 8: Bottom-Right Diagonal Branch -->
+          <path class="circuit-pulse-path pulse-8" d="M1320,920 L1320,820 L1160,660 L1060,660" stroke="url(#circuitGradMint)" stroke-width="2" />
+        </g>
+
+        <!-- Terminal Nodes & Vertices -->
+        <g class="circuit-nodes" stroke="rgba(31, 229, 168, 0.45)" stroke-width="1.5">
+          <!-- Small Ring Terminals -->
+          <circle cx="180" cy="40" r="3" fill="#070a0f" />
+          <circle cx="260" cy="120" r="3" fill="#070a0f" />
+          <circle cx="420" cy="120" r="3" fill="#070a0f" />
+          <circle cx="1260" cy="40" r="3" fill="#070a0f" />
+          <circle cx="1180" cy="120" r="3" fill="#070a0f" />
+          <circle cx="1020" cy="120" r="3" fill="#070a0f" />
+          <circle cx="180" cy="860" r="3" fill="#070a0f" />
+          <circle cx="260" cy="780" r="3" fill="#070a0f" />
+          <circle cx="420" cy="780" r="3" fill="#070a0f" />
+          <circle cx="1260" cy="860" r="3" fill="#070a0f" />
+          <circle cx="1180" cy="780" r="3" fill="#070a0f" />
+          <circle cx="1020" cy="780" r="3" fill="#070a0f" />
+
+          <!-- Glowing Accent Nodes with Gentle Breathing Keyframes -->
+          <circle class="circuit-node-pulse" cx="480" cy="180" r="3.5" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-1" cx="560" cy="180" r="2.8" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-2" cx="960" cy="180" r="3.5" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-3" cx="880" cy="180" r="2.8" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-1" cx="480" cy="720" r="3.5" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-2" cx="560" cy="720" r="2.8" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-3" cx="960" cy="720" r="3.5" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse" cx="880" cy="720" r="2.8" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-2" cx="380" cy="480" r="2.8" fill="#1fe5a8" stroke="#1fe5a8" />
+          <circle class="circuit-node-pulse delay-1" cx="1060" cy="480" r="2.8" fill="#1fe5a8" stroke="#1fe5a8" />
+        </g>
+      </svg>
+    </div>
+
+    <div class="auth-card">
+      <div id="auth-public-return-bar" style="display: none; margin-bottom: 1rem; text-align: left;">
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-back-to-public-checklist">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          Back to Checklist
+        </button>
+      </div>
+      <div class="auth-header">
+        <div class="auth-brand-badge">AV</div>
+        <h1 class="auth-title">AV Audit Console</h1>
+        <p class="auth-subtitle">Operational checklist & smart auditing platform</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button type="button" class="auth-tab-btn active" id="tab-auth-login">Sign In</button>
+        <button type="button" class="auth-tab-btn" id="tab-auth-register">Register Account</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="login-username">Username</label>
+          <input type="text" id="login-username" class="form-control" placeholder="Enter username" required autofocus autocomplete="username">
+          <div class="form-error-msg" id="error-login-username"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+          <div class="form-error-msg" id="error-login-password"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;"
+          id="btn-submit-login">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" style="display: none;" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="reg-username">Choose Username</label>
+          <input type="text" id="reg-username" class="form-control" placeholder="Minimum 4 characters" minlength="4"
+            required autocomplete="username">
+          <div class="form-error-msg" id="error-reg-username"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-password">Choose Password</label>
+          <input type="password" id="reg-password" class="form-control" placeholder="Minimum 4 characters" minlength="4"
+            required autocomplete="new-password">
+          <div class="form-error-msg" id="error-reg-password"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="reg-confirm-password">Confirm Password</label>
+          <input type="password" id="reg-confirm-password" class="form-control" placeholder="Repeat password" required autocomplete="new-password">
+          <div class="form-error-msg" id="error-reg-confirm-password"></div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;"
+          id="btn-submit-register">
+          Create Account
+        </button>
+      </form>
+
+      <div class="auth-footer-version">
+        <span id="auth-version-label">beta 1.0.0</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Root App Shell -->
+  <div id="app-container" style="display: none;">
+
+    <!-- Persistent Collapsible Sidebar -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <div class="brand-icon">AV</div>
+          <span class="brand-name">AV Audit</span>
+        </div>
+        <button id="btn-toggle-sidebar" class="sidebar-toggle-btn" title="Toggle Navigation">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <button id="btn-close-mobile-nav" class="mobile-nav-close-btn" title="Close Navigation">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <ul class="nav-menu" id="main-nav-menu">
+        <li class="nav-item" data-nav="dashboard">
+          <a class="nav-link" data-view="dashboard" data-title="Dashboard" id="nav-dashboard">
+            <span class="nav-icon">🎛️</span>
+            <span class="nav-text">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-item" data-nav="sermon-sender">
+          <a class="nav-link" data-view="sermon-sender" data-title="Recordings Sender" id="nav-sermon-sender">
+            <span class="nav-icon">🎙️</span>
+            <span class="nav-text">Recordings Sender</span>
+          </a>
+        </li>
+        <li class="nav-item" data-nav="checklists">
+          <a class="nav-link active" data-view="checklists" data-title="Checklists" id="nav-checklists">
+            <span class="nav-icon">📋</span>
+            <span class="nav-text">Checklists</span>
+            <span class="badge badge-success nav-badge" id="badge-active-checklists" style="display:none;">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-nav="roles">
+          <a class="nav-link" data-view="roles" data-title="Roles & Permissions" id="nav-roles">
+            <span class="nav-icon">🛡️</span>
+            <span class="nav-text">Roles & Permissions</span>
+          </a>
+        </li>
+        <li class="nav-item" data-nav="accounts">
+          <a class="nav-link" data-view="accounts" data-title="Accounts" id="nav-accounts">
+            <span class="nav-icon">👥</span>
+            <span class="nav-text">Accounts</span>
+            <span class="badge badge-warning nav-badge" id="badge-pending-accounts" style="display:none;">0</span>
+          </a>
+        </li>
+        <li class="nav-item" data-nav="audit">
+          <a class="nav-link" data-view="audit" data-title="Audit Log" id="nav-audit">
+            <span class="nav-icon">📜</span>
+            <span class="nav-text">Audit Log</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <div class="user-profile-widget" id="user-profile-widget">
+          <div class="user-profile-main">
+            <div class="user-avatar" id="user-avatar-initial">A</div>
+            <div class="user-name-wrap">
+              <div class="user-name" id="profile-username">Administrator</div>
+            </div>
+            <div class="user-profile-actions">
+              <button id="btn-user-settings" class="btn btn-secondary btn-icon btn-sm" title="Account Settings & Password" aria-label="Account Settings">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+              <button id="btn-logout" class="btn btn-secondary btn-icon btn-sm" title="Log Out" aria-label="Log Out">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="user-role-wrap">
+            <span class="badge user-role-badge" id="profile-role-badge">Admin</span>
+          </div>
+        </div>
+        <div class="sidebar-version-badge" id="sidebar-version-badge" title="AV Audit Version">
+          <span class="version-dot"></span>
+          <span class="version-text" id="app-version-label">beta 1.0.0</span>
+        </div>
+      </div>
+    </aside>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Main Wrapper -->
+    <div id="main-wrapper">
+
+      <!-- Top Application Header -->
+      <header id="top-header">
+        <div class="header-left">
+          <button id="btn-mobile-menu" class="mobile-menu-btn" title="Toggle Navigation">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div class="view-breadcrumb" id="view-breadcrumb">
+            <span id="breadcrumb-title">Active Checklists</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <!-- Socket Live Status -->
+          <div class="connection-indicator" id="socket-status" title="Real-time Socket.io multi-client synchronization">
+            <span class="connection-dot" id="socket-dot"></span>
+            <span id="socket-label">Live Sync</span>
+          </div>
+          <!-- Public View Login Button -->
+          <button class="btn btn-primary btn-sm" id="btn-public-login" style="display: none;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+              <polyline points="10 17 15 12 10 7"></polyline>
+              <line x1="15" y1="12" x2="3" y2="12"></line>
+            </svg>
+            Sign In
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Views Stage -->
+      <main id="content-stage">
+
+        <!-- ================= VIEW 0: FLIGHT CONTROL DASHBOARD ================= -->
+        <section class="view-section" id="view-dashboard">
+          <div class="dashboard-header-bar">
+            <div class="dashboard-title-area">
+              <div class="dashboard-title-row">
+                <!-- Custom Dropdown Trigger Button -->
+                <button type="button" class="dashboard-switcher-btn" id="btn-dashboard-switcher" title="Switch Dashboard">
+                  <span class="dashboard-color-indicator" id="current-dashboard-color-dot" style="background-color: #58a6ff; color: #58a6ff;"></span>
+                  <span class="dashboard-title-text" id="current-dashboard-title">Loading Dashboard...</span>
+                  <svg class="dashboard-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <p class="dashboard-header-desc" id="current-dashboard-description"></p>
+
+              <!-- Custom Floating Dropdown Menu -->
+              <div class="dashboard-dropdown-menu" id="dashboard-dropdown-menu">
+                <!-- Search bar on top -->
+                <div class="dashboard-dropdown-search-wrapper">
+                  <div class="dashboard-search-input-group">
+                    <svg class="dashboard-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="text" class="dashboard-search-input" id="input-search-dashboards" placeholder="Search dashboards...">
+                    <button type="button" class="dashboard-search-clear-btn" id="btn-clear-dashboard-search" title="Clear search">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Middle list of dashboards -->
+                <div class="dashboard-dropdown-list" id="dashboard-dropdown-list">
+                  <!-- Populated dynamically by dashboardView.js -->
+                </div>
+
+                <!-- Bottom create button (Restricted) -->
+                <div class="dashboard-dropdown-footer" id="dashboard-dropdown-footer">
+                  <button type="button" class="btn-create-dashboard-dropdown" id="btn-open-create-dashboard">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"></line>
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    <span>Create New Dashboard</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Header Actions: Edit Mode, Export, Import, Settings (Symbols-only & Identical size) -->
+            <div class="dashboard-header-actions">
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-edit" id="btn-toggle-dashboard-edit" title="Toggle Edit Mode (Add/Edit Cards, Sections, Badges)">
+                <svg class="icon-edit-mode" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+              </button>
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-export" id="btn-export-dashboard" title="Export Dashboard (Download JSON)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </button>
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-import" id="btn-import-dashboard" title="Import Dashboard (Upload JSON)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </button>
+              <input type="file" id="input-import-dashboard-file" accept=".json,application/json" style="display: none;">
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-settings" id="btn-open-dashboard-settings" title="Dashboard Settings">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Top Status Bar: Quick-Read Badges Row -->
+          <div class="dashboard-badges-wrapper" id="dashboard-badges-wrapper">
+            <div class="dashboard-badges-row" id="dashboard-badges-row">
+              <!-- Populated dynamically by dashboardView.js -->
+            </div>
+          </div>
+
+          <!-- Main Lovelace Sections Canvas Stage -->
+          <div id="dashboard-stage-container" class="dashboard-canvas-stage">
+            <div class="dashboard-stage-empty">
+              <div class="dashboard-empty-icon-box">🎛️</div>
+              <h3 id="dashboard-stage-empty-title">Main Stage Flight Control</h3>
+              <p>Customizable multi-dashboard flight control center. Widget canvas and controls will appear here.</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW: RECORDINGS SENDER ================= -->
+        <section class="view-section" id="view-sermon-sender">
+          <div class="sermon-sender-container">
+            
+            <!-- Left/Main Interactive Stage -->
+            <div class="sermon-main-panel">
+              <div class="sermon-header-bar">
+                <div class="sermon-header-text">
+                  <h1 class="sermon-page-title">Recordings Sender</h1>
+                  <p class="sermon-page-subtitle">Automatically compress and email recordings</p>
+                </div>
+                <div class="sermon-header-actions">
+                  <button type="button" class="btn-sermon-settings" id="btn-open-sermon-settings" title="Recordings Sender Settings (Gmail credentials, templates, retention)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="3"></circle>
+                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Content Stage View 1: Big Drag-and-Drop Upload Square -->
+              <div class="sermon-upload-stage" id="sermon-upload-stage">
+                <div class="sermon-upload-dropzone" id="sermon-upload-dropzone">
+                  <input type="file" id="sermon-file-input" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac" style="display: none;">
+                  <div class="sermon-dropzone-inner">
+                    <div class="sermon-dropzone-icon-glow">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                      </svg>
+                    </div>
+                    <h2 class="sermon-dropzone-title">Upload File</h2>
+                    <p class="sermon-dropzone-sub">Drag and drop your MP3 / audio recording here, or <span class="sermon-browse-link">browse</span></p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Content Stage View 2: Form & Progress Stepper Stage -->
+              <div class="sermon-form-stage" id="sermon-form-stage" style="display: none;">
+                
+                <!-- File Preview Card & Inputs Grid -->
+                <div class="sermon-form-card">
+                  <div class="sermon-file-preview-banner">
+                    <div class="sermon-file-logo-box">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18V5l12-2v13"></path>
+                        <circle cx="6" cy="18" r="3"></circle>
+                        <circle cx="18" cy="16" r="3"></circle>
+                      </svg>
+                    </div>
+                    <div class="sermon-file-meta">
+                      <div class="sermon-file-name" id="sermon-selected-filename">sermon_recording.mp3</div>
+                      <div class="sermon-file-size" id="sermon-selected-filesize">0 MB</div>
+                    </div>
+                    <button type="button" class="btn-sermon-change-file" id="btn-sermon-change-file" title="Choose a different file">Change File</button>
+                  </div>
+
+                  <div class="sermon-inputs-grid">
+                    <!-- Sermon Title Text Field -->
+                    <div class="form-group sermon-input-group">
+                      <label class="form-label" for="input-sermon-title">
+                        Sermon Title <span class="required-star">*</span>
+                      </label>
+                      <input type="text" id="input-sermon-title" class="form-control sermon-text-input" placeholder="e.g. The Lord Is My Shepherd" required autocomplete="off">
+                      <span class="form-hint">Automatically formatted in Title Case</span>
+                    </div>
+
+                    <!-- Sermon Context Dropdown with Timed Relevancy -->
+                    <div class="form-group sermon-input-group">
+                      <label class="form-label" for="sermon-context-selected-trigger">
+                        When Sermon Was Delivered <span class="required-star">*</span>
+                      </label>
+                      <div class="sermon-context-custom-select" id="sermon-context-select-wrapper">
+                        <div class="sermon-context-selected-box" id="sermon-context-selected-trigger">
+                          <span class="sermon-ctx-pill-tag" id="sermon-ctx-current-tag" style="display: none;"></span>
+                          <span class="sermon-ctx-selected-text" id="sermon-ctx-selected-text">Select context...</span>
+                          <svg class="sermon-caret-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="6 9 12 15 18 9"></polyline>
+                          </svg>
+                        </div>
+                        
+                        <!-- Dropdown Menu -->
+                        <div class="sermon-context-dropdown-menu" id="sermon-context-dropdown-menu">
+                          <div class="sermon-context-options-list" id="sermon-context-options-list">
+                            <!-- Populated dynamically with timed relevancy ordering -->
+                          </div>
+                          
+                          <!-- Custom Context Input at bottom -->
+                          <div class="sermon-context-custom-input-box">
+                            <input type="text" id="input-sermon-custom-context" class="form-control form-control-sm" placeholder="Enter custom context (press Enter)...">
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div class="sermon-form-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-sermon-form">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sermon-send" id="btn-send-sermon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                      </svg>
+                      <span>Send Recording</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Live Progress Stepper Stage (Visible during sending) -->
+                <div class="sermon-progress-widget" id="sermon-progress-widget" style="display: none;">
+                  <div class="sermon-progress-header">
+                    <span class="sermon-progress-title">Processing & Sending Recording</span>
+                    <span class="sermon-progress-badge" id="sermon-progress-overall-badge">In Progress</span>
+                  </div>
+
+                  <div class="sermon-steps-list">
+                    <!-- Step 1: Upload -->
+                    <div class="sermon-step-item pending" id="sermon-step-upload">
+                      <div class="sermon-step-icon-state">
+                        <span class="step-icon-pending"></span>
+                        <span class="step-icon-spinning"></span>
+                        <span class="step-icon-done">✅</span>
+                        <span class="step-icon-failed">❌</span>
+                      </div>
+                      <div class="sermon-step-content">
+                        <div class="sermon-step-title">Audio file uploaded</div>
+                        <div class="sermon-step-desc" id="sermon-step-upload-desc">File transferred to server</div>
+                      </div>
+                    </div>
+
+                    <!-- Step 2: Compress -->
+                    <div class="sermon-step-item pending" id="sermon-step-compress">
+                      <div class="sermon-step-icon-state">
+                        <span class="step-icon-pending"></span>
+                        <span class="step-icon-spinning"></span>
+                        <span class="step-icon-done">✅</span>
+                        <span class="step-icon-failed">❌</span>
+                      </div>
+                      <div class="sermon-step-content">
+                        <div class="sermon-step-title">Compressing audio (~15MB target)</div>
+                        <div class="sermon-step-desc" id="sermon-step-compress-desc">Optimizing audio bitrate with FFmpeg</div>
+                      </div>
+                    </div>
+
+                    <!-- Step 3: Sending Gmail -->
+                    <div class="sermon-step-item pending" id="sermon-step-email">
+                      <div class="sermon-step-icon-state">
+                        <span class="step-icon-pending"></span>
+                        <span class="step-icon-spinning"></span>
+                        <span class="step-icon-done">✅</span>
+                        <span class="step-icon-failed">❌</span>
+                      </div>
+                      <div class="sermon-step-content">
+                        <div class="sermon-step-title">Sending Gmail with attachment</div>
+                        <div class="sermon-step-desc" id="sermon-step-email-desc">Delivering email to recipient via SMTP</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Completion Card -->
+                  <div class="sermon-completion-card" id="sermon-completion-card" style="display: none;">
+                    <div class="sermon-completion-icon">🎉</div>
+                    <h3 class="sermon-completion-title" id="sermon-completion-title">Recording Sent Successfully!</h3>
+                    <p class="sermon-completion-msg" id="sermon-completion-msg">The recording has been compressed and emailed.</p>
+                    <button type="button" class="btn btn-primary" id="btn-send-another-sermon">Send Another Recording</button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- Right Panel: Compact Previously Submitted Sermons Sidebar -->
+            <aside class="sermon-history-sidebar" id="sermon-history-sidebar">
+              <div class="sermon-history-header">
+                <div class="sermon-history-header-title">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>Submissions History</span>
+                </div>
+                <button type="button" class="btn-refresh-sermon-history" id="btn-refresh-sermon-history" title="Refresh history list">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23 4 23 10 17 10"></polyline>
+                    <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                  </svg>
+                </button>
+              </div>
+
+              <div class="sermon-history-list" id="sermon-history-list">
+                <!-- Dynamically populated -->
+              </div>
+            </aside>
+
+          </div>
+        </section>
+
+        <!-- ================= VIEW 1: CHECKLISTS & TEMPLATES INTEGRATED ================= -->
+        <section class="view-section active" id="view-checklists">
+
+          <!-- Sub-tabs: Active Checklists vs Templates -->
+          <div class="checklists-subtabs">
+            <button class="checklists-tab-btn active" id="tab-btn-active-checklists">
+              <span>📋</span>
+              <span>Active Checklists</span>
+            </button>
+            <button class="checklists-tab-btn" id="tab-btn-checklist-templates">
+              <span>🗂️</span>
+              <span>Templates Management</span>
+            </button>
+          </div>
+
+          <!-- PANE A: ACTIVE CHECKLISTS GRID -->
+          <div id="pane-active-checklists">
+            <div class="view-header">
+              <div class="view-header-left">
+                <h1>Active Checklists</h1>
+                <p>Real-time collaborative live audit and task execution console</p>
+              </div>
+              <div class="view-header-actions">
+                <button class="btn btn-outline-danger" id="btn-delete-all-checklists" style="display: none;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Delete All Checklists
+                </button>
+              </div>
+            </div>
+
+            <div class="checklists-grid" id="checklists-grid-container">
+              <!-- Dynamic Active Checklists & Add Card Rendered Here -->
+            </div>
+          </div>
+
+          <!-- PANE B: TEMPLATES MANAGEMENT -->
+          <div id="pane-templates-management" style="display: none;">
+            <div class="view-header">
+              <div class="view-header-left">
+                <h1>Checklist Templates</h1>
+                <p>Design and edit operational templates with nested subtasks and cURL automation hooks</p>
+              </div>
+              <div class="view-header-actions">
+                <input type="file" id="input-import-template" accept=".json,application/json" style="display: none;">
+                <button class="btn btn-outline-danger" id="btn-delete-all-templates" style="display: none;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                  Delete All Templates
+                </button>
+                <button class="btn btn-secondary" id="btn-import-template">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                  </svg>
+                  Import Template
+                </button>
+                <button class="btn btn-primary" id="btn-create-template">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Create Template
+                </button>
+              </div>
+            </div>
+
+            <div class="checklists-grid" id="templates-grid-container">
+              <!-- Dynamic Templates Rendered Here -->
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= VIEW 2: CHECKLIST EXECUTION VIEW ================= -->
+        <section class="view-section" id="view-execution">
+          <div class="view-header">
+            <div class="view-header-left">
+              <button class="btn btn-secondary btn-sm" id="btn-back-to-grid" style="margin-bottom: 0.5rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Back to Active Grid
+              </button>
+              <h1 id="exec-checklist-title">Checklist Title</h1>
+              <p id="exec-checklist-template">Associated Template: Live Event</p>
+            </div>
+            <div class="view-header-actions" id="exec-header-actions">
+              <div class="execution-viewers-bar" id="exec-viewers-bar">
+                <span>Active Viewers:</span>
+                <span class="execution-viewers-list" id="exec-viewers-list">You</span>
+              </div>
+              <button class="btn btn-secondary btn-lg btn-exec-action" id="btn-unsubmit-checklist" style="display:none;">
+                <span class="btn-icon">↩️</span>
+                <span class="btn-text">Reopen Checklist</span>
+              </button>
+              <button class="btn btn-secondary btn-lg btn-exec-action" id="btn-share-checklist" title="Share checklist via link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="18" cy="5" r="3"></circle>
+                  <circle cx="6" cy="12" r="3"></circle>
+                  <circle cx="18" cy="19" r="3"></circle>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+                <span class="btn-text">Share</span>
+              </button>
+              <button class="btn btn-outline-danger btn-lg btn-exec-action" id="btn-delete-checklist" title="Delete Checklist">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                <span class="btn-text">Delete</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="execution-container">
+            <div class="execution-header">
+              <div class="exec-progress-box">
+                <div class="progress-ring-container" id="exec-progress-ring">
+                  <!-- Dynamic SVG Ring -->
+                </div>
+                <div class="exec-progress-info">
+                  <div style="font-weight:700; font-size:1.1rem;" id="exec-progress-label">0% Completed</div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);" id="exec-status-tag">Status: In-Progress</div>
+                </div>
+              </div>
+              <div class="exec-progress-bar-track">
+                <div class="exec-progress-bar-fill" id="exec-progress-bar-fill" style="width: 0%;"></div>
+              </div>
+            </div>
+
+            <!-- Task Tree Hierarchy -->
+            <div class="task-tree" id="exec-task-tree">
+              <!-- Dynamically Populated Tasks & Subtasks -->
+            </div>
+          </div>
+
+          <!-- Bottom scroll buffer spacer for mobile viewports -->
+          <div class="execution-bottom-spacer" aria-hidden="true"></div>
+        </section>
+
+        <!-- ================= VIEW 3: DISCORD-STYLE ROLES & PERMISSIONS ================= -->
+        <section class="view-section" id="view-roles">
+          <div class="view-header">
+            <div class="view-header-left">
+              <h1>Roles & Hierarchy</h1>
+              <p>Discord-style position authority hierarchy, badge customization, and granular permission matrix</p>
+            </div>
+            <div class="view-header-actions">
+              <button class="btn btn-primary" id="btn-add-role">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Create Role
+              </button>
+            </div>
+          </div>
+
+          <div class="roles-layout">
+            <!-- Left Sidebar: Draggable Hierarchy List -->
+            <div class="roles-sidebar">
+              <div class="roles-sidebar-header">
+                <span style="font-weight:600; font-size:0.9rem;">Hierarchy Order</span>
+                <span style="font-size:0.75rem; color:var(--text-muted);">Drag to reorder</span>
+              </div>
+              <ul class="roles-list" id="roles-hierarchy-list">
+                <!-- Draggable Role Items -->
+              </ul>
+            </div>
+
+            <!-- Right Area: Role Detail & Permission Matrix -->
+            <div class="role-editor-card" id="role-editor-pane">
+              <!-- Selected Role Editor Form -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 4: ACCOUNT MANAGEMENT ================= -->
+        <section class="view-section" id="view-accounts">
+          <div class="view-header">
+            <div class="view-header-left">
+              <h1>Account Management</h1>
+              <p>Pending approval triage, user directory, role assignment, password resets, and suspensions</p>
+            </div>
+          </div>
+
+          <div class="accounts-container">
+            <!-- Pending Approvals Queue -->
+            <div class="pending-queue-section" id="pending-queue-section">
+              <div class="pending-queue-header">
+                <div class="pending-queue-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>Pending Access Approvals (<span id="pending-count">0</span>)</span>
+                </div>
+              </div>
+              <div class="pending-grid" id="pending-users-grid">
+                <!-- Pending User Cards -->
+              </div>
+            </div>
+
+            <!-- User Directory -->
+            <div class="directory-section">
+              <div class="directory-toolbar">
+                <div class="search-input-group">
+                  <input type="text" id="user-search-input" class="form-control"
+                    placeholder="Search accounts by username...">
+                </div>
+                <div style="display:flex; gap:0.5rem;">
+                  <select id="user-status-filter" class="form-select" style="width: auto;">
+                    <option value="">All Statuses</option>
+                    <option value="ACTIVE">Active</option>
+                    <option value="SUSPENDED">Suspended</option>
+                    <option value="PENDING">Pending</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="table-responsive">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>User</th>
+                      <th>Assigned Roles</th>
+                      <th>Status</th>
+                      <th>Created Date</th>
+                      <th style="text-align:right;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="user-directory-tbody">
+                    <!-- Dynamic Table Rows -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 5: AUDIT LOG & RETENTION ================= -->
+        <section class="view-section" id="view-audit">
+          <div class="view-header">
+            <div class="view-header-left">
+              <h1>Audit Log</h1>
+              <p>Day-grouped system event timeline formatted in America/Los_Angeles timezone</p>
+            </div>
+            <div class="view-header-actions">
+              <button class="btn btn-secondary btn-icon" id="btn-audit-settings" title="Audit Settings" aria-label="Audit Settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="audit-container">
+            <!-- Overhauled 4-Field Filter Toolbar -->
+            <div class="audit-toolbar">
+              <div class="audit-filter-group">
+                <!-- 1. Global Search -->
+                <div class="audit-filter-item audit-filter-search">
+                  <div class="audit-input-icon-wrapper">
+                    <svg class="audit-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8"/>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    </svg>
+                    <input type="text" id="audit-global-search" class="form-control" placeholder="Search anything (action, summary, user...)" autocomplete="off">
+                  </div>
+                </div>
+
+                <!-- 2. Rich Category Dropdown -->
+                <div class="audit-filter-item audit-custom-dropdown" id="audit-category-dropdown">
+                  <button type="button" class="audit-dropdown-btn" id="audit-category-btn" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="audit-dropdown-selected" id="audit-category-selected">
+                      <span class="cat-pill cat-ALL">All Categories</span>
+                    </span>
+                    <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+                  <div class="audit-dropdown-menu" id="audit-category-menu" role="listbox">
+                    <div class="audit-dropdown-list" id="audit-category-items-list">
+                      <!-- Rendered by auditView.js with Heroicons -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 3. Rich User Dropdown with Search -->
+                <div class="audit-filter-item audit-custom-dropdown" id="audit-user-dropdown">
+                  <button type="button" class="audit-dropdown-btn" id="audit-user-btn" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="audit-dropdown-selected" id="audit-user-selected">
+                      <span class="user-pill user-ALL">All Users</span>
+                    </span>
+                    <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 9l6 6 6-6"/>
+                    </svg>
+                  </button>
+                  <div class="audit-dropdown-menu" id="audit-user-menu" role="listbox">
+                    <div class="audit-dropdown-search-box">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      </svg>
+                      <input type="text" id="audit-user-search-input" class="form-control form-control-sm" placeholder="Filter user name..." autocomplete="off">
+                    </div>
+                    <div class="audit-dropdown-list" id="audit-user-items-list">
+                      <!-- Populated dynamically with users & role colors -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 4. Flatpickr Date (or Range) Picker -->
+                <div class="audit-filter-item audit-filter-date">
+                  <div class="audit-input-icon-wrapper">
+                    <svg class="audit-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                      <line x1="16" y1="2" x2="16" y2="6"/>
+                      <line x1="8" y1="2" x2="8" y2="6"/>
+                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    </svg>
+                    <input type="text" id="audit-flatpickr-date" class="form-control" placeholder="Select date or range..." readonly>
+                  </div>
+                </div>
+
+                <!-- Clear Button -->
+                <button class="btn btn-secondary btn-sm" id="btn-clear-audit-filters" title="Reset all 4 filters">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                  </svg>
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Column Titles Header Bar -->
+            <div class="audit-grid-header" id="audit-grid-header">
+              <div class="audit-header-col audit-header-time">TIME</div>
+              <div class="audit-header-col audit-header-cat">CATEGORY</div>
+              <div class="audit-header-col audit-header-who">WHO</div>
+              <div class="audit-header-col audit-header-action">ACTION</div>
+              <div class="audit-header-col audit-header-summary">ACTION SUMMARY</div>
+            </div>
+
+            <!-- Day Grouped Timeline Grid -->
+            <div class="audit-timeline" id="audit-timeline-container">
+              <!-- Day Groups & Grid Cards Rendered Here -->
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= VIEW 6: PENDING APPROVAL LANDING SCREEN ================= -->
+        <section class="view-section" id="view-pending-approval"
+          style="max-width: 600px; margin: 4rem auto; text-align: center;">
+          <div
+            style="background: var(--bg-surface-elevated); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: 3rem 2rem; box-shadow: var(--shadow-lg);">
+            <div style="margin-bottom: 1.25rem; color: var(--accent-primary); display: flex; justify-content: center;">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            <h1 style="font-size: 1.6rem; margin-bottom: 0.75rem;">Account Pending Approval</h1>
+            <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 2rem;">
+              Your account registration is currently pending administrative review. Once an authorized supervisor
+              approves your account and assigns a role, access will be automatically enabled.
+            </p>
+            <div style="display:flex; justify-content:center; gap:1rem;">
+              <button class="btn btn-secondary" id="btn-check-pending-status" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+                </svg>
+                <span>Check Status</span>
+              </button>
+              <button class="btn btn-outline-danger" id="btn-pending-logout">Log Out</button>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: INSTANTIATE CHECKLIST FROM TEMPLATE ================= -->
+  <div class="modal-backdrop" id="modal-new-checklist">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title">📋 Select Template to Instantiate</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">
+          Select a template below to immediately instantiate an active checklist:
+        </p>
+        <div class="template-picker-list" id="template-picker-list">
+          <!-- Dynamic Vertical Template Items -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: TEMPLATE BUILDER / EDITOR ================= -->
+  <div class="modal-backdrop" id="modal-template-editor">
+    <div class="modal-dialog modal-lg todoist-editor-dialog">
+      <div class="modal-header todoist-editor-header">
+        <div class="modal-title" id="template-editor-modal-title">🛠️ Template Editor</div>
+        <div class="todoist-header-actions">
+          <div class="todoist-undo-redo-group">
+            <button type="button" class="btn btn-secondary btn-sm tmpl-history-btn" id="btn-tmpl-undo" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            </button>
+            <button type="button" class="btn btn-secondary btn-sm tmpl-history-btn" id="btn-tmpl-redo" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 7v6h-6" />
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
+              </svg>
+            </button>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-toggle-relevance-settings"
+            title="Configure smart pivot time relevance scoring">
+            <span>⏰</span>
+            <span id="label-relevance-settings-btn">Relevance Score Settings</span>
+          </button>
+          <button type="button" class="btn btn-secondary btn-sm" id="btn-toggle-tmpl-submission-hook"
+            title="Configure automated on-submission webhook">
+            <span>⚡</span>
+            <span id="label-tmpl-webhook-btn">On-Submit Webhook</span>
+          </button>
+          <button class="modal-close" data-close-modal>&times;</button>
+        </div>
+      </div>
+      <div class="modal-body todoist-editor-body">
+        <form id="form-template-editor">
+          <input type="hidden" id="tmpl-edit-id">
+
+          <!-- Relevance Score Settings Collapsible Panel -->
+          <div id="tmpl-relevance-settings-drawer" class="todoist-webhook-drawer" style="display:none;">
+            <div class="todoist-webhook-header">
+              <div
+                style="font-weight:600; font-size:0.875rem; color:var(--accent-primary); display:flex; align-items:center; gap:0.35rem;">
+                <span>⏰</span>
+                <span>Relevance Score Settings</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <button type="button" class="btn btn-outline-danger btn-xs" id="btn-clear-relevance-rules"
+                  style="padding:0.15rem 0.5rem; font-size:0.75rem;" title="Clear all alarm rules">🗑️ Clear
+                  Rules</button>
+                <button type="button" class="btn-text-close" id="btn-close-relevance-drawer">&times;</button>
+              </div>
+            </div>
+            <p style="font-size:0.775rem; color:var(--text-muted); margin-bottom:0.75rem;">
+              Set recurring weekly alarm times. Templates are dynamically prioritized at the top of the selection list
+              when their scheduled pivot time is approaching or active.
+            </p>
+
+            <!-- Multi-Rule Schedules Container -->
+            <div id="relevance-rules-container"
+              style="display:flex; flex-direction:column; gap:0.6rem; margin-bottom:0.75rem;">
+              <!-- Dynamically populated rules -->
+            </div>
+
+            <button type="button" class="btn btn-secondary btn-xs" id="btn-add-relevance-rule"
+              style="font-size:0.775rem; padding:0.35rem 0.65rem; display:inline-flex; align-items:center; gap:0.3rem;">
+              <span>+</span>
+              <span>Add Alarm Rule</span>
+            </button>
+          </div>
+
+          <!-- Optional On-Submission Webhook Collapsible Panel -->
+          <div id="tmpl-submission-hook-drawer" class="todoist-webhook-drawer" style="display:none;">
+            <div class="todoist-webhook-header">
+              <div
+                style="font-weight:600; font-size:0.875rem; color:var(--accent-secondary); display:flex; align-items:center; gap:0.35rem;">
+                <span>⚡</span>
+                <span>On-Submission Automated Webhook</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <button type="button" class="btn btn-outline-danger btn-xs" id="btn-remove-tmpl-submission-hook"
+                  style="padding:0.15rem 0.5rem; font-size:0.75rem;" title="Remove submission webhook">🗑️ Remove
+                  Hook</button>
+                <button type="button" class="btn-text-close" id="btn-close-tmpl-webhook-drawer">&times;</button>
+              </div>
+            </div>
+            <p style="font-size:0.775rem; color:var(--text-muted); margin-bottom:0.75rem;">
+              Triggers an automated HTTP cURL request whenever an active checklist instantiated from this template is
+              completed & submitted.
+            </p>
+            <div style="display:flex; gap:0.5rem; margin-bottom:0.5rem;">
+              <select id="tmpl-sub-auto-method" class="form-select" style="width: 110px;">
+                <option value="POST">POST</option>
+                <option value="GET">GET</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+              </select>
+              <input type="url" id="tmpl-sub-auto-url" class="form-control"
+                placeholder="https://api.example.com/v1/audits/submitted">
+            </div>
+            <input type="text" id="tmpl-sub-auto-headers" class="form-control"
+              placeholder='Headers JSON e.g. {"Authorization": "Bearer token"}'
+              style="font-size:0.775rem; font-family:var(--font-mono); margin-bottom:0.5rem;">
+            <textarea id="tmpl-sub-auto-body" class="form-textarea"
+              placeholder="Optional custom body payload (leave empty for default checklist JSON metadata)"
+              style="font-size:0.775rem; font-family:var(--font-mono); min-height:50px;"></textarea>
+          </div>
+
+          <!-- Document Canvas -->
+          <div class="todoist-canvas">
+            <input type="text" id="tmpl-edit-title" class="todoist-title-input" placeholder="Template title..." required
+              autocomplete="off">
+            <textarea id="tmpl-edit-desc" class="todoist-desc-input" rows="1"
+              placeholder="Add description or instructions (optional)..."></textarea>
+
+            <div class="todoist-divider"></div>
+
+            <!-- Task List Tree -->
+            <div id="tmpl-items-builder-tree" class="todoist-tasks-list">
+              <!-- Todoist-Style Dynamic Tasks -->
+            </div>
+
+            <!-- Add Task Quick Button -->
+            <div class="todoist-add-task-wrap" style="display:flex; gap:0.75rem; align-items:center;">
+              <button type="button" class="todoist-add-task-btn" id="btn-add-root-task">
+                <span class="todoist-add-plus">+</span>
+                <span>Add task</span>
+              </button>
+              <button type="button" class="todoist-add-task-btn" id="btn-add-section" style="color:var(--accent-secondary);">
+                <span class="todoist-add-plus" style="color:var(--accent-secondary);">+</span>
+                <span>Add section</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer todoist-editor-footer">
+        <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        <button class="btn btn-primary" id="btn-save-template">Save Template</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MOBILE TASK ACTION SHEET ================= -->
+  <div class="todoist-action-sheet-backdrop" id="todoist-task-action-sheet" style="display:none;">
+    <div class="todoist-action-sheet">
+      <div class="todoist-action-sheet-header">
+        <div class="todoist-action-sheet-title" id="action-sheet-task-title">Task Options</div>
+        <button type="button" class="btn-text-close" id="btn-close-action-sheet">&times;</button>
+      </div>
+      <div class="todoist-action-sheet-buttons">
+        <button type="button" class="todoist-sheet-btn" id="sheet-btn-add-subtask">
+          <span class="sheet-icon">↳</span>
+          <span class="sheet-label">Add Subtask</span>
+        </button>
+        <button type="button" class="todoist-sheet-btn" id="sheet-btn-toggle-optional">
+          <span class="sheet-icon">⬠</span>
+          <span class="sheet-label" id="sheet-label-optional">Mark as Optional</span>
+        </button>
+        <button type="button" class="todoist-sheet-btn" id="sheet-btn-toggle-days">
+          <span class="sheet-icon">📅</span>
+          <span class="sheet-label" id="sheet-label-days">Set Day Visibility</span>
+        </button>
+        <button type="button" class="todoist-sheet-btn" id="sheet-btn-toggle-hook">
+          <span class="sheet-icon">⚡</span>
+          <span class="sheet-label" id="sheet-label-hook">Configure Webhook</span>
+        </button>
+        <button type="button" class="todoist-sheet-btn danger" id="sheet-btn-delete-task">
+          <span class="sheet-icon">🗑️</span>
+          <span class="sheet-label">Delete Task</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: AUTOMATION EXECUTION RESULTS ================= -->
+  <div class="modal-backdrop" id="modal-automation-result">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-header">
+        <div class="modal-title">⚡ cURL Automation Hook Result</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body" id="automation-result-body">
+        <!-- Results Rendered Dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: PASSWORD OVERWRITE ================= -->
+  <div class="modal-backdrop" id="modal-password-overwrite">
+    <div class="modal-dialog" style="max-width: 440px;">
+      <div class="modal-header">
+        <div class="modal-title">🔑 Overwrite User Password</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-password-overwrite">
+          <input type="hidden" id="pwd-overwrite-user-id">
+          <p id="pwd-overwrite-user-prompt">Set new password for username</p>
+          <div class="form-group">
+            <label class="form-label">New Password</label>
+            <input type="password" id="input-new-password" class="form-control" placeholder="Minimum 4 characters"
+              minlength="4" required>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        <button class="btn btn-primary" id="btn-confirm-password-overwrite">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: ROLE ASSIGNMENT ================= -->
+  <div class="modal-backdrop" id="modal-role-assignment">
+    <div class="modal-dialog" style="max-width: 460px;">
+      <div class="modal-header">
+        <div class="modal-title">🛡️ Assign User Roles</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="role-assign-user-id">
+        <p id="role-assign-user-prompt">Select roles for user:</p>
+        <div id="role-checkboxes-container" style="display:flex; flex-direction:column; gap:0.5rem; margin-top:1rem;">
+          <!-- Role Checkboxes -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        <button class="btn btn-primary" id="btn-confirm-role-assignment">Save Roles</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CREATE DASHBOARD ================= -->
+  <div class="modal-backdrop" id="modal-create-dashboard">
+    <div class="modal-dialog" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title">🎛️ Create New Dashboard</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-create-dashboard">
+          <div class="form-group">
+            <label class="form-label" for="create-dash-name">Dashboard Title</label>
+            <input type="text" id="create-dash-name" class="form-control" placeholder="e.g. Broadcast Control Booth" required autofocus>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="create-dash-description">Description (Optional)</label>
+            <textarea id="create-dash-description" class="form-control" rows="3" placeholder="e.g. Live stage audio & streaming management console" style="resize: vertical; min-height: 80px;"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Color Theme Accent</label>
+            <div class="color-palette-picker">
+              <div class="color-swatches-grid" id="create-dash-color-swatches">
+                <!-- Swatch buttons populated dynamically -->
+              </div>
+              <div class="color-custom-input-group">
+                <div class="color-preview-box" id="create-dash-color-preview" style="background-color: #58a6ff;"></div>
+                <input type="text" id="create-dash-color-hex" class="form-control" style="font-family: var(--font-mono); width: 110px;" value="#58a6ff" maxlength="7">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Authorized Roles Access</label>
+            <div style="margin-bottom: 0.75rem;">
+              <label style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; font-size: 0.875rem; color: var(--text-primary);">
+                <div class="custom-checkbox-wrapper">
+                  <input type="checkbox" id="create-dash-all-roles-check" checked>
+                  <span class="custom-check-box">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </span>
+                </div>
+                <span>Allow all authorized roles to view this dashboard</span>
+              </label>
+            </div>
+            <div class="dashboard-roles-selector" id="create-dash-roles-container" style="display: none;">
+              <!-- Role checkboxes populated dynamically -->
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        <button class="btn btn-primary" id="btn-submit-create-dashboard">Create Dashboard</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: DASHBOARD SETTINGS ================= -->
+  <div class="modal-backdrop" id="modal-dashboard-settings">
+    <div class="modal-dialog" style="max-width: 500px;">
+      <div class="modal-header">
+        <div class="modal-title">⚙️ Dashboard Settings</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="form-dashboard-settings">
+          <input type="hidden" id="settings-dash-id">
+          
+          <div class="form-group">
+            <label class="form-label" for="settings-dash-name">Dashboard Title</label>
+            <input type="text" id="settings-dash-name" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="settings-dash-description">Description</label>
+            <textarea id="settings-dash-description" class="form-control" rows="3" placeholder="Dashboard description..." style="resize: vertical; min-height: 80px;"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Color Theme Accent</label>
+            <div class="color-palette-picker">
+              <div class="color-swatches-grid" id="settings-dash-color-swatches">
+                <!-- Swatch buttons populated dynamically -->
+              </div>
+              <div class="color-custom-input-group">
+                <div class="color-preview-box" id="settings-dash-color-preview" style="background-color: #58a6ff;"></div>
+                <input type="text" id="settings-dash-color-hex" class="form-control" style="font-family: var(--font-mono); width: 110px;" value="#58a6ff" maxlength="7">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Authorized Roles Access</label>
+            <div style="margin-bottom: 0.75rem;">
+              <label style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; font-size: 0.875rem; color: var(--text-primary);">
+                <div class="custom-checkbox-wrapper">
+                  <input type="checkbox" id="settings-dash-all-roles-check">
+                  <span class="custom-check-box">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </span>
+                </div>
+                <span>Allow all authorized roles to view this dashboard</span>
+              </label>
+            </div>
+            <div class="dashboard-roles-selector" id="settings-dash-roles-container">
+              <!-- Role checkboxes populated dynamically -->
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="modal-danger-zone">
+            <div>
+              <div class="danger-zone-title">Delete Dashboard</div>
+              <div class="danger-zone-desc">Permanently remove this dashboard workspace</div>
+            </div>
+            <button type="button" class="btn-delete-dashboard-icon" id="btn-delete-dashboard" title="Delete Dashboard">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                <line x1="10" y1="11" x2="10" y2="17"></line>
+                <line x1="14" y1="11" x2="14" y2="17"></line>
+              </svg>
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        <button class="btn btn-primary" id="btn-submit-save-dashboard-settings">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: LOVELACE CARD CONFIGURATION (5 TABS + LIVE PREVIEW) ================= -->
+  <div class="modal-backdrop" id="modal-configure-card" data-static-backdrop="true">
+    <div class="modal-dialog modal-dialog-lovelace" style="max-width: 960px; width: 94vw;">
+      <div class="modal-header">
+        <div class="modal-title" id="card-config-modal-title">Configure Card</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+
+      <!-- 4 Lovelace Navigation Tabs -->
+      <div class="lovelace-modal-nav-tabs" id="card-config-tabs">
+        <button type="button" class="lovelace-tab-btn active" data-tab="properties" id="tab-btn-properties">⚙️ Properties</button>
+        <button type="button" class="lovelace-tab-btn" data-tab="automation" id="tab-btn-automation">⚡ Automation</button>
+        <button type="button" class="lovelace-tab-btn" data-tab="layout" id="tab-btn-layout">📐 Layout & Grid</button>
+        <button type="button" class="lovelace-tab-btn" data-tab="yaml" id="tab-btn-yaml">💻 YAML / Code</button>
+      </div>
+
+      <div class="modal-body lovelace-modal-body-split">
+        <!-- Hidden Card / Section ID tracking -->
+        <input type="hidden" id="card-cfg-id">
+        <input type="hidden" id="card-cfg-section-id">
+
+        <!-- Left Pane: Tab Form Panels -->
+        <div class="card-config-form-container">
+          
+          <!-- TAB 1: ⚙️ PROPERTIES -->
+          <div class="lovelace-tab-pane active" id="tab-pane-properties">
+            <div class="form-group" id="group-cfg-type">
+              <label class="form-label" for="card-cfg-type">Card Type</label>
+              <select id="card-cfg-type" class="form-control form-select">
+                <option value="button">Button (Tap action & state)</option>
+                <option value="toggle">Toggle Switch (Discrete ON/OFF)</option>
+                <option value="slider">Slider / Fader (Numeric track control)</option>
+                <option value="stepper">Number Stepper (+ / - value stepper)</option>
+                <option value="progress">Linear Progress Bar (Horizontal gauge)</option>
+                <option value="gauge">Circular Progress Gauge (Radial SVG meter)</option>
+                <option value="graph">Graph (Sensor trend sparkline)</option>
+                <option value="alert">Alert (Flashing Warning Button)</option>
+              </select>
+            </div>
+
+            <!-- Base Properties (Common to All Cards) -->
+            <div class="form-group">
+              <label class="form-label" for="card-cfg-label">
+                Label <small class="form-code-pill">${widget.label}</small>
+              </label>
+              <input type="text" id="card-cfg-label" class="form-control" placeholder="e.g. Master Fader or ${widget.value} + '%'">
+              <small class="form-text-muted">Supports JS template string formatting like <code>${widget.property} + '%'</code></small>
+            </div>
+
+            <div class="form-group" id="group-cfg-subtitle">
+              <label class="form-label" for="card-cfg-subtitle">
+                Subtitle <small class="form-code-pill">${widget.subtitle}</small>
+              </label>
+              <input type="text" id="card-cfg-subtitle" class="form-control" placeholder="e.g. Line 1 / DSP Main">
+            </div>
+
+            <div class="form-row" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+              <div class="form-group" style="flex: 1; min-width: 130px;">
+                <label class="form-label" for="card-cfg-icon">
+                  Icon <small class="form-code-pill">${widget.icon}</small>
+                </label>
+                <input type="text" id="card-cfg-icon" class="form-control" placeholder="🎚️, 💡, ⚡, 📽️" maxlength="10">
+              </div>
+
+              <div class="form-group" style="flex: 2; min-width: 180px;">
+                <label class="form-label" for="card-cfg-color">
+                  Accent / Display Color <small class="form-code-pill">${widget.color}</small>
+                </label>
+                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                  <input type="color" id="card-cfg-color-picker" value="#38bdf8" style="width: 40px; height: 38px; padding: 2px; border: 1px solid var(--ha-border); border-radius: 6px; background: transparent; cursor: pointer;">
+                  <input type="text" id="card-cfg-color" class="form-control" value="#38bdf8" placeholder="#38bdf8 or ${widget.value} > 30 ? '#00ff00' : '#ff0000'" style="font-family: var(--font-mono);">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" id="group-cfg-enabled" style="margin-top: 0.25rem;">
+              <label class="role-checkbox-label" style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="card-cfg-enabled" checked style="accent-color: #38bdf8; width: 18px; height: 18px;">
+                <span style="font-weight: 500;">Enabled <small class="form-code-pill">${widget.enabled}</small></span>
+              </label>
+              <small class="form-text-muted" style="display: block; margin-top: 2px;">When disabled, interactions are blocked and the card is visually dimmed.</small>
+            </div>
+
+            <!-- Display Text Specific (Badge & Graph): display -->
+            <div id="prop-section-display" class="card-extra-options-box" style="display: none;">
+              <div class="extra-options-title">Status Display Text</div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="card-cfg-display">Display Text <small class="form-code-pill">${widget.display}</small></label>
+                <input type="text" id="card-cfg-display" class="form-control" placeholder="e.g. Online or ${data.status} or ${widget.value} + ' °C'">
+                <small class="form-text-muted">Supports JS expressions, template variables like <code>${data.status}</code>, and string formatting.</small>
+              </div>
+            </div>
+
+            <!-- Toggle Specific: state -->
+            <div id="prop-section-toggle" class="card-extra-options-box" style="display: none;">
+              <div class="extra-options-title">Toggle Switch State</div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="card-cfg-state">State <small class="form-code-pill">${widget.state}</small></label>
+                <select id="card-cfg-state" class="form-control form-select">
+                  <option value="off">Off (false)</option>
+                  <option value="on">On (true)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Numeric Specific (Slider, Stepper, Progress, Gauge): value, min, max -->
+            <div id="prop-section-numeric" class="card-extra-options-box" style="display: none;">
+              <div class="extra-options-title">Numeric Calibration Limits</div>
+              <div class="form-row" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 100px;">
+                  <label class="form-label" for="card-cfg-value">Value <small class="form-code-pill">${widget.value}</small></label>
+                  <input type="number" id="card-cfg-value" class="form-control" value="50">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 100px;">
+                  <label class="form-label" for="card-cfg-min">Min <small class="form-code-pill">${widget.min}</small></label>
+                  <input type="number" id="card-cfg-min" class="form-control" value="0">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 100px;">
+                  <label class="form-label" for="card-cfg-max">Max <small class="form-code-pill">${widget.max}</small></label>
+                  <input type="number" id="card-cfg-max" class="form-control" value="100">
+                </div>
+              </div>
+            </div>
+
+            <!-- Stepper Specific: step_value -->
+            <div id="prop-section-stepper" class="card-extra-options-box" style="display: none;">
+              <div class="extra-options-title">Stepper Increments</div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="card-cfg-step-value">Step Value <small class="form-code-pill">${widget.step_value}</small></label>
+                <input type="number" id="card-cfg-step-value" class="form-control" value="1" step="any">
+              </div>
+            </div>
+
+            <!-- Graph Specific: new_data, graph_length, data -->
+            <div id="prop-section-graph" class="card-extra-options-box" style="display: none;">
+              <div class="extra-options-title">Graph Configuration</div>
+              <div class="form-row" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <div class="form-group" style="flex: 1; min-width: 120px;">
+                  <label class="form-label" for="card-cfg-new-data">New Data Point <small class="form-code-pill">${widget.new_data}</small></label>
+                  <input type="number" id="card-cfg-new-data" class="form-control" placeholder="e.g. 42.5" step="any">
+                </div>
+                <div class="form-group" style="flex: 1; min-width: 120px;">
+                  <label class="form-label" for="card-cfg-graph-length">Graph Length <small class="form-code-pill">${widget.graph_length}</small></label>
+                  <input type="number" id="card-cfg-graph-length" class="form-control" value="20" min="2" max="200">
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label" for="card-cfg-data">Initial Data Points (JSON array or comma-separated)</label>
+                <input type="text" id="card-cfg-data" class="form-control" placeholder="[10, 15, 22, 28, 35, 42]" style="font-family: var(--font-mono);">
+              </div>
+            </div>
+
+            <!-- Alert Specific: alert_on -->
+            <div id="prop-section-alert" class="card-extra-options-box" style="display: none;">
+              <div class="extra-options-title">Alert Warning Configuration</div>
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="role-checkbox-label" style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <input type="checkbox" id="card-cfg-alert-on" checked style="accent-color: #f85149; width: 18px; height: 18px;">
+                  <span style="font-weight: 500;">Alert Active <small class="form-code-pill">${widget.alert_on}</small></span>
+                </label>
+                <small class="form-text-muted" style="display: block; margin-top: 2px;">When active, this card continuously flashes bright red and white to signal critical attention.</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: ⚡ AUTOMATIONS (MACRODROID-STYLE MULTI-RULE AUTOMATIONS) -->
+          <div class="lovelace-tab-pane" id="tab-pane-automation">
+            <div class="automations-top-bar">
+              <div class="automations-top-info">
+                <div class="automations-top-title">Automations & Action Pipelines</div>
+                <div class="automations-top-desc">Create rules that trigger on user taps, toggle changes, values, <code>/info</code> channels, or polling intervals.</div>
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" id="btn-add-macro-rule">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Automation
+              </button>
+            </div>
+
+            <!-- List of Macro / Automation Cards -->
+            <div class="automations-list-container" id="card-automations-list">
+              <!-- Dynamically populated automation rule cards -->
+            </div>
+
+            <!-- Bottom Add Button -->
+            <div class="automations-bottom-actions" id="automations-bottom-actions" style="margin-top: 10px; margin-bottom: 15px; display: flex; justify-content: center;">
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-macro-rule-bottom">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                Add Another Automation
+              </button>
+            </div>
+
+            <!-- Variable Interpolation Cheat Sheet -->
+            <div class="pipeline-variables-guide">
+              <div class="guide-header">
+                <span class="guide-header-icon">⚡</span>
+                <span class="guide-header-title">Payload & State Variable Cheatsheet</span>
+              </div>
+              <div class="guide-cards-row">
+                <div class="guide-card">
+                  <div class="guide-card-title">Widget Properties</div>
+                  <div class="guide-syntax"><code>${widget.property}</code></div>
+                  <div class="guide-desc">Access current widget fields:</div>
+                  <div class="guide-examples">
+                    <code>${widget.value}</code>
+                    <code>${widget.state}</code>
+                    <code>${widget.label}</code>
+                  </div>
+                </div>
+
+                <div class="guide-card">
+                  <div class="guide-card-title">Ingested State Payload</div>
+                  <div class="guide-syntax"><code>${data.field}</code></div>
+                  <div class="guide-desc">Fields from <code>/info/:key</code> POST:</div>
+                  <div class="guide-examples">
+                    <code>${data.info}</code>
+                    <code>${data.battery}</code>
+                    <code>${data.temp}</code>
+                  </div>
+                </div>
+
+                <div class="guide-card">
+                  <div class="guide-card-title">JavaScript Expressions</div>
+                  <div class="guide-syntax"><code>JS Expressions</code></div>
+                  <div class="guide-desc">Concatenate or compute values:</div>
+                  <div class="guide-examples">
+                    <code>"stage " + ${widget.value} + "%"</code>
+                    <code>data.temp &gt; 30 ? "Warm" : "OK"</code>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 3: 📐 LAYOUT & GRID (12x4 MATRIX) -->
+          <div class="lovelace-tab-pane" id="tab-pane-layout">
+            <div class="layout-sliders-wrapper">
+              <div class="form-group">
+                <div class="slider-label-row">
+                  <label class="form-label" for="card-cfg-colspan">Column Span (Width: 1–12)</label>
+                  <span class="badge badge-primary" id="card-cfg-colspan-pill">6 cols</span>
+                </div>
+                <input type="range" id="card-cfg-colspan" class="form-range" min="1" max="12" value="6" step="1">
+              </div>
+
+              <div class="form-group">
+                <div class="slider-label-row">
+                  <label class="form-label" for="card-cfg-rowspan">Row Span (Height: 1–4)</label>
+                  <span class="badge badge-primary" id="card-cfg-rowspan-pill">1 row</span>
+                </div>
+                <input type="range" id="card-cfg-rowspan" class="form-range" min="1" max="4" value="1" step="1">
+              </div>
+            </div>
+
+            <!-- Interactive 12x4 Matrix Visualizer -->
+            <div class="matrix-grid-visualizer-container">
+              <div class="matrix-grid-header">12-Column Grid Matrix Allocation</div>
+              <div class="matrix-grid-canvas" id="card-layout-matrix-grid">
+                <!-- 12 cols x 4 rows cells generated dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: 💻 YAML / CODE -->
+          <div class="lovelace-tab-pane" id="tab-pane-yaml">
+            <div class="yaml-editor-toolbar">
+              <span class="editor-badge">Lovelace YAML / JSON Schema</span>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-format-card-code">Format JSON</button>
+            </div>
+            <textarea id="card-cfg-yaml-editor" class="lovelace-code-editor" rows="14" spellcheck="false"></textarea>
+          </div>
+
+        </div>
+
+        <!-- Right Pane: Sticky Live Preview -->
+        <div class="card-config-preview-pane">
+          <div class="live-preview-header">
+            <span class="live-pulse-dot"></span>
+            <span>LIVE PREVIEW</span>
+          </div>
+          <div class="live-preview-card-mount" id="card-preview-live-mount">
+            <!-- Rendered in real-time -->
+          </div>
+          <div class="live-preview-note">
+            Interact with the card above to test bindings and controls before saving.
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button type="button" class="btn btn-outline-danger btn-sm" id="btn-delete-card-modal" style="display: none;">Delete Widget</button>
+        <div style="display: flex; gap: 0.5rem; margin-left: auto;">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="button" class="btn btn-primary" id="btn-save-card-config">Save Widget</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: SERMON SENDER SETTINGS ================= -->
+  <div class="modal-backdrop" id="modal-sermon-settings">
+    <div class="modal-dialog modal-md">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Recordings Sender Settings</span>
+        </div>
+        <button type="button" class="modal-close" data-close-modal title="Close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <form id="form-sermon-settings">
+          <div class="form-group">
+            <label class="form-label" for="sermon-cfg-sender-email">Sender Gmail Address <span class="required-star">*</span></label>
+            <input type="email" id="sermon-cfg-sender-email" class="form-control" placeholder="sender@gmail.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sermon-cfg-sender-password">Sender Gmail App Password <span class="required-star">*</span></label>
+            <div class="password-toggle-group" style="position: relative;">
+              <input type="password" id="sermon-cfg-sender-password" class="form-control" placeholder="16-character App Password" required>
+              <button type="button" class="btn-toggle-password-visibility" id="btn-toggle-sermon-app-pass" title="Toggle password visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                <svg class="icon-eye-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                <svg class="icon-eye-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                  <line x1="1" y1="1" x2="23" y2="23"></line>
+                </svg>
+              </button>
+            </div>
+            <span class="form-hint">Generated from Google Account &gt; Security &gt; 2-Step Verification &gt; App passwords</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sermon-cfg-receiver-email">Receiver Gmail Address <span class="required-star">*</span></label>
+            <input type="email" id="sermon-cfg-receiver-email" class="form-control" placeholder="receiver@gmail.com" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sermon-cfg-subject-template">Email Subject Template</label>
+            <input type="text" id="sermon-cfg-subject-template" class="form-control" placeholder="{context} Sermon {date}">
+            <span class="form-hint">Variables: <code>{context}</code>, <code>{title}</code>, <code>{date}</code></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="sermon-cfg-body-template">Email Body Content Template</label>
+            <textarea id="sermon-cfg-body-template" class="form-control" rows="4" placeholder="God bless you. This is the recording for the sermon delivered on {date}, &quot;{title}.&quot;"></textarea>
+            <span class="form-hint">Variables: <code>{context}</code>, <code>{title}</code>, <code>{date}</code></span>
+          </div>
+
+          <div class="form-row" style="display: flex; gap: 1rem;">
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="sermon-cfg-retention-days">Storage Retention (Days)</label>
+              <input type="number" id="sermon-cfg-retention-days" class="form-control" min="1" max="365" value="14">
+              <span class="form-hint">Old recordings auto-delete after expiration (Default: 14)</span>
+            </div>
+            <div class="form-group" style="flex: 1;">
+              <label class="form-label" for="sermon-cfg-target-size">Target Compression Size (MB)</label>
+              <input type="number" id="sermon-cfg-target-size" class="form-control" min="1" max="50" value="15">
+              <span class="form-hint">Target output size for email attachments (Default: 15)</span>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+        <button type="button" class="btn btn-primary" id="btn-save-sermon-settings">Save Settings</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: AUDIT LOG SETTINGS ================= -->
+  <div class="modal-backdrop" id="modal-audit-settings">
+    <div class="modal-dialog modal-md">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+          <span>Audit Log Settings</span>
+        </div>
+        <button type="button" class="modal-close" data-close-modal title="Close">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Retention Policy Section -->
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label class="form-label" for="retention-days-input" style="font-size: 0.9rem; margin-bottom: 0.5rem;">Automated Log Retention (Days)</label>
+          <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <input type="number" id="retention-days-input" class="form-control" style="max-width: 140px; height: 42px; font-size: 0.95rem;" min="1" max="365" value="30">
+            <button type="button" class="btn btn-secondary" id="btn-save-retention" style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center;">Save Policy</button>
+          </div>
+          <span class="form-hint" style="margin-top: 0.4rem; display: block;">Logs older than this threshold are automatically purged by the system.</span>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1.5rem 0;">
+
+        <!-- Danger Zone: Purge All Logs -->
+        <div class="form-group">
+          <label class="form-label" style="color: var(--status-danger); font-size: 0.9rem; margin-bottom: 0.5rem;">Danger Zone</label>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.85rem;">
+            Permanently delete all historical audit logs. This action cannot be undone.
+          </p>
+          <button type="button" class="btn btn-outline-danger" id="btn-purge-all" style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+            Delete All Logs
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal style="height: 42px; padding: 0 1.5rem; font-size: 0.9rem;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Profile / Change Password Settings Modal -->
+  <div class="modal-backdrop" id="modal-user-settings">
+    <div class="modal-dialog modal-md">
+      <div class="modal-header">
+        <div class="modal-title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+            <circle cx="12" cy="12" r="3" />
+          </svg>
+          <span>Account Settings</span>
+        </div>
+        <button type="button" class="modal-close" data-close-modal title="Close">&times;</button>
+      </div>
+      <form id="form-change-password" novalidate>
+        <div class="modal-body">
+          <div class="settings-user-summary" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+            <div class="user-avatar" id="modal-settings-avatar" style="width: 38px; height: 38px; font-size: 1.1rem;">A</div>
+            <div style="flex: 1; min-width: 0;">
+              <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);" id="modal-settings-username">Admin</div>
+              <div style="font-size: 0.775rem; color: var(--text-secondary);">Security & Password Credentials</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="settings-current-password">Current Password</label>
+            <input type="password" id="settings-current-password" class="form-control" placeholder="Enter current password" required autocomplete="current-password">
+            <div class="form-error-msg" id="error-settings-current-password"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="settings-new-password">New Password</label>
+            <input type="password" id="settings-new-password" class="form-control" placeholder="Minimum 4 characters" minlength="4" required autocomplete="new-password">
+            <div class="form-error-msg" id="error-settings-new-password"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="settings-confirm-password">Confirm New Password</label>
+            <input type="password" id="settings-confirm-password" class="form-control" placeholder="Repeat new password" required autocomplete="new-password">
+            <div class="form-error-msg" id="error-settings-confirm-password"></div>
+          </div>
+        </div>
+        <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.5rem;">
+          <button type="button" class="btn btn-secondary" data-close-modal style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-password-change" style="height: 42px; padding: 0 1.5rem; font-size: 0.9rem;">
+            Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= FLOATING INACTIVITY WARNING BANNER ================= -->
+  <div id="inactivity-warning-banner" class="inactivity-card" style="display: none;" role="alert" aria-live="assertive">
+    <div class="inactivity-card-content">
+      <div class="inactivity-icon-badge">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <polyline points="12 6 12 12 16 14"></polyline>
+        </svg>
+      </div>
+      <div class="inactivity-text-group">
+        <div class="inactivity-title">Are you still there?</div>
+        <div class="inactivity-subtitle">Your session will expire in <span class="inactivity-timer-pill" id="inactivity-countdown-display">10:00</span></div>
+      </div>
+      <button type="button" class="inactivity-extend-btn" id="btn-extend-session" title="Extend session by 2 hours">
+        <div class="inactivity-btn-progress-track">
+          <div class="inactivity-btn-progress-bar" id="inactivity-btn-progress-bar"></div>
+        </div>
+        <span class="inactivity-btn-content">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>I'm Still Here</span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Modal: System & OTA Updates -->
+  <div class="modal-backdrop" id="modal-system-update">
+    <div class="modal-dialog" style="max-width: 520px;">
+      <div class="modal-header">
+        <div class="modal-title">🔄 System & Software Updates</div>
+        <button class="modal-close" data-close-modal>&times;</button>
+      </div>
+      <div class="modal-body" id="system-update-modal-body">
+        <div class="update-status-card" id="update-status-card">
+          <div class="update-spinner" id="update-check-spinner"></div>
+          <div class="update-status-header">
+            <div class="update-status-title" id="update-status-title">Checking for updates...</div>
+            <div class="update-status-subtitle" id="update-status-subtitle">Connecting to GitHub...</div>
+          </div>
+        </div>
+
+        <div class="update-version-grid">
+          <div class="update-version-box">
+            <div class="update-version-label">Current Version</div>
+            <div class="update-version-val" id="update-current-version">-</div>
+          </div>
+          <div class="update-version-box">
+            <div class="update-version-label">Latest on GitHub</div>
+            <div class="update-version-val" id="update-latest-version">-</div>
+          </div>
+        </div>
+
+        <div id="update-changelog-wrap" style="display: none; margin-top: 1rem;">
+          <div class="form-label" style="margin-bottom: 0.35rem; font-size: 0.8rem;">What's New:</div>
+          <div class="update-changelog-box" id="update-changelog-box"></div>
+        </div>
+
+        <div class="alert alert-warning" id="update-admin-warning" style="display: none; margin-top: 1rem; font-size: 0.825rem;">
+          ⚠️ Updating will briefly pause operations and reload all connected screens.
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal>Close</button>
+        <button type="button" class="btn btn-secondary" id="btn-recheck-update">Check Again</button>
+        <button type="button" class="btn btn-primary" id="btn-install-update" style="display: none;">
+          ⚡ Update App Now
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Global System Updating Overlay -->
+  <div id="system-updating-overlay" class="system-updating-overlay" style="display: none;">
+    <div class="updating-card">
+      <div class="updating-pulse-ring">
+        <div class="updating-pulse-core">🔄</div>
+      </div>
+      <h2 class="updating-title">Updating AV Audit Platform</h2>
+      <p class="updating-desc">Applying latest updates from GitHub and restarting server process.</p>
+      <div class="updating-progress-track">
+        <div class="updating-progress-bar" id="updating-progress-bar"></div>
+      </div>
+      <div class="updating-status-text" id="updating-status-text">Restarting server...</div>
+    </div>
+  </div>
+
+  <!-- Toast Notifications Container -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/libs/sortable.min.js?v=3.7"></script>
+  <script src="/js/api.js?v=4.0"></script>
+  <script src="/js/socket.js?v=4.0"></script>
+  <script src="/js/utils/helpers.js?v=3.9"></script>
+  <script src="/js/utils/sessionManager.js?v=3.8"></script>
+  <script src="/js/utils/dragDrop.js?v=3.7"></script>
+  <script src="/js/views/authView.js?v=4.2"></script>
+  <script src="/js/views/updateView.js?v=4.0"></script>
+  <script src="/js/views/dashboardView.js?v=3.8"></script>
+  <script src="/js/views/sermonSenderView.js?v=3.8"></script>
+  <script src="/js/views/checklistsView.js?v=3.9"></script>
+  <script src="/js/views/templatesView.js?v=3.7"></script>
+  <script src="/js/views/rolesView.js?v=3.7"></script>
+  <script src="/js/views/accountsView.js?v=3.9"></script>
+  <script src="/js/libs/flatpickr.min.js"></script>
+  <script src="/js/views/auditView.js?v=3.8"></script>
+  <script src="/js/app.js?v=4.2"></script>
+</body>
+
+</html>

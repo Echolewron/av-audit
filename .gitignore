@@ -1,0 +1,11 @@
+node_modules
+tests
+test-results
+playwright.config.js
+scratch
+skills
+uploads
+data/av_audit_db.json
+*.log
+.DS_Store
+Thumbs.db
