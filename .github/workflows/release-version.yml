@@ -1,0 +1,40 @@
+name: Auto-Sync package.json Version on Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  update-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Extract Tag and Update Version
+        run: |
+          # Extract clean version without leading 'v'
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION="${TAG#v}"
+          
+          echo "Updating package.json to version: $VERSION"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+
+      - name: Commit and Push Updated package.json
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add package.json package-lock.json
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(release): bump version to ${{ github.event.release.tag_name }} [skip ci]" && git push origin main)
