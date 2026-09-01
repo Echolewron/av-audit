@@ -133,7 +133,7 @@ app.get(['/checklist/:id', '/c/:id'], (req, res) => {
   const statusText = isSubmitted ? 'Submitted' : (hasBlocked ? 'Blocked Items Reported' : 'In-Progress');
   const safeTitle = escapeHtml(checklist.title);
   const safeTmpl = escapeHtml(checklist.template_title || 'Custom');
-  const previewImgUrl = `${fullBaseUrl}/api/checklists/${checklist.id}/preview.png`;
+  const previewImgUrl = `${fullBaseUrl}/api/checklists/${checklist.id}/preview.png?v=${checklist.progress}_${hasBlocked ? 'blocked' : 'ok'}_${isSubmitted ? 'submitted' : 'open'}`;
   const shareUrl = `${fullBaseUrl}/c/${checklist.id}`;
 
   const indexPath = path.join(__dirname, 'public', 'index.html');

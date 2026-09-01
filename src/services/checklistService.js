@@ -584,16 +584,69 @@ class ChecklistService {
     };
 
     const isSubmitted = chk.status === 'SUBMITTED';
-    const hasBlocked = Boolean(chk.has_blocked && !isSubmitted);
+    
+    // Scan task tree for blocked issues
+    let blockedCount = 0;
+    let firstBlockedTitle = '';
+    function findBlockedItems(nodes) {
+      if (!Array.isArray(nodes)) return;
+      for (const node of nodes) {
+        if (node.has_issue) {
+          blockedCount++;
+          if (!firstBlockedTitle) firstBlockedTitle = node.title || 'Blocked Task';
+        }
+        if (node.items) findBlockedItems(node.items);
+        if (node.children) findBlockedItems(node.children);
+      }
+    }
+    findBlockedItems(chk.items);
+
+    const hasBlocked = Boolean((chk.has_blocked || blockedCount > 0) && !isSubmitted);
     const progress = isSubmitted ? 100 : (chk.progress || 0);
 
-    // Accent color: Green normally, Red if blocked items exist, Cyan if submitted
+    // Accent color: Green normally, Red if blocked items exist, Blue if submitted
     const accentColor = hasBlocked ? '#f85149' : (isSubmitted ? '#58a6ff' : '#18edb3');
-    
-    // If list is completed and there are no blockers, replace "Checklist Progress" with "Completed" in green/cyan
     const isCompleted = (progress === 100 && !hasBlocked);
-    const progressLabelText = isCompleted ? 'Completed' : 'Checklist Progress';
-    const progressLabelColor = isCompleted ? accentColor : '#8b949e';
+
+    let badgeText = 'IN-PROGRESS';
+    let badgeBg = 'rgba(24, 237, 179, 0.15)';
+    let badgeBorder = '#18edb3';
+    let badgeColor = '#18edb3';
+    let badgeWidth = 160;
+
+    if (hasBlocked) {
+      badgeText = blockedCount > 1 ? `! ${blockedCount} ISSUES REPORTED` : `! ISSUE REPORTED`;
+      badgeBg = 'rgba(248, 81, 73, 0.2)';
+      badgeBorder = '#f85149';
+      badgeColor = '#f85149';
+      badgeWidth = 230;
+    } else if (isSubmitted) {
+      badgeText = '✓ SUBMITTED';
+      badgeBg = 'rgba(88, 166, 255, 0.2)';
+      badgeBorder = '#58a6ff';
+      badgeColor = '#58a6ff';
+      badgeWidth = 160;
+    } else if (isCompleted) {
+      badgeText = '✓ 100% COMPLETE';
+      badgeBg = 'rgba(24, 237, 179, 0.2)';
+      badgeBorder = '#18edb3';
+      badgeColor = '#18edb3';
+      badgeWidth = 180;
+    }
+
+    let progressLabelText = 'Checklist Progress';
+    let progressLabelColor = '#8b949e';
+
+    if (hasBlocked) {
+      progressLabelText = blockedCount > 1 ? `Blocked Items Reported (${blockedCount} Issues)` : `Blocked Items Reported`;
+      progressLabelColor = '#f85149';
+    } else if (isCompleted) {
+      progressLabelText = 'All Items Completed';
+      progressLabelColor = '#18edb3';
+    } else if (isSubmitted) {
+      progressLabelText = 'Submitted Checklist';
+      progressLabelColor = '#58a6ff';
+    }
 
     // Wrap long titles across multiple lines
     const rawTitle = String(chk.title || 'Checklist').trim();
@@ -655,6 +708,12 @@ class ChecklistService {
     <rect width="56" height="56" rx="14" fill="url(#logoGrad)"/>
     <text x="28" y="37" fill="#04100c" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="900" font-size="24" text-anchor="middle" letter-spacing="-0.5">AV</text>
     <text x="78" y="39" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="30" letter-spacing="1.5">AV AUDIT CHECKLIST</text>
+  </g>
+
+  <!-- Status Pill Badge (Top-Right) -->
+  <g transform="translate(${1120 - badgeWidth}, 82)">
+    <rect width="${badgeWidth}" height="42" rx="21" fill="${badgeBg}" stroke="${badgeBorder}" stroke-width="1.8"/>
+    <text x="${badgeWidth / 2}" y="27" fill="${badgeColor}" font-family="-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="16" text-anchor="middle" letter-spacing="1">${escapeXml(badgeText)}</text>
   </g>
 
   <!-- 2. Checklist Name (Wrapped & Adaptable) -->
