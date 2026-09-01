@@ -247,9 +247,11 @@ class DashboardAutomationService {
             if (prop === 'color' || prop === 'accentColor') {
               evaluatedVal = this.normalizeColorValue(evaluatedVal);
             }
-            widget[prop] = evaluatedVal;
+            if (JSON.stringify(widget[prop]) !== JSON.stringify(evaluatedVal)) {
+              widget[prop] = evaluatedVal;
+              hasChanged = true;
+            }
             localContext.widget[prop] = evaluatedVal;
-            hasChanged = true;
 
             // If graph card, append data
             if (prop === 'new_data' || (prop === 'value' && widget.type === 'graph')) {
@@ -261,6 +263,7 @@ class DashboardAutomationService {
                 if (widget.data.length > maxLen) {
                   widget.data = widget.data.slice(-maxLen);
                 }
+                hasChanged = true;
               }
             }
           }
@@ -320,13 +323,6 @@ class DashboardAutomationService {
           widget,
           isBadge,
           sectionId
-        });
-        this.io.emit('dashboard_canvas_updated', {
-          dashboardId: dashboard.id,
-          canvas: {
-            badges: dashboard.badges || [],
-            sections: dashboard.sections || []
-          }
         });
       }
     }

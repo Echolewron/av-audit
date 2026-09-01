@@ -538,6 +538,55 @@ const dashboardView = {
     }
   },
 
+  isWidgetEqual(w1, w2) {
+    if (w1 === w2) return true;
+    if (!w1 || !w2) return false;
+    const keys = ['id', 'type', 'label', 'name', 'title', 'subtitle', 'icon', 'color', 'accentColor', 'enabled', 'alert_on', 'state', 'value', 'val', 'display', 'min', 'max', 'step_value', 'cols', 'rows', 'colSpan', 'rowSpan', 'graph_length'];
+    for (const k of keys) {
+      if (w1[k] !== w2[k]) return false;
+    }
+    if (Array.isArray(w1.data) || Array.isArray(w2.data)) {
+      if (!Array.isArray(w1.data) || !Array.isArray(w2.data)) return false;
+      if (w1.data.length !== w2.data.length) return false;
+      if (w1.data.length > 0 && w1.data[w1.data.length - 1] !== w2.data[w2.data.length - 1]) return false;
+    }
+    return true;
+  },
+
+  hasCanvasStructureChanged(current, next) {
+    if (!current || !next) return true;
+    const curBadges = current.badges || [];
+    const nextBadges = next.badges || [];
+    if (curBadges.length !== nextBadges.length) return true;
+    for (let i = 0; i < curBadges.length; i++) {
+      if (curBadges[i].id !== nextBadges[i].id) return true;
+    }
+
+    const curSecs = current.sections || [];
+    const nextSecs = next.sections || [];
+    if (curSecs.length !== nextSecs.length) return true;
+    for (let s = 0; s < curSecs.length; s++) {
+      const cs = curSecs[s];
+      const ns = nextSecs[s];
+      if (cs.id !== ns.id || cs.title !== ns.title) return true;
+      const csCards = cs.cards || [];
+      const nsCards = ns.cards || [];
+      if (csCards.length !== nsCards.length) return true;
+      for (let c = 0; c < csCards.length; c++) {
+        if (csCards[c].id !== nsCards[c].id) return true;
+      }
+    }
+    return false;
+  },
+
+  syncCanvasWidgetsInDom(dashboard) {
+    if (!dashboard) return;
+    (dashboard.badges || []).forEach(b => this.updateBadgeElementInDom(b));
+    (dashboard.sections || []).forEach(s => {
+      (s.cards || []).forEach(c => this.updateCardElementInDom(c));
+    });
+  },
+
   setupSocketListeners() {
     if (this._socketListenersAttached) return;
     this._socketListenersAttached = true;
@@ -562,17 +611,26 @@ const dashboardView = {
         if (current) {
           if (msg.isBadge && Array.isArray(current.badges)) {
             const idx = current.badges.findIndex(b => b.id === msg.widgetId);
-            if (idx >= 0) current.badges[idx] = msg.widget;
-            else current.badges.push(msg.widget);
+            if (idx >= 0) {
+              const existing = current.badges[idx];
+              if (this.isWidgetEqual(existing, msg.widget)) return; // No changes, skip
+              current.badges[idx] = msg.widget;
+            } else {
+              current.badges.push(msg.widget);
+            }
             this.updateBadgeElementInDom(msg.widget);
           } else if (Array.isArray(current.sections)) {
             current.sections.forEach(sec => {
               if (Array.isArray(sec.cards)) {
                 const cIdx = sec.cards.findIndex(c => c.id === msg.widgetId);
-                if (cIdx >= 0) sec.cards[cIdx] = msg.widget;
+                if (cIdx >= 0) {
+                  const existing = sec.cards[cIdx];
+                  if (this.isWidgetEqual(existing, msg.widget)) return; // No changes, skip
+                  sec.cards[cIdx] = msg.widget;
+                  this.updateCardElementInDom(msg.widget);
+                }
               }
             });
-            this.updateCardElementInDom(msg.widget);
           }
         }
       }
@@ -590,15 +648,18 @@ const dashboardView = {
       if (msg && msg.dashboardId === this.activeDashboardId) {
         const current = this.getActiveDashboard();
         if (current) {
-          if (msg.canvas) {
-            current.badges = msg.canvas.badges || current.badges;
-            current.sections = msg.canvas.sections || current.sections;
-          } else if (msg.dashboard) {
-            current.badges = msg.dashboard.badges || current.badges;
-            current.sections = msg.dashboard.sections || current.sections;
-          }
-          if (!this.isEditMode) {
+          const nextBadges = (msg.canvas && msg.canvas.badges) || (msg.dashboard && msg.dashboard.badges) || current.badges;
+          const nextSections = (msg.canvas && msg.canvas.sections) || (msg.dashboard && msg.dashboard.sections) || current.sections;
+
+          const structureChanged = this.hasCanvasStructureChanged(current, { badges: nextBadges, sections: nextSections });
+
+          current.badges = nextBadges;
+          current.sections = nextSections;
+
+          if (structureChanged && !this.isEditMode) {
             this.renderActiveDashboard();
+          } else if (!this.isEditMode) {
+            this.syncCanvasWidgetsInDom(current);
           }
         }
       }
@@ -1373,6 +1434,9 @@ const dashboardView = {
     temp.innerHTML = this.renderCardHtml(card, sectionId);
     const newEl = temp.firstElementChild;
     if (newEl) {
+      if (cardEl.className === newEl.className && cardEl.innerHTML === newEl.innerHTML) {
+        return; // State & output is completely unchanged, skip DOM replacement
+      }
       cardEl.replaceWith(newEl);
       this.attachCardInteractiveListeners(newEl, card, sectionId);
     }
@@ -1397,9 +1461,9 @@ const dashboardView = {
     }
 
     const hasContent = Boolean(contentHtml);
-    badgeEl.className = `ha-badge ${!hasContent ? 'ha-badge-icon-only' : ''}`;
-    badgeEl.title = p.label || p.display || 'Status Pill';
-    badgeEl.innerHTML = `
+    const newClassName = `ha-badge ${!hasContent ? 'ha-badge-icon-only' : ''}`;
+    const newTitle = p.label || p.display || 'Status Pill';
+    const newInnerHTML = `
       <div class="badge-edit-overlay" data-badge-id="${badge.id}">
         <span class="badge-action-btn btn-edit-badge" data-badge-id="${badge.id}" title="Edit Status Pill">✏️</span>
         <span class="badge-action-btn btn-delete-badge" data-badge-id="${badge.id}" title="Remove Status Pill">🗑️</span>
@@ -1407,6 +1471,14 @@ const dashboardView = {
       <span class="badge-icon">${p.icon}</span>
       ${contentHtml}
     `;
+
+    if (badgeEl.className === newClassName && badgeEl.title === newTitle && badgeEl.innerHTML.replace(/\s+/g, ' ') === newInnerHTML.replace(/\s+/g, ' ')) {
+      return; // Badge is unchanged, skip DOM replacement
+    }
+
+    badgeEl.className = newClassName;
+    badgeEl.title = newTitle;
+    badgeEl.innerHTML = newInnerHTML;
 
     const btnEdit = badgeEl.querySelector('.btn-edit-badge');
     if (btnEdit) {
