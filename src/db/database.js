@@ -1,10 +1,21 @@
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { DATA_DIR, DEFAULT_LOG_RETENTION_DAYS, DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD } = require('../config/config');
 const { getAllPermissionKeys } = require('../config/permissions');
 const { formatTimeLA, formatSubmissionTimeLA, getDayKeyLA, formatDayLabelLA } = require('../utils/timezone');
+
+function generateShortId(length = 7) {
+  const chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+  const bytes = crypto.randomBytes(length);
+  let result = '';
+  for (let i = 0; i < length; i++) {
+    result += chars[bytes[i] % chars.length];
+  }
+  return result;
+}
 
 const DB_FILE = path.resolve(DATA_DIR, 'av_audit_db.json');
 
@@ -895,7 +906,7 @@ const db = {
     findAll: () => dbState.checklists,
     findById: (id) => dbState.checklists.find(c => c.id === id),
     create: (chk) => {
-      chk.id = chk.id || `chk_${uuidv4()}`;
+      chk.id = chk.id || generateShortId(7);
       chk.created_at = chk.created_at || new Date().toISOString();
       chk.status = chk.status || 'IN_PROGRESS';
       chk.progress = chk.progress || 0;

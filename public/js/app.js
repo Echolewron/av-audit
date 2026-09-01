@@ -141,7 +141,7 @@ const app = {
 
   getChecklistIdFromPath() {
     if (window.__INITIAL_CHECKLIST_ID__) return window.__INITIAL_CHECKLIST_ID__;
-    const match = window.location.pathname.match(/\/checklist\/([^\/]+)/);
+    const match = window.location.pathname.match(/\/(?:checklist|c)\/([^\/]+)/);
     return match ? match[1] : null;
   },
 
