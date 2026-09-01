@@ -184,7 +184,7 @@ function prepareHtml(rawHtml) {
   const ver = getAppVersion();
   // Automatically bust asset cache with current package version
   return rawHtml
-    .replace(/(href|src)="(\/[^"?]+\.(?:js|css))\??[^"]*"/g, `$1="$2?v=${ver}"`);
+    .replace(/(href|src)="(\/[^"]+?\.(?:js|css))(?:\?[^"]*)?"/g, `$1="$2?v=${ver}"`);
 }
 
 // SPA Fallback with dynamic asset cache-busting
