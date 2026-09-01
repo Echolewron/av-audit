@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const updateService = require('../services/updateService');
 const { authMiddleware } = require('../middleware/auth');
+const { requirePermission } = require('../middleware/rbac');
 
 // Check for updates
-router.get('/check', authMiddleware, async (req, res) => {
+router.get('/check', authMiddleware, requirePermission('system', 'manage_updates'), async (req, res) => {
   try {
     const status = await updateService.checkForUpdates();
     res.json(status);
@@ -13,13 +14,9 @@ router.get('/check', authMiddleware, async (req, res) => {
   }
 });
 
-// Apply update (Admin only)
-router.post('/apply', authMiddleware, async (req, res) => {
+// Apply update
+router.post('/apply', authMiddleware, requirePermission('system', 'manage_updates'), async (req, res) => {
   try {
-    if (!req.user.isAdmin) {
-      return res.status(403).json({ error: 'FORBIDDEN', message: 'Only administrators can initiate system updates.' });
-    }
-
     const io = req.app.get('io');
     const ipAddress = req.ip || req.connection.remoteAddress;
     const result = await updateService.applyUpdate(io, req.user, ipAddress);

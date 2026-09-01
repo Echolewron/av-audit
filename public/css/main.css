@@ -282,7 +282,7 @@ code, pre {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1200;
+  z-index: 20000;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--transition-normal);
@@ -368,7 +368,7 @@ code, pre {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  z-index: 2000;
+  z-index: 25000;
 }
 
 .toast {

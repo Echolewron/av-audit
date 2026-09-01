@@ -9,16 +9,41 @@ const updateView = {
     this.bindSocketEvents();
   },
 
+  canManageUpdates() {
+    return window.app && typeof window.app.hasPermission === 'function'
+      ? window.app.hasPermission('system', 'manage_updates')
+      : false;
+  },
+
+  updatePermissionsUI() {
+    const versionBadge = document.getElementById('sidebar-version-badge');
+    if (!versionBadge) return;
+
+    const allowed = this.canManageUpdates();
+    if (allowed) {
+      versionBadge.classList.add('is-clickable');
+      versionBadge.setAttribute('title', 'Check for system updates');
+      versionBadge.setAttribute('tabindex', '0');
+      versionBadge.setAttribute('role', 'button');
+    } else {
+      versionBadge.classList.remove('is-clickable');
+      versionBadge.removeAttribute('title');
+      versionBadge.removeAttribute('tabindex');
+      versionBadge.removeAttribute('role');
+    }
+  },
+
   bindEvents() {
     // 1. Click on sidebar version badge opens update modal
     const versionBadge = document.getElementById('sidebar-version-badge');
     if (versionBadge) {
-      versionBadge.style.cursor = 'pointer';
       versionBadge.addEventListener('click', (e) => {
+        if (!this.canManageUpdates()) return;
         e.stopPropagation();
         this.openModal();
       });
       versionBadge.addEventListener('keydown', (e) => {
+        if (!this.canManageUpdates()) return;
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
           e.stopPropagation();
@@ -58,6 +83,12 @@ const updateView = {
   },
 
   openModal() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
+
     helpers.openModal('modal-system-update');
     this.checkForUpdates();
   },

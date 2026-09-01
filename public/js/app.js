@@ -291,6 +291,10 @@ const app = {
     if (window.checklistsView && typeof window.checklistsView.updateTemplateSubTabVisibility === 'function') {
       window.checklistsView.updateTemplateSubTabVisibility();
     }
+
+    if (window.updateView && typeof window.updateView.updatePermissionsUI === 'function') {
+      window.updateView.updatePermissionsUI();
+    }
   },
 
   showPendingView(user) {

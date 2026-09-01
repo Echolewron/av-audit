@@ -32,10 +32,20 @@ const PERMISSION_REGISTRY = {
     'access_nav',
     'view_history',
     'manage_settings'
+  ],
+  system: [
+    'manage_updates'
   ]
 };
 
 const PERMISSION_METADATA = {
+  system: {
+    label: 'System & Maintenance',
+    description: 'Over-The-Air (OTA) software updates and system maintenance',
+    permissions: {
+      manage_updates: { label: 'Manage System Updates', description: 'Check for and install Over-The-Air (OTA) software releases' }
+    }
+  },
   sermon_sender: {
     label: 'Recordings Sender',
     description: 'Compress and email audio recordings, manage email templates, and view history',
