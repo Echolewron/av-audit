@@ -167,16 +167,38 @@ app.get(['/checklist/:id', '/c/:id'], (req, res) => {
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.send(injectedHtml);
+    res.send(prepareHtml(injectedHtml));
   });
 });
 
-// SPA Fallback
+function getAppVersion() {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, 'package.json'), 'utf8'));
+    return pkg.version || '1.0.0';
+  } catch (_) {
+    return '1.0.0';
+  }
+}
+
+function prepareHtml(rawHtml) {
+  const ver = getAppVersion();
+  // Automatically bust asset cache with current package version
+  return rawHtml
+    .replace(/(href|src)="(\/[^"?]+\.(?:js|css))\??[^"]*"/g, `$1="$2?v=${ver}"`);
+}
+
+// SPA Fallback with dynamic asset cache-busting
 app.use((req, res, next) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'NOT_FOUND', message: 'API endpoint not found' });
   }
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  fs.readFile(indexPath, 'utf8', (err, html) => {
+    if (err) return res.status(500).send('Error loading application');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.send(prepareHtml(html));
+  });
 });
 
 // Error handling middleware
