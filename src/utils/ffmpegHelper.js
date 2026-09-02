@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const https = require('https');
 const http = require('http');
-const { spawn, execFile } = require('child_process');
+const { spawn } = require('child_process');
 
 const BIN_DIR = path.resolve(__dirname, '../../bin');
 const IS_WIN = process.platform === 'win32';
@@ -12,57 +12,34 @@ const LOCAL_FFMPEG_PATH = path.join(BIN_DIR, FFMPEG_BIN_NAME);
 // Concurrency mutex to prevent duplicate downloads
 let activeDownloadPromise = null;
 
+const STATIC_URLS = {
+  'windows-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-win-64.zip',
+  'linux-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-64.zip',
+  'linux-arm-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-arm-64.zip',
+  'linux-armhf-32': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-armhf-32.zip',
+  'osx-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-macos-64.zip'
+};
+
 /**
- * Returns download URL and archive type based on current OS and architecture
+ * Returns platform key and download URL for current OS and architecture
  */
 function getPlatformDownloadInfo() {
   const platform = process.platform;
   const arch = process.arch;
 
+  let key = 'linux-64';
   if (platform === 'win32') {
-    if (arch === 'x64') {
-      return {
-        url: 'https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip',
-        type: 'zip'
-      };
-    }
-    return {
-      url: 'https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-32.zip',
-      type: 'zip'
-    };
+    key = 'windows-64';
+  } else if (platform === 'darwin') {
+    key = 'osx-64';
+  } else if (platform === 'linux') {
+    if (arch === 'arm64') key = 'linux-arm-64';
+    else if (arch === 'arm') key = 'linux-armhf-32';
+    else key = 'linux-64';
   }
 
-  if (platform === 'linux') {
-    if (arch === 'arm64') {
-      return {
-        url: 'https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-linux-arm-64.tar.gz',
-        type: 'tar.gz'
-      };
-    }
-    if (arch === 'arm') {
-      return {
-        url: 'https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-linux-arm-32.tar.gz',
-        type: 'tar.gz'
-      };
-    }
-    return {
-      url: 'https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-linux-64.tar.gz',
-      type: 'tar.gz'
-    };
-  }
-
-  if (platform === 'darwin') {
-    return {
-      url: 'https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-osx-64.zip',
-      type: 'zip'
-    };
-  }
-
-  // Fallback default
-  return {
-    url: 'https://github.com/vot/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-linux-64.tar.gz',
-    type: 'tar.gz'
-  };
+  const url = STATIC_URLS[key] || STATIC_URLS['linux-64'];
+  return { key, url, type: 'zip' };
 }
 
 /**
@@ -111,7 +88,7 @@ function downloadFileWithRedirect(url, destPath, onProgress) {
       const client = currentUrl.startsWith('https') ? https : http;
       const req = client.get(currentUrl, {
         headers: {
-          'User-Agent': 'AV-Audit-FFmpeg-Downloader'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AV-Audit/1.0'
         }
       }, (res) => {
         // Handle HTTP redirects (301, 302, 303, 307, 308)
@@ -262,7 +239,7 @@ async function ensureFFmpeg(onProgress = () => {}) {
       }
 
       const downloadInfo = getPlatformDownloadInfo();
-      const tempArchive = path.join(BIN_DIR, `ffmpeg_download_${Date.now()}.${downloadInfo.type === 'zip' ? 'zip' : 'tar.gz'}`);
+      const tempArchive = path.join(BIN_DIR, `ffmpeg_download_${Date.now()}.${downloadInfo.type}`);
 
       onProgress({ message: 'FFmpeg not detected. Downloading portable FFmpeg to bin/ (~20MB)...', percent: 0 });
 
