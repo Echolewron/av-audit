@@ -5,6 +5,7 @@ playwright.config.js
 scratch
 skills
 uploads
+bin
 data/av_audit_db.json
 *.log
 .DS_Store

@@ -127,9 +127,21 @@ router.post('/send', requirePermission('sermon_sender', 'access_nav'), upload.si
     const outputFileName = sermonService.generateOutputFilename(context, title);
     compressedFilePath = path.join(sermonService.UPLOADS_DIR, outputFileName);
 
+    const io = req.app.get('io');
+    const socketId = req.body.socket_id;
+    const onProgress = (msg) => {
+      if (io) {
+        if (socketId) {
+          io.to(socketId).emit('sermon:progress', { message: msg });
+        } else {
+          io.emit('sermon:progress', { message: msg });
+        }
+      }
+    };
+
     // 1. Compress file to target size (default 15MB)
     const targetSizeMB = settings.target_file_size_mb || 15;
-    const compResult = await sermonService.compressAudio(tempFilePath, compressedFilePath, targetSizeMB);
+    const compResult = await sermonService.compressAudio(tempFilePath, compressedFilePath, targetSizeMB, onProgress);
 
     // Delete temporary raw upload if distinct from compressed output
     if (tempFilePath !== compressedFilePath && fs.existsSync(tempFilePath)) {
@@ -174,7 +186,6 @@ router.post('/send', requirePermission('sermon_sender', 'access_nav'), upload.si
     });
 
     // Broadcast real-time websocket update
-    const io = req.app.get('io');
     if (io) {
       io.emit('sermon:submissions_updated', { action: 'create', submission });
     }

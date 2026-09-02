@@ -108,6 +108,10 @@ const socketClient = {
     this.socket.on('system:updating', (data) => {
       window.dispatchEvent(new CustomEvent('socket_system_updating', { detail: data }));
     });
+
+    this.socket.on('sermon:progress', (data) => {
+      window.dispatchEvent(new CustomEvent('socket_sermon_progress', { detail: data }));
+    });
   },
 
   joinChecklist(checklistId) {

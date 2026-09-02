@@ -61,10 +61,12 @@ function renderTemplate(template, vars = {}) {
     .replace(/\{date\}/gi, date);
 }
 
+const ffmpegHelper = require('../utils/ffmpegHelper');
+
 // Probe audio duration in seconds using ffprobe or ffmpeg
-function getAudioDuration(filePath) {
-  return new Promise((resolve, reject) => {
-    // Try ffprobe first
+function getAudioDuration(filePath, ffmpegBin = 'ffmpeg') {
+  return new Promise((resolve) => {
+    // Try ffprobe first if available
     execFile('ffprobe', [
       '-v', 'error',
       '-show_entries', 'format=duration',
@@ -76,7 +78,7 @@ function getAudioDuration(filePath) {
       }
 
       // Fallback: parse ffmpeg -i stderr for Duration: 00:00:00.00
-      const ffmpeg = spawn('ffmpeg', ['-i', filePath]);
+      const ffmpeg = spawn(ffmpegBin, ['-i', filePath]);
       let stderrData = '';
       ffmpeg.stderr.on('data', data => {
         stderrData += data.toString();
@@ -99,7 +101,14 @@ function getAudioDuration(filePath) {
 }
 
 // Compress audio to target size in MB (default 15MB) using ffmpeg
-async function compressAudio(inputPath, outputPath, targetSizeMB = 15) {
+async function compressAudio(inputPath, outputPath, targetSizeMB = 15, onProgress = () => {}) {
+  // 1. Ensure FFmpeg is available (auto-downloads to bin/ if not found)
+  const ffmpegPath = await ffmpegHelper.ensureFFmpeg((info) => {
+    if (typeof onProgress === 'function') {
+      onProgress(typeof info === 'string' ? info : info.message);
+    }
+  });
+
   const stats = fs.statSync(inputPath);
   const inputSizeBits = stats.size * 8;
   const targetSizeBits = targetSizeMB * 8 * 1_000_000;
@@ -118,12 +127,20 @@ async function compressAudio(inputPath, outputPath, targetSizeMB = 15) {
     };
   }
 
+  if (typeof onProgress === 'function') {
+    onProgress('Calculating optimal bitrate for target size...');
+  }
+
   // Calculate target bitrate based on duration
-  const durationSec = await getAudioDuration(inputPath);
+  const durationSec = await getAudioDuration(inputPath, ffmpegPath);
   const safeDuration = Math.max(1, durationSec);
   let targetBitrateK = Math.floor(targetSizeBits / safeDuration / 1000);
   // Ensure sane bounds: between 16k and 320k
   targetBitrateK = Math.min(320, Math.max(16, targetBitrateK));
+
+  if (typeof onProgress === 'function') {
+    onProgress(`Compressing audio with FFmpeg (~${targetSizeMB}MB target)...`);
+  }
 
   return new Promise((resolve, reject) => {
     const ffmpegArgs = [
@@ -135,7 +152,7 @@ async function compressAudio(inputPath, outputPath, targetSizeMB = 15) {
       outputPath
     ];
 
-    const proc = spawn('ffmpeg', ffmpegArgs);
+    const proc = spawn(ffmpegPath, ffmpegArgs);
     let errOutput = '';
 
     proc.stderr.on('data', data => {

@@ -75,11 +75,22 @@ const sermonSenderView = {
   setupSocketListeners() {
     if (this.socketInitialized) return;
 
+    window.addEventListener('socket_sermon_progress', (e) => {
+      if (this.isSending && e.detail && e.detail.message) {
+        this.setStepState('compress', 'active', e.detail.message);
+      }
+    });
+
     const attachSocket = () => {
       const socket = (window.socketClient && window.socketClient.socket) || (window.socket) || (window.io && window.io.connect && window.io());
       if (socket && typeof socket.on === 'function') {
         socket.on('sermon:submissions_updated', (data) => {
           this.loadSubmissions();
+        });
+        socket.on('sermon:progress', (data) => {
+          if (this.isSending && data && data.message) {
+            this.setStepState('compress', 'active', data.message);
+          }
         });
         this.socketInitialized = true;
       }
@@ -529,6 +540,11 @@ const sermonSenderView = {
     formData.append('title', title);
     formData.append('context', context);
     formData.append('is_custom_context', this.isCustomContext ? 'true' : 'false');
+
+    const socketId = (window.socketClient && window.socketClient.socket && window.socketClient.socket.id) || '';
+    if (socketId) {
+      formData.append('socket_id', socketId);
+    }
 
     try {
       this.setStepState('upload', 'done', `Uploaded ${this.selectedFile.name} (${this.formatFileSize(this.selectedFile.size)})`);
