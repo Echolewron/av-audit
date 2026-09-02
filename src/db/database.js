@@ -29,6 +29,8 @@ let dbState = {
   audit_logs: [],
   sessions: [],
   info_state: {},
+  sermon_settings: null,
+  sermon_submissions: [],
   settings: {
     retention_days: DEFAULT_LOG_RETENTION_DAYS
   }
@@ -412,6 +414,8 @@ function initDb() {
         audit_logs: loaded.audit_logs || [],
         sessions: loaded.sessions || [],
         info_state: loaded.info_state || {},
+        sermon_settings: loaded.sermon_settings || null,
+        sermon_submissions: Array.isArray(loaded.sermon_submissions) ? loaded.sermon_submissions : [],
         settings: Object.assign({ retention_days: DEFAULT_LOG_RETENTION_DAYS }, loaded.settings || {})
       };
       console.log(`Database loaded: ${dbState.users.length} users, ${dbState.roles.length} roles, ${dbState.dashboards.length} dashboards`);
