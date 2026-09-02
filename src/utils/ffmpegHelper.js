@@ -12,34 +12,40 @@ const LOCAL_FFMPEG_PATH = path.join(BIN_DIR, FFMPEG_BIN_NAME);
 // Concurrency mutex to prevent duplicate downloads
 let activeDownloadPromise = null;
 
-const STATIC_URLS = {
-  'windows-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-win-64.zip',
-  'linux-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-64.zip',
-  'linux-arm-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-arm-64.zip',
-  'linux-armhf-32': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-armhf-32.zip',
-  'osx-64': 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-macos-64.zip'
+// Primary & fallback candidate URLs per platform
+const PLATFORM_CANDIDATES = {
+  'windows-64': [
+    'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-win-64.zip'
+  ],
+  'linux-64': [
+    'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-64.zip'
+  ],
+  'linux-arm-64': [
+    'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-arm-64.zip'
+  ],
+  'linux-armhf-32': [
+    'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-linux-armhf-32.zip'
+  ],
+  'osx-64': [
+    'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v6.1/ffmpeg-6.1-macos-64.zip'
+  ]
 };
 
 /**
- * Returns platform key and download URL for current OS and architecture
+ * Returns platform key for current OS and architecture
  */
-function getPlatformDownloadInfo() {
+function getPlatformKey() {
   const platform = process.platform;
   const arch = process.arch;
 
-  let key = 'linux-64';
-  if (platform === 'win32') {
-    key = 'windows-64';
-  } else if (platform === 'darwin') {
-    key = 'osx-64';
-  } else if (platform === 'linux') {
-    if (arch === 'arm64') key = 'linux-arm-64';
-    else if (arch === 'arm') key = 'linux-armhf-32';
-    else key = 'linux-64';
+  if (platform === 'win32') return 'windows-64';
+  if (platform === 'darwin') return 'osx-64';
+  if (platform === 'linux') {
+    if (arch === 'arm64') return 'linux-arm-64';
+    if (arch === 'arm') return 'linux-armhf-32';
+    return 'linux-64';
   }
-
-  const url = STATIC_URLS[key] || STATIC_URLS['linux-64'];
-  return { key, url, type: 'zip' };
+  return 'linux-64';
 }
 
 /**
@@ -88,7 +94,8 @@ function downloadFileWithRedirect(url, destPath, onProgress) {
       const client = currentUrl.startsWith('https') ? https : http;
       const req = client.get(currentUrl, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AV-Audit/1.0'
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AV-Audit/1.0',
+          'Accept': '*/*'
         }
       }, (res) => {
         // Handle HTTP redirects (301, 302, 303, 307, 308)
@@ -98,7 +105,7 @@ function downloadFileWithRedirect(url, destPath, onProgress) {
         }
 
         if (res.statusCode !== 200) {
-          return reject(new Error(`Failed to download FFmpeg: HTTP ${res.statusCode} ${res.statusMessage}`));
+          return reject(new Error(`HTTP ${res.statusCode} ${res.statusMessage || 'Not Found'}`));
         }
 
         const totalBytes = parseInt(res.headers['content-length'], 10) || 0;
@@ -148,69 +155,57 @@ function downloadFileWithRedirect(url, destPath, onProgress) {
 /**
  * Extract downloaded archive into bin/
  */
-function extractArchive(archivePath, archiveType) {
+function extractArchive(archivePath) {
   return new Promise((resolve, reject) => {
-    if (archiveType === 'zip') {
-      if (IS_WIN) {
-        // Try built-in tar first on Windows 10/11
-        const tarProc = spawn('tar', ['-xf', archivePath, '-C', BIN_DIR], { stdio: 'ignore' });
-        tarProc.on('close', (code) => {
-          if (code === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) {
+    if (IS_WIN) {
+      // Try built-in tar on Windows 10/11
+      const tarProc = spawn('tar', ['-xf', archivePath, '-C', BIN_DIR], { stdio: 'ignore' });
+      tarProc.on('close', (code) => {
+        if (code === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) {
+          return resolve();
+        }
+        // Fallback to PowerShell Expand-Archive
+        const psCommand = `Expand-Archive -LiteralPath "${archivePath}" -DestinationPath "${BIN_DIR}" -Force`;
+        const psProc = spawn('powershell', ['-NoProfile', '-NonInteractive', '-Command', psCommand], { stdio: 'ignore' });
+        psProc.on('close', (psCode) => {
+          if (psCode === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) {
             return resolve();
           }
-          // Fallback to PowerShell Expand-Archive
-          const psCommand = `Expand-Archive -LiteralPath "${archivePath}" -DestinationPath "${BIN_DIR}" -Force`;
-          const psProc = spawn('powershell', ['-NoProfile', '-NonInteractive', '-Command', psCommand], { stdio: 'ignore' });
-          psProc.on('close', (psCode) => {
-            if (psCode === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) {
-              return resolve();
-            }
-            reject(new Error(`Failed to extract FFmpeg zip archive (PowerShell code ${psCode})`));
-          });
-          psProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
+          reject(new Error(`Failed to extract FFmpeg zip archive (PowerShell code ${psCode})`));
         });
-        tarProc.on('error', () => {
-          // PowerShell fallback if tar is not present
-          const psCommand = `Expand-Archive -LiteralPath "${archivePath}" -DestinationPath "${BIN_DIR}" -Force`;
-          const psProc = spawn('powershell', ['-NoProfile', '-NonInteractive', '-Command', psCommand], { stdio: 'ignore' });
-          psProc.on('close', (psCode) => {
-            if (psCode === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) {
-              return resolve();
-            }
-            reject(new Error(`Failed to extract FFmpeg zip archive (PowerShell code ${psCode})`));
-          });
-          psProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
-        });
-      } else {
-        // Unix unzip
-        const proc = spawn('unzip', ['-o', archivePath, '-d', BIN_DIR], { stdio: 'ignore' });
-        proc.on('close', (code) => {
-          if (code === 0) return resolve();
-          // Fallback to tar
-          const tarProc = spawn('tar', ['-xf', archivePath, '-C', BIN_DIR], { stdio: 'ignore' });
-          tarProc.on('close', (tarCode) => {
-            if (tarCode === 0) return resolve();
-            reject(new Error(`Failed to extract FFmpeg zip archive (code ${code}/${tarCode})`));
-          });
-          tarProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
-        });
-        proc.on('error', () => {
-          const tarProc = spawn('tar', ['-xf', archivePath, '-C', BIN_DIR], { stdio: 'ignore' });
-          tarProc.on('close', (tarCode) => {
-            if (tarCode === 0) return resolve();
-            reject(new Error('Failed to extract FFmpeg zip archive.'));
-          });
-          tarProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
-        });
-      }
-    } else {
-      // tar.gz
-      const proc = spawn('tar', ['-xzf', archivePath, '-C', BIN_DIR], { stdio: 'ignore' });
-      proc.on('close', (code) => {
-        if (code === 0) return resolve();
-        reject(new Error(`Failed to extract FFmpeg tar.gz archive (exit code ${code})`));
+        psProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
       });
-      proc.on('error', (err) => reject(new Error(`tar extraction failed: ${err.message}`)));
+      tarProc.on('error', () => {
+        const psCommand = `Expand-Archive -LiteralPath "${archivePath}" -DestinationPath "${BIN_DIR}" -Force`;
+        const psProc = spawn('powershell', ['-NoProfile', '-NonInteractive', '-Command', psCommand], { stdio: 'ignore' });
+        psProc.on('close', (psCode) => {
+          if (psCode === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) {
+            return resolve();
+          }
+          reject(new Error(`Failed to extract FFmpeg zip archive (PowerShell code ${psCode})`));
+        });
+        psProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
+      });
+    } else {
+      // Unix: try unzip then tar
+      const proc = spawn('unzip', ['-o', archivePath, '-d', BIN_DIR], { stdio: 'ignore' });
+      proc.on('close', (code) => {
+        if (code === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) return resolve();
+        const tarProc = spawn('tar', ['-xf', archivePath, '-C', BIN_DIR], { stdio: 'ignore' });
+        tarProc.on('close', (tarCode) => {
+          if (tarCode === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) return resolve();
+          reject(new Error(`Failed to extract FFmpeg archive (unzip code ${code}, tar code ${tarCode})`));
+        });
+        tarProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
+      });
+      proc.on('error', () => {
+        const tarProc = spawn('tar', ['-xf', archivePath, '-C', BIN_DIR], { stdio: 'ignore' });
+        tarProc.on('close', (tarCode) => {
+          if (tarCode === 0 && fs.existsSync(LOCAL_FFMPEG_PATH)) return resolve();
+          reject(new Error('Failed to extract FFmpeg zip archive.'));
+        });
+        tarProc.on('error', (err) => reject(new Error(`Extraction error: ${err.message}`)));
+      });
     }
   });
 }
@@ -238,18 +233,34 @@ async function ensureFFmpeg(onProgress = () => {}) {
         fs.mkdirSync(BIN_DIR, { recursive: true });
       }
 
-      const downloadInfo = getPlatformDownloadInfo();
-      const tempArchive = path.join(BIN_DIR, `ffmpeg_download_${Date.now()}.${downloadInfo.type}`);
+      const platformKey = getPlatformKey();
+      const candidates = PLATFORM_CANDIDATES[platformKey] || PLATFORM_CANDIDATES['linux-64'];
+      const tempArchive = path.join(BIN_DIR, `ffmpeg_download_${Date.now()}.zip`);
 
-      onProgress({ message: 'FFmpeg not detected. Downloading portable FFmpeg to bin/ (~20MB)...', percent: 0 });
+      let downloadSuccess = false;
+      let lastError = null;
 
-      // Download archive
-      await downloadFileWithRedirect(downloadInfo.url, tempArchive, onProgress);
+      onProgress({ message: 'FFmpeg not detected. Downloading portable FFmpeg to bin/ (~25MB)...', percent: 0 });
+
+      for (const downloadUrl of candidates) {
+        try {
+          await downloadFileWithRedirect(downloadUrl, tempArchive, onProgress);
+          downloadSuccess = true;
+          break;
+        } catch (err) {
+          lastError = err;
+          console.warn(`Download candidate failed (${downloadUrl}):`, err.message);
+        }
+      }
+
+      if (!downloadSuccess) {
+        throw new Error(`Failed to download FFmpeg: ${lastError ? lastError.message : 'All download sources failed.'}`);
+      }
 
       onProgress({ message: 'Extracting FFmpeg to bin/...', percent: 95 });
 
       // Extract archive into bin/
-      await extractArchive(tempArchive, downloadInfo.type);
+      await extractArchive(tempArchive);
 
       // Clean up temporary archive
       try {
