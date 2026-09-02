@@ -59,13 +59,10 @@ const sermonSenderView = {
   init() {
     this.bindEvents();
     this.setupSocketListeners();
-    this.loadSettings();
-    this.loadSubmissions();
-    this.renderContextDropdown();
-    this.updatePermissionsUI();
   },
 
   render() {
+    this.bindEvents();
     this.updatePermissionsUI();
     this.loadSubmissions();
     this.loadSettings();
@@ -260,6 +257,9 @@ const sermonSenderView = {
   },
 
   bindEvents() {
+    if (this._eventsBound) return;
+    this._eventsBound = true;
+
     // 1. File Upload Dropzone
     const dropzone = document.getElementById('sermon-upload-dropzone');
     const fileInput = document.getElementById('sermon-file-input');

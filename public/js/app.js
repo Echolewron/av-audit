@@ -17,6 +17,7 @@ const app = {
     rolesView.init();
     accountsView.init();
     auditView.init();
+    if (window.sermonSenderView) sermonSenderView.init();
     if (window.updateView) updateView.init();
 
     // Initialize sockets
@@ -68,6 +69,7 @@ const app = {
         // Refresh active view data if relevant
         if (window.dashboardView) dashboardView.updatePermissionsUI();
         if (this.currentView === 'dashboard') dashboardView.render();
+        if (this.currentView === 'sermon-sender' && window.sermonSenderView) sermonSenderView.render();
         if (this.currentView === 'roles') rolesView.loadRoles();
         if (this.currentView === 'accounts') accountsView.loadAccounts();
         if (this.currentView === 'audit') auditView.loadAuditLogs();
