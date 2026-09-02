@@ -382,9 +382,7 @@
 
 .execution-header {
   padding: 1.25rem 1.5rem;
-  background: rgba(18, 26, 36, 0.94);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: rgba(18, 26, 36, 0.98);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -397,6 +395,7 @@
   border-top-left-radius: var(--radius-lg);
   border-top-right-radius: var(--radius-lg);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  transform: translateZ(0);
 }
 
 .exec-progress-box {
@@ -1062,9 +1061,7 @@
     position: sticky;
     top: -0.85rem;
     z-index: 90;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    background: rgba(13, 17, 23, 0.96);
+    background: rgba(13, 17, 23, 0.98);
     border-bottom: 1px solid var(--border-muted);
     border-radius: var(--radius-md) var(--radius-md) 0 0;
     flex-direction: row;
@@ -1072,6 +1069,7 @@
     justify-content: space-between;
     gap: 0.65rem;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+    transform: translateZ(0);
   }
 
   .exec-progress-box {

@@ -594,9 +594,8 @@
   display: none;
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 10, 0.65);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(4, 7, 10, 0.85);
+  transform: translateZ(0);
   z-index: 99;
   opacity: 0;
   pointer-events: none;

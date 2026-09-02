@@ -592,19 +592,50 @@ const dashboardView = {
     if (this._socketListenersAttached) return;
     this._socketListenersAttached = true;
 
-    // Real-Time Ingestion: /info/:key updates
+    // Real-Time Ingestion: /info/:key updates (batched per animation frame to avoid layout thrashing)
+    const pendingInfoKeys = new Set();
+    let infoRafId = null;
+
+    const flushInfoUpdates = () => {
+      infoRafId = null;
+      if (pendingInfoKeys.size === 0) return;
+      const keysToFlush = Array.from(pendingInfoKeys);
+      pendingInfoKeys.clear();
+      keysToFlush.forEach(key => this.updateLiveCardsByKey(key));
+    };
+
     const handleInfoUpdate = (data) => {
       if (!data || !data.key) return;
       const key = data.key;
       const payloadData = (data.data && typeof data.data === 'object') ? data.data : data.data;
       this.infoState[key] = payloadData;
-      this.updateLiveCardsByKey(key);
+      pendingInfoKeys.add(key);
+      if (!infoRafId) {
+        infoRafId = requestAnimationFrame(flushInfoUpdates);
+      }
     };
 
     window.addEventListener('socket_info_updated', (e) => handleInfoUpdate(e.detail));
     window.addEventListener('socket_state_updated', (e) => handleInfoUpdate(e.detail));
 
-    // Real-Time Widget Updates from Server-Side Automations & Polling
+    // Real-Time Widget Updates from Server-Side Automations & Polling (batched per frame)
+    const pendingWidgetDomUpdates = new Map();
+    let widgetRafId = null;
+
+    const flushWidgetDomUpdates = () => {
+      widgetRafId = null;
+      if (pendingWidgetDomUpdates.size === 0) return;
+      const updates = Array.from(pendingWidgetDomUpdates.values());
+      pendingWidgetDomUpdates.clear();
+      updates.forEach(({ isBadge, widget }) => {
+        if (isBadge) {
+          this.updateBadgeElementInDom(widget);
+        } else {
+          this.updateCardElementInDom(widget);
+        }
+      });
+    };
+
     const handleWidgetUpdate = (msg) => {
       if (!msg) return;
       if (msg.dashboardId === this.activeDashboardId && msg.widget) {
@@ -619,7 +650,8 @@ const dashboardView = {
             } else {
               current.badges.push(msg.widget);
             }
-            this.updateBadgeElementInDom(msg.widget);
+            pendingWidgetDomUpdates.set(`badge_${msg.widget.id}`, { isBadge: true, widget: msg.widget });
+            if (!widgetRafId) widgetRafId = requestAnimationFrame(flushWidgetDomUpdates);
           } else if (Array.isArray(current.sections)) {
             current.sections.forEach(sec => {
               if (Array.isArray(sec.cards)) {
@@ -628,7 +660,8 @@ const dashboardView = {
                   const existing = sec.cards[cIdx];
                   if (this.isWidgetEqual(existing, msg.widget)) return; // No changes, skip
                   sec.cards[cIdx] = msg.widget;
-                  this.updateCardElementInDom(msg.widget);
+                  pendingWidgetDomUpdates.set(`card_${msg.widget.id}`, { isBadge: false, widget: msg.widget });
+                  if (!widgetRafId) widgetRafId = requestAnimationFrame(flushWidgetDomUpdates);
                 }
               }
             });
