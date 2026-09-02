@@ -1132,6 +1132,8 @@ body.editing-mode .section-edit-tab {
   min-height: 64px;
   user-select: none;
   overflow: hidden;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 64px;
 }
 
 /* SortableJS Ghost & Dragging Classes for Smooth 60FPS Displacement */

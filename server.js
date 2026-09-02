@@ -49,13 +49,17 @@ app.use(sanitizeMiddleware);
 app.use('/info', infoRoutes);
 app.use('/api/info', infoRoutes);
 
-// Static files with immediate cache invalidation (HTML passes through dynamic prepareHtml)
+// Static files with smart ETag validation (HTML passes through dynamic prepareHtml)
 app.use(express.static(path.join(__dirname, 'public'), {
-  etag: false,
-  maxAge: 0,
+  etag: true,
+  maxAge: '1h',
   index: false,
-  setHeaders: (res) => {
-    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.html')) {
+      res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    } else {
+      res.set('Cache-Control', 'public, max-age=3600, must-revalidate');
+    }
   }
 }));
 

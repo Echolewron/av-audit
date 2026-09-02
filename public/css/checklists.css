@@ -34,6 +34,8 @@
   cursor: pointer;
   box-shadow: var(--shadow-sm);
   touch-action: pan-y;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
 }
 
 .checklist-card:hover {
@@ -1286,6 +1288,8 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 42px;
 }
 
 .todoist-task-row {

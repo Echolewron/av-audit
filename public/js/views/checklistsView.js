@@ -93,10 +93,13 @@ const checklistsView = {
 
   bindSocketEvents() {
     window.addEventListener('socket_checklist_created', (e) => {
-      this.loadChecklists();
+      if (window.app && (window.app.currentView === 'checklists' || window.app.currentView === 'execution')) {
+        this.loadChecklists();
+      }
     });
 
     window.addEventListener('socket_checklist_card_updated', (e) => {
+      if (!window.app || window.app.currentView !== 'checklists') return;
       const { id, progress, status, has_blocked } = e.detail;
       const card = document.querySelector(`.checklist-card[data-id="${id}"]`);
       if (card) {
@@ -124,7 +127,7 @@ const checklistsView = {
         if (this.hasChecklistDifferences(this.currentChecklist, e.detail)) {
           this.patchExecutionView(e.detail);
         }
-      } else {
+      } else if (window.app && window.app.currentView === 'checklists') {
         const execSection = document.getElementById('view-execution');
         if (!execSection || execSection.style.display === 'none') {
           this.loadChecklists();
@@ -137,7 +140,7 @@ const checklistsView = {
         if (this.hasChecklistDifferences(this.currentChecklist, e.detail)) {
           this.patchExecutionView(e.detail);
         }
-      } else {
+      } else if (window.app && window.app.currentView === 'checklists') {
         const execSection = document.getElementById('view-execution');
         if (!execSection || execSection.style.display === 'none') {
           this.loadChecklists();
@@ -150,7 +153,7 @@ const checklistsView = {
         if (this.hasChecklistDifferences(this.currentChecklist, e.detail)) {
           this.patchExecutionView(e.detail);
         }
-      } else {
+      } else if (window.app && window.app.currentView === 'checklists') {
         const execSection = document.getElementById('view-execution');
         if (!execSection || execSection.style.display === 'none') {
           this.loadChecklists();
@@ -163,13 +166,17 @@ const checklistsView = {
         helpers.showToast('This checklist was deleted.', 'warning');
         this.closeExecutionView();
       }
-      this.loadChecklists();
+      if (window.app && window.app.currentView === 'checklists') {
+        this.loadChecklists();
+      }
     });
 
     window.addEventListener('socket_checklist_viewers', (e) => {
       const { viewers } = e.detail;
       this.activeViewers = viewers || [];
-      this.updateViewersBar();
+      if (window.app && window.app.currentView === 'execution') {
+        this.updateViewersBar();
+      }
     });
   },
 

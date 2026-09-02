@@ -302,7 +302,13 @@ const dashboardView = {
 
   render() {
     if (this.canAccessDashboards()) {
-      this.loadDashboards(this.activeDashboardId);
+      if (!this.dashboards || this.dashboards.length === 0 || this._needsReload) {
+        this._needsReload = false;
+        this.loadDashboards(this.activeDashboardId);
+      } else {
+        this.renderDropdownList();
+        this.renderActiveDashboard();
+      }
       this.updatePermissionsUI();
     }
   },
@@ -601,7 +607,10 @@ const dashboardView = {
       if (pendingInfoKeys.size === 0) return;
       const keysToFlush = Array.from(pendingInfoKeys);
       pendingInfoKeys.clear();
-      keysToFlush.forEach(key => this.updateLiveCardsByKey(key));
+      // Skip expensive DOM updates if the user is not currently viewing the dashboard
+      if (window.app && window.app.currentView === 'dashboard') {
+        keysToFlush.forEach(key => this.updateLiveCardsByKey(key));
+      }
     };
 
     const handleInfoUpdate = (data) => {
@@ -627,13 +636,16 @@ const dashboardView = {
       if (pendingWidgetDomUpdates.size === 0) return;
       const updates = Array.from(pendingWidgetDomUpdates.values());
       pendingWidgetDomUpdates.clear();
-      updates.forEach(({ isBadge, widget }) => {
-        if (isBadge) {
-          this.updateBadgeElementInDom(widget);
-        } else {
-          this.updateCardElementInDom(widget);
-        }
-      });
+      // Skip DOM manipulation if not on dashboard view
+      if (window.app && window.app.currentView === 'dashboard') {
+        updates.forEach(({ isBadge, widget }) => {
+          if (isBadge) {
+            this.updateBadgeElementInDom(widget);
+          } else {
+            this.updateCardElementInDom(widget);
+          }
+        });
+      }
     };
 
     const handleWidgetUpdate = (msg) => {
@@ -675,7 +687,11 @@ const dashboardView = {
     // Dashboard Structure & Canvas Sync
     window.addEventListener('socket_dashboards_updated', () => {
       if (this.canAccessDashboards()) {
-        this.loadDashboards(this.activeDashboardId);
+        if (window.app && window.app.currentView === 'dashboard') {
+          this.loadDashboards(this.activeDashboardId);
+        } else {
+          this._needsReload = true;
+        }
       }
     });
 
@@ -692,10 +708,14 @@ const dashboardView = {
           current.badges = nextBadges;
           current.sections = nextSections;
 
-          if (structureChanged && !this.isEditMode) {
-            this.renderActiveDashboard();
-          } else if (!this.isEditMode) {
-            this.syncCanvasWidgetsInDom(current);
+          if (window.app && window.app.currentView === 'dashboard') {
+            if (structureChanged && !this.isEditMode) {
+              this.renderActiveDashboard();
+            } else if (!this.isEditMode) {
+              this.syncCanvasWidgetsInDom(current);
+            }
+          } else {
+            this._needsReload = true;
           }
         }
       }

@@ -363,6 +363,8 @@
   box-shadow: var(--shadow-sm);
   overflow: hidden;
   transition: none !important;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 54px;
 }
 
 .audit-grid-card:hover {

@@ -187,16 +187,6 @@ const app = {
         this.switchView(this.currentView || 'checklists');
       }
 
-      if (window.templatesView) {
-        window.templatesView.loadTemplates();
-      }
-      if (window.dashboardView) {
-        window.dashboardView.loadDashboards();
-      }
-      if (window.sermonSenderView) {
-        window.sermonSenderView.init();
-      }
-
       // Start inactivity monitoring for authenticated session
       if (window.sessionManager) {
         window.sessionManager.start();

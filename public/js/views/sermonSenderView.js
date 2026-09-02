@@ -85,7 +85,9 @@ const sermonSenderView = {
       const socket = (window.socketClient && window.socketClient.socket) || (window.socket) || (window.io && window.io.connect && window.io());
       if (socket && typeof socket.on === 'function') {
         socket.on('sermon:submissions_updated', (data) => {
-          this.loadSubmissions();
+          if (window.app && window.app.currentView === 'sermon-sender') {
+            this.loadSubmissions();
+          }
         });
         socket.on('sermon:progress', (data) => {
           if (this.isSending && data && data.message) {
