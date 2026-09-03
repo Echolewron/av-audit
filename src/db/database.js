@@ -93,312 +93,6 @@ function saveDb() {
   }
 }
 
-function getDefaultDashboardSections() {
-  return [
-    {
-      id: 'sec_audio_matrix',
-      title: 'Audio Matrix & Rigging',
-      icon: '🎙️',
-      subtitle: 'FOH console, wireless mics, DSP routing',
-      cards: [
-        {
-          id: 'card_lead_vocal_mic',
-          type: 'button',
-          label: 'Lead Vocal Wireless RF',
-          subtitle: 'Shure Axient Digital AD4Q',
-          icon: '🎤',
-          color: '#10b981',
-          enabled: true,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onTap: [
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"mic": "Lead Vocal", "rf_check": true}' }
-            ],
-            onInfo: {
-              key: 'audio/mic1',
-              actions: [
-                { type: 'set_property', property: 'subtitle', value: '(data.active ? "Active" : "Muted") + " • " + (data.gain || "-18dB")' }
-              ]
-            }
-          }
-        },
-        {
-          id: 'card_pa_mute_toggle',
-          type: 'toggle',
-          label: 'Main PA Stage Un-Mute',
-          subtitle: 'd&b audiotechnik Line Array',
-          icon: '🔊',
-          color: '#10b981',
-          enabled: true,
-          state: 'on',
-          cols: 6,
-          rows: 1,
-          automations: {
-            onToggleOn: [
-              { type: 'set_property', property: 'state', value: '"on"' },
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"action": "pa_unmute", "state": true}' }
-            ],
-            onToggleOff: [
-              { type: 'set_property', property: 'state', value: '"off"' },
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"action": "pa_mute", "state": false}' }
-            ]
-          }
-        },
-        {
-          id: 'card_master_fader',
-          type: 'slider',
-          label: 'FOH Master Line Level',
-          subtitle: 'Dante Output Bus 1-2',
-          icon: '🎚️',
-          color: '#f59e0b',
-          enabled: true,
-          value: 78,
-          min: 0,
-          max: 100,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onChange: [
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"event": "fader_change", "level": "${widget.value}"}' }
-            ]
-          }
-        },
-        {
-          id: 'card_dsp_preset',
-          type: 'stepper',
-          label: 'DSP Room EQ Preset',
-          subtitle: 'BSS Soundweb London BLU-806',
-          icon: '🎛️',
-          color: '#a855f7',
-          enabled: true,
-          value: 3,
-          min: 1,
-          max: 8,
-          step_value: 1,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onChange: [
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"preset": "${widget.value}"}' }
-            ]
-          }
-        },
-        {
-          id: 'card_dsp_headroom',
-          type: 'gauge',
-          label: 'Stage DSP Headroom',
-          subtitle: 'Peak limiter margin',
-          icon: '📊',
-          color: '#38bdf8',
-          enabled: true,
-          value: 88,
-          min: 0,
-          max: 100,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onInfo: {
-              key: 'audio/dsp_headroom',
-              actions: [
-                { type: 'set_property', property: 'value', value: 'data.headroom !== undefined ? data.headroom : 88' }
-              ]
-            }
-          }
-        }
-      ]
-    },
-    {
-      id: 'sec_broadcast_video',
-      title: 'Broadcast Video Wall & Encoders',
-      icon: '📺',
-      subtitle: 'ATEM switchers, playout servers & streamers',
-      cards: [
-        {
-          id: 'card_proj_lamp',
-          type: 'progress',
-          label: 'Projector Lamp Hours',
-          subtitle: 'Christie Boxer 4K30 Laser',
-          icon: '📽️',
-          color: '#f59e0b',
-          enabled: true,
-          value: 71,
-          min: 0,
-          max: 100,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onTap: []
-          }
-        },
-        {
-          id: 'card_stream_toggle',
-          type: 'toggle',
-          label: 'Primary RTMP Live Stream',
-          subtitle: 'Haivision Makito X4 to CDN',
-          icon: '📡',
-          color: '#f85149',
-          enabled: true,
-          state: 'off',
-          cols: 6,
-          rows: 1,
-          automations: {
-            onToggleOn: [
-              { type: 'set_property', property: 'state', value: '"on"' },
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"stream": "LIVE", "bitrate": 6500}' }
-            ],
-            onToggleOff: [
-              { type: 'set_property', property: 'state', value: '"off"' },
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"stream": "STOPPED"}' }
-            ]
-          }
-        },
-        {
-          id: 'card_foh_temp',
-          type: 'graph',
-          label: 'FOH Rack Temperature',
-          subtitle: 'Server Room Ambient Thermostat',
-          icon: '🌡️',
-          color: '#38bdf8',
-          enabled: true,
-          data: [19.5, 20.1, 20.8, 21.2, 21.4],
-          display: '21.4 °C',
-          new_data: 21.4,
-          graph_length: 20,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onInfo: {
-              key: 'env/foh_temp',
-              actions: [
-                { type: 'set_property', property: 'display', value: '(data.temp !== undefined ? data.temp : 21.4) + " °C"' },
-                { type: 'set_property', property: 'new_data', value: 'data.temp !== undefined ? data.temp : 21.4' }
-              ]
-            }
-          }
-        },
-        {
-          id: 'card_cam1_ccu',
-          type: 'button',
-          label: 'Studio Cam 1 SDI Lock',
-          subtitle: '1080p60 • Genlocked',
-          icon: '🎥',
-          color: '#10b981',
-          enabled: true,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onTap: [
-              { type: 'webhook', method: 'POST', url: 'https://httpbin.org/post', body: '{"camera": "Cam 1", "ping": true}' }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      id: 'sec_power_infra',
-      title: 'Stage Power & Ingestion Telemetry',
-      icon: '⚡',
-      subtitle: 'Distro, UPS and real-time ingest receivers',
-      cards: [
-        {
-          id: 'card_tablet_stage_left',
-          type: 'gauge',
-          label: 'Stage Left Tablet Battery',
-          subtitle: 'iPad Pro Audio Controller',
-          icon: '📱',
-          color: '#10b981',
-          enabled: true,
-          value: 84,
-          min: 0,
-          max: 100,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onInfo: {
-              key: 'tablets/stage_left',
-              actions: [
-                { type: 'set_property', property: 'value', value: 'data.battery !== undefined ? data.battery : 84' },
-                { type: 'set_property', property: 'subtitle', value: '"Battery: " + (data.battery || 84) + "%" + (data.charging ? " ⚡" : "")' },
-                { type: 'condition', expression: 'data.battery < 20' },
-                { type: 'set_property', property: 'color', value: '"#ef4444"' }
-              ]
-            },
-            onConditionFailed: [
-              { type: 'set_property', property: 'color', value: '"#10b981"' }
-            ]
-          }
-        },
-        {
-          id: 'card_power_mains',
-          type: 'graph',
-          label: '3-Phase Camlock Mains Feed',
-          subtitle: '400A Stage Distribution Panel',
-          icon: '⚡',
-          color: '#f59e0b',
-          enabled: true,
-          data: [120.1, 120.3, 120.2, 120.5, 120.4],
-          display: '120.4 V',
-          new_data: 120.4,
-          graph_length: 20,
-          cols: 6,
-          rows: 1,
-          automations: {
-            onInfo: {
-              key: 'power/mains',
-              actions: [
-                { type: 'set_property', property: 'display', value: '(data.voltage !== undefined ? data.voltage : 120.4) + " V"' },
-                { type: 'set_property', property: 'new_data', value: 'data.voltage !== undefined ? data.voltage : 120.4' }
-              ]
-            }
-          }
-        }
-      ]
-    }
-  ];
-}
-
-function getDefaultDashboardBadges() {
-  return [
-    {
-      id: 'badge_dsp_temp',
-      title: 'DSP Temp',
-      icon: '🌡️',
-      infoKey: 'audio/dsp_main',
-      infoExpr: "(data.temp !== undefined ? data.temp : 42.5) + ' °C'",
-      colorExpr: 'data.temp > 70 ? "red" : "green"',
-      fallbackText: '42.5 °C'
-    },
-    {
-      id: 'badge_mains_voltage',
-      title: 'Mains Voltage',
-      icon: '⚡',
-      infoKey: 'power/mains',
-      infoExpr: "(data.voltage !== undefined ? data.voltage : 120.4) + ' V'",
-      colorExpr: 'data.voltage < 110 ? "amber" : "green"',
-      fallbackText: '120.4 V'
-    },
-    {
-      id: 'badge_stage_tablet',
-      title: 'Stage Left Tablet',
-      icon: '📱',
-      infoKey: 'tablets/stage_left',
-      infoExpr: "(data.battery !== undefined ? data.battery : 84) + '%' + (data.charging ? ' ⚡' : '')",
-      colorExpr: '(data.battery !== undefined ? data.battery : 84) < 20 ? "red" : ((data.battery !== undefined ? data.battery : 84) < 50 ? "amber" : "green")',
-      fallbackText: '84% ⚡'
-    },
-    {
-      id: 'badge_dante_clock',
-      title: 'Dante Clock',
-      icon: '📶',
-      infoKey: 'dante/clock',
-      infoExpr: "data.locked !== false ? 'Locked 48kHz' : 'Unlocked ⚠️'",
-      colorExpr: 'data.locked !== false ? "green" : "red"',
-      fallbackText: 'Locked 48kHz'
-    }
-  ];
-}
-
 // Initialize database and seed defaults if empty
 function initDb() {
   if (fs.existsSync(DB_FILE)) {
@@ -406,15 +100,23 @@ function initDb() {
       const content = fs.readFileSync(DB_FILE, 'utf-8');
       const loaded = JSON.parse(content);
       dbState = {
-        users: loaded.users || [],
-        roles: loaded.roles || [],
-        templates: loaded.templates || [],
-        checklists: loaded.checklists || [],
-        dashboards: loaded.dashboards || [],
-        audit_logs: loaded.audit_logs || [],
-        sessions: loaded.sessions || [],
-        info_state: loaded.info_state || {},
-        sermon_settings: loaded.sermon_settings || null,
+        users: Array.isArray(loaded.users) ? loaded.users : [],
+        roles: Array.isArray(loaded.roles) ? loaded.roles : [],
+        templates: Array.isArray(loaded.templates) ? loaded.templates : [],
+        checklists: Array.isArray(loaded.checklists) ? loaded.checklists : [],
+        dashboards: Array.isArray(loaded.dashboards) ? loaded.dashboards : [],
+        audit_logs: Array.isArray(loaded.audit_logs) ? loaded.audit_logs : [],
+        sessions: Array.isArray(loaded.sessions) ? loaded.sessions : [],
+        info_state: (typeof loaded.info_state === 'object' && loaded.info_state !== null) ? loaded.info_state : {},
+        sermon_settings: loaded.sermon_settings || {
+          sender_email: '',
+          sender_app_password: '',
+          receiver_email: '',
+          subject_template: '{context} Sermon {date}',
+          body_template: 'God bless you. This is the recording for the sermon delivered on {date}, "{title}."\n\n[This email was automatically generated by AV Audit Sermon Sender]',
+          retention_days: 14,
+          target_file_size_mb: 15
+        },
         sermon_submissions: Array.isArray(loaded.sermon_submissions) ? loaded.sermon_submissions : [],
         settings: Object.assign({ retention_days: DEFAULT_LOG_RETENTION_DAYS }, loaded.settings || {})
       };
@@ -427,8 +129,8 @@ function initDb() {
     seedInitialData();
   }
 
-  // Ensure default roles, admin, and templates exist
-  if (dbState.roles.length === 0 || dbState.users.length === 0 || dbState.templates.length === 0) {
+  // Ensure default roles and admin exist if empty
+  if (dbState.roles.length === 0 || dbState.users.length === 0) {
     seedInitialData();
   }
 
@@ -444,76 +146,41 @@ function initDb() {
     saveDb();
   }
 
-  // Ensure default dashboard exists with rich Lovelace sections and badges
-  if (!dbState.dashboards || dbState.dashboards.length === 0) {
-    dbState.dashboards = [
-      {
-        id: 'dash_default_main',
-        name: 'Main Stage Flight Control',
-        description: 'Comprehensive Lovelace-style AV control center and real-time telemetry',
-        color_code: '#58a6ff',
-        allowed_roles: ['*'],
-        created_by: 'system',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        badges: getDefaultDashboardBadges(),
-        sections: getDefaultDashboardSections(),
-        widgets: []
-      }
-    ];
-    saveDb();
-  } else {
-    // Ensure existing dashboards have badges and sections with normalized card schemas
+  // Ensure existing dashboards have valid array schemas without overwriting user data
+  if (Array.isArray(dbState.dashboards)) {
     let changed = false;
     dbState.dashboards.forEach(d => {
-      if (!d.badges || d.badges.length === 0) {
-        d.badges = getDefaultDashboardBadges();
+      if (!Array.isArray(d.badges)) {
+        d.badges = [];
         changed = true;
       }
-      if (!d.sections || d.sections.length === 0) {
-        d.sections = getDefaultDashboardSections();
+      if (!Array.isArray(d.sections)) {
+        d.sections = [];
         changed = true;
-      } else {
-        d.sections.forEach(sec => {
-          (sec.cards || []).forEach(card => {
-            if (card.type === 'tile') { card.type = 'button'; changed = true; }
-            if (card.type === 'sparkline' || card.type === 'sensor') { card.type = 'graph'; changed = true; }
-            if (card.type === 'circular_progress') { card.type = 'gauge'; changed = true; }
-            if (card.type === 'linear_progress') { card.type = 'progress'; changed = true; }
-            if (card.title && !card.label) { card.label = card.title; changed = true; }
-            if (card.accentColor && !card.color) { card.color = card.accentColor; changed = true; }
-            if (card.colSpan && !card.cols) { card.cols = card.colSpan; changed = true; }
-            if (card.rowSpan && !card.rows) { card.rows = card.rowSpan; changed = true; }
-            if (card.enabled === undefined) { card.enabled = true; changed = true; }
-          });
+      }
+      if (!Array.isArray(d.widgets)) {
+        d.widgets = [];
+      }
+      d.sections.forEach(sec => {
+        (sec.cards || []).forEach(card => {
+          if (card.type === 'tile') { card.type = 'button'; changed = true; }
+          if (card.type === 'sparkline' || card.type === 'sensor') { card.type = 'graph'; changed = true; }
+          if (card.type === 'circular_progress') { card.type = 'gauge'; changed = true; }
+          if (card.type === 'linear_progress') { card.type = 'progress'; changed = true; }
+          if (card.title && !card.label) { card.label = card.title; changed = true; }
+          if (card.accentColor && !card.color) { card.color = card.accentColor; changed = true; }
+          if (card.colSpan && !card.cols) { card.cols = card.colSpan; changed = true; }
+          if (card.rowSpan && !card.rows) { card.rows = card.rowSpan; changed = true; }
+          if (card.enabled === undefined) { card.enabled = true; changed = true; }
         });
-      }
+      });
     });
     if (changed) {
       saveDb();
     }
   }
 
-  // Seed default info_state if empty
-  if (!dbState.info_state || Object.keys(dbState.info_state).length === 0) {
-    dbState.info_state = {
-      'tablets/stage_left': { battery: 84, charging: true },
-      'audio/mic1': { active: true, gain: '-18dB' },
-      'audio/pa_mute': { state: 'ON' },
-      'audio/master_fader': { level: 78 },
-      'audio/preset': { preset: 3 },
-      'audio/dsp_headroom': { headroom: 88 },
-      'projectors/main': { hours: 1420 },
-      'broadcast/stream': { live: false },
-      'env/foh_temp': { temp: 21.4 },
-      'cameras/cam1': { locked: true },
-      'power/mains': { voltage: 120.4 },
-      'dante/clock': { locked: true }
-    };
-    saveDb();
-  }
-
-  // Seed default sermon_settings if missing
+  // Ensure default sermon_settings if missing
   if (!dbState.sermon_settings) {
     dbState.sermon_settings = {
       sender_email: '',
@@ -527,7 +194,7 @@ function initDb() {
     saveDb();
   }
 
-  // Seed empty sermon_submissions array if missing
+  // Ensure empty sermon_submissions array if missing
   if (!Array.isArray(dbState.sermon_submissions)) {
     dbState.sermon_submissions = [];
     saveDb();
@@ -554,11 +221,11 @@ function initDb() {
 }
 
 function seedInitialData() {
-  console.log('Seeding initial AV Audit database...');
+  console.log('Initializing clean AV Audit database with default roles and admin account...');
 
   const allPerms = getAllPermissionKeys();
 
-  // Seed Roles
+  // 1. Seed standard Roles
   const adminRoleId = 'role_admin';
   const managerRoleId = 'role_manager';
   const techRoleId = 'role_tech';
@@ -587,6 +254,9 @@ function seedInitialData() {
         'checklists.delete_active',
         'checklists.edit_templates',
         'checklists.execute_automations',
+        'dashboards.access_nav',
+        'dashboards.manage_dashboards',
+        'sermon_sender.access_nav',
         'roles.access_nav',
         'roles.manage_roles',
         'accounts.access_nav',
@@ -613,9 +283,11 @@ function seedInitialData() {
         'checklists.delete_active',
         'checklists.edit_templates',
         'checklists.execute_automations',
+        'dashboards.access_nav',
+        'sermon_sender.access_nav',
         'audit.access_nav'
       ],
-      is_default: true, // Default role for newly approved accounts
+      is_default: true,
       is_admin: false,
       created_at: new Date().toISOString()
     },
@@ -626,7 +298,8 @@ function seedInitialData() {
       position: 4,
       permissions: [
         'checklists.access_nav',
-        'checklists.view_active'
+        'checklists.view_active',
+        'dashboards.access_nav'
       ],
       is_default: false,
       is_admin: false,
@@ -634,7 +307,7 @@ function seedInitialData() {
     }
   ];
 
-  // Seed Admin user from config
+  // 2. Seed default Admin user from config
   const initialAdminUser = DEFAULT_ADMIN_USERNAME || 'admin';
   const initialAdminPass = DEFAULT_ADMIN_PASSWORD || 'admin123';
   const salt = bcrypt.genSaltSync(10);
@@ -651,145 +324,33 @@ function seedInitialData() {
     }
   ];
 
-  // Seed sample AV Templates
-  dbState.templates = [
-    {
-      id: 'tmpl_live_stage',
-      title: 'Main Arena Live Stage — Rigging & Audio Pre-Flight',
-      description: 'Comprehensive line check, Dante routing, wireless RF scan, PA calibration, and stage DSP un-mute verification.',
-      items: [
-        {
-          id: 'item_1',
-          title: 'Power & Main Distribution',
-          description: 'Verify 3-phase camlock feeds and secondary stage drops',
-          order: 1,
-          has_automation: false,
-          children: [
-            { id: 'item_1_1', title: 'Main 400A Disconnect switch engaged & voltage balanced (120V +/- 3V)', order: 1, children: [] },
-            { id: 'item_1_2', title: 'Stage Left & Stage Right Distro breakers energized', order: 2, children: [] },
-            { id: 'item_1_3', title: 'FOH & Amp Rack uninterruptible power supplies (UPS) online', order: 3, children: [] }
-          ]
-        },
-        {
-          id: 'item_2',
-          title: 'FOH & DSP Network Routing',
-          description: 'Primary/Secondary Gigabit Dante Network synchronization',
-          order: 2,
-          has_automation: true,
-          automation: {
-            method: 'GET',
-            url: 'https://httpbin.org/get?system=foh_dsp&status=ping',
-            headers: '{"Content-Type": "application/json", "X-AV-Network": "Dante-Primary"}',
-            body: ''
-          },
-          children: [
-            { id: 'item_2_1', title: 'Dante Controller shows all 64 channels green (0 packet drops)', order: 1, children: [] },
-            { id: 'item_2_2', title: 'FOH console clock sync locked to Master Word Clock (48kHz)', order: 2, children: [] },
-            { id: 'item_2_3', title: 'DSP Speaker Management Output Limiters verified', order: 3, children: [] }
-          ]
-        },
-        {
-          id: 'item_3',
-          title: 'Wireless RF Spectrum & Microphones',
-          description: 'Shure Axient / Sennheiser RF frequency scan and sync',
-          order: 3,
-          has_automation: false,
-          children: [
-            { id: 'item_3_1', title: 'WWB (Wireless Workbench) spectrum scan completed (no DTV interference)', order: 1, children: [] },
-            { id: 'item_3_2', title: 'Handheld 1-4 battery health > 90% and synced', order: 2, children: [] },
-            { id: 'item_3_3', title: 'Beltpack 1-4 lavalier capsules inspected & gain staged', order: 3, children: [] },
-            { id: 'item_3_4', title: 'IEM Transmitter antenna combiner RF power checked', order: 4, children: [] }
-          ]
-        },
-        {
-          id: 'item_4',
-          title: 'Stage Line Check & Talkback',
-          description: 'Point-to-point analog & digital line verification',
-          order: 4,
-          has_automation: true,
-          automation: {
-            method: 'POST',
-            url: 'https://httpbin.org/post',
-            headers: '{"Content-Type": "application/json"}',
-            body: '{"action": "stage_pink_noise_burst", "channels": ["L", "R", "SUB"]}'
-          },
-          children: [
-            { id: 'item_4_1', title: 'Lead Vocal mic phantom power +48V engaged and signal verified', order: 1, children: [] },
-            { id: 'item_4_2', title: 'Drum Kit 8-channel snake line check', order: 2, children: [] },
-            { id: 'item_4_3', title: 'FOH to Stage Manager / Monitor Engineer Intercom Clear-Com call light test', order: 3, children: [] }
-          ]
-        }
-      ],
-      created_by: 'admin',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'tmpl_broadcast_studio',
-      title: 'Broadcast Studio A — Morning Transmission Pre-Flight',
-      description: 'SDI Video switchers, multi-viewer video wall, NDI graphics engines, tally lights, and streaming encoder health check.',
-      items: [
-        {
-          id: 'b_item_1',
-          title: 'Video Switcher & Frame Synchronizers',
-          description: 'Blackmagic ATEM / Grass Valley 4K Production Switcher',
-          order: 1,
-          has_automation: true,
-          automation: {
-            method: 'GET',
-            url: 'https://httpbin.org/status/200',
-            headers: '{"Accept": "application/json"}',
-            body: ''
-          },
-          children: [
-            { id: 'b_item_1_1', title: 'Studio Cameras 1, 2, 3 SDI Genlock locked', order: 1, children: [] },
-            { id: 'b_item_1_2', title: 'CCU Color balance & white balance matched at 5600K', order: 2, children: [] },
-            { id: 'b_item_1_3', title: 'Program & Preview Multi-Viewer layout routed to FOH Wall', order: 3, children: [] }
-          ]
-        },
-        {
-          id: 'b_item_2',
-          title: 'Graphics & Lower Thirds Playout',
-          description: 'CasparCG / Vizrt NDI stream verification',
-          order: 2,
-          has_automation: false,
-          children: [
-            { id: 'b_item_2_1', title: 'Alpha Channel keying verified on Overlays 1 & 2', order: 1, children: [] },
-            { id: 'b_item_2_2', title: 'Ticker RSS data feed updating live', order: 2, children: [] }
-          ]
-        },
-        {
-          id: 'b_item_3',
-          title: 'Primary & Backup RTMP/SRT Encoders',
-          description: 'Redundant hardware encoders transmission to CDN',
-          order: 3,
-          has_automation: true,
-          automation: {
-            method: 'POST',
-            url: 'https://httpbin.org/post',
-            headers: '{"Content-Type": "application/json"}',
-            body: '{"event": "encoder_health_check", "bitrate_kbps": 6500, "fps": 60}'
-          },
-          children: [
-            { id: 'b_item_3_1', title: 'Primary Encoder 1080p60 6500kbps bitrate stable', order: 1, children: [] },
-            { id: 'b_item_3_2', title: 'Secondary Failover Encoder locked on SRT listener', order: 2, children: [] },
-            { id: 'b_item_3_3', title: 'Local ProRes Master recording initialized to NVMe storage', order: 3, children: [] }
-          ]
-        }
-      ],
-      created_by: 'admin',
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-  ];
+  // 3. Clean empty collections (no demo templates, checklists, dashboards, or info keys)
+  dbState.templates = [];
+  dbState.checklists = [];
+  dbState.dashboards = [];
+  dbState.info_state = {};
+  dbState.sermon_submissions = [];
+  dbState.sessions = [];
+  dbState.settings = {
+    retention_days: DEFAULT_LOG_RETENTION_DAYS
+  };
+  dbState.sermon_settings = {
+    sender_email: '',
+    sender_app_password: '',
+    receiver_email: '',
+    subject_template: '{context} Sermon {date}',
+    body_template: 'God bless you. This is the recording for the sermon delivered on {date}, "{title}."\n\n[This email was automatically generated by AV Audit Sermon Sender]',
+    retention_days: 14,
+    target_file_size_mb: 15
+  };
 
-  // Seed initial audit log
+  // 4. Clean initial audit log
   const now = new Date();
   dbState.audit_logs = [
     {
       id: 'log_seed_01',
       user_id: 'user_admin_01',
-      username: 'admin',
+      username: initialAdminUser,
       action_type: 'AUTH',
       action_name: 'SYSTEM_INITIALIZATION',
       details: { message: 'AV Audit platform initialized with default roles and security policies.' },
