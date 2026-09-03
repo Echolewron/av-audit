@@ -219,7 +219,7 @@
 .permission-item.is-selected {
   background: rgba(24, 237, 179, 0.04);
   border-color: rgba(24, 237, 179, 0.35);
-  box-shadow: 0 0 12px rgba(24, 237, 179, 0.06);
+  box-shadow: none;
 }
 
 /* Custom Checkmark Box */
@@ -260,7 +260,7 @@
   background: var(--accent-primary);
   border-color: var(--accent-primary);
   color: #04100c;
-  box-shadow: 0 0 8px var(--accent-primary-glow);
+  box-shadow: none;
 }
 
 .custom-checkbox-wrapper input[type="checkbox"]:disabled + .custom-check-box {

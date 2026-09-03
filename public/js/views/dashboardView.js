@@ -1448,12 +1448,9 @@ const dashboardView = {
               <stop offset="50%" stop-color="${accentColor}" stop-opacity="0.14"/>
               <stop offset="100%" stop-color="${accentColor}" stop-opacity="0.0"/>
             </linearGradient>
-            <filter id="glow_${gradId}" x="-20%" y="-20%" width="140%" height="140%">
-              <feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="${accentColor}" flood-opacity="0.35"/>
-            </filter>
           </defs>
           <path class="sparkline-area" d="${areaPath}" fill="url(#${gradId})" />
-          <path class="sparkline-line" d="${strokePath}" fill="none" stroke="${accentColor}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow_${gradId})" />
+          <path class="sparkline-line" d="${strokePath}" fill="none" stroke="${accentColor}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
         <div class="graph-live-beacon" style="left: ${beaconLeftPct}%; top: ${beaconTopPct}%; --beacon-color: ${accentColor};">
           <span class="beacon-halo"></span>

@@ -94,7 +94,7 @@
 .checklist-card.card-add:hover .card-add-icon {
   background: var(--accent-primary);
   color: #04100c;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 /* Card Elements */
@@ -419,13 +419,11 @@
 .exec-progress-bar-fill {
   height: 100%;
   background: var(--accent-primary);
-  box-shadow: 0 0 8px var(--accent-primary-glow);
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .exec-progress-bar-fill.blocked {
   background: var(--status-danger);
-  box-shadow: 0 0 8px rgba(248, 81, 73, 0.6);
 }
 
 .execution-title-area {
@@ -576,7 +574,6 @@
   background: var(--status-danger);
   color: #ffffff;
   border-color: var(--status-danger);
-  box-shadow: 0 0 10px rgba(248, 81, 73, 0.35);
 }
 
 /* Checkbox Button with 4-State Morphing Shapes */
@@ -598,24 +595,48 @@
   box-sizing: border-box;
 }
 
-.task-check-btn:hover {
+.task-check-btn svg {
+  width: 13px;
+  height: 13px;
+  stroke: currentColor;
+  stroke-width: 3.2;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  transform: scale(0.6);
+}
+
+.task-node.is-checked .task-check-btn svg {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* 1. Required Task (Solid Circle ○) */
+.task-check-btn:not(.is-optional):not(.is-rhombus):not(.is-diamond):hover {
   border-color: var(--accent-primary);
-  transform: scale(1.1);
 }
 
-/* 2. Required + Hook (Hollow Cyan Rhombus ◇) */
-.task-check-btn.is-rhombus:not(.is-optional) {
+/* 2. Required Task + Hook (Solid Cyan Rhombus ◆) */
+.task-check-btn:not(.is-optional).is-rhombus,
+.task-check-btn:not(.is-optional).is-diamond {
   border-radius: 3px !important;
-  transform: rotate(45deg) scale(0.92);
   border: 2px solid var(--accent-secondary) !important;
-  background: transparent !important;
+  transform: rotate(45deg) scale(0.92) !important;
 }
 
-.task-check-btn.is-rhombus:not(.is-optional) svg {
+.task-check-btn:not(.is-optional).is-rhombus svg,
+.task-check-btn:not(.is-optional).is-diamond svg {
   transform: rotate(-45deg);
 }
 
-/* 3. Optional Task, No Hook (Dashed Yellow Circle ◌) */
+.task-check-btn:not(.is-optional).is-rhombus:hover,
+.task-check-btn:not(.is-optional).is-diamond:hover {
+  border-color: #79c0ff !important;
+}
+
+/* 3. Optional Task (Dashed Yellow Circle ◌) */
 .task-check-btn.is-optional:not(.is-rhombus) {
   border-radius: 50% !important;
   border: 2px dashed #d29922 !important;
@@ -627,7 +648,6 @@
 
 .task-check-btn.is-optional:not(.is-rhombus):hover {
   border-color: #e3b341 !important;
-  box-shadow: 0 0 8px rgba(227, 179, 65, 0.35) !important;
 }
 
 /* 4. Optional Task + Hook (Dashed Cyan Rhombus ⬪) */
@@ -649,7 +669,6 @@
 .task-check-btn.is-optional.is-rhombus:hover,
 .task-check-btn.is-hexagon:hover {
   border-color: #79c0ff !important;
-  box-shadow: 0 0 8px rgba(88, 166, 255, 0.4) !important;
 }
 
 /* Checked States */
@@ -658,7 +677,6 @@
   border: 2px solid var(--accent-primary) !important;
   border-style: solid !important;
   color: #04100c !important;
-  box-shadow: 0 0 8px var(--accent-primary-glow);
 }
 
 /* Optional checked (no hook): Solid yellow with dark checkmark */
@@ -669,7 +687,6 @@
   border-radius: 50% !important;
   clip-path: none !important;
   transform: none !important;
-  box-shadow: 0 0 8px rgba(234, 179, 8, 0.45) !important;
 }
 
 /* Optional + Hook checked: Solid yellow rhombus with dark checkmark */
@@ -681,7 +698,6 @@
   border-radius: 3px !important;
   clip-path: none !important;
   transform: rotate(45deg) scale(0.92) !important;
-  box-shadow: 0 0 10px rgba(234, 179, 8, 0.45) !important;
 }
 
 .task-body {
@@ -694,39 +710,36 @@
   font-weight: 500;
   color: var(--text-primary);
   line-height: 1.35;
-  margin: 0;
+  transition: color var(--transition-fast);
 }
 
-.task-node.is-checked .task-title {
-  color: var(--text-secondary);
-  text-decoration: line-through;
-  opacity: 0.75;
+.task-node.is-checked > .task-header-row .task-title {
+  color: var(--text-muted);
 }
 
 .task-desc {
   font-size: 0.775rem;
   color: var(--text-muted);
-  margin-top: 0.15rem;
-  line-height: 1.3;
+  margin-top: 0.25rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
 }
 
-/* Checker Avatar Badge */
+.task-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 .task-checked-badge-wrap {
   position: relative;
   display: inline-flex;
-  align-items: center;
 }
 
 .task-checked-avatar {
-  width: 22px;
-  height: 22px;
-  min-width: 22px;
+  border: 2px solid var(--bg-surface);
   border-radius: 50%;
-  border: 2px solid var(--user-color, var(--accent-primary));
-  background: var(--bg-surface-elevated);
-  color: var(--user-color, var(--accent-primary));
-  font-size: 0.7rem;
-  font-weight: 700;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -734,12 +747,11 @@
   transition: all var(--transition-fast);
   padding: 0;
   line-height: 1;
-  box-shadow: 0 0 6px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .task-checked-avatar:hover {
-  transform: scale(1.15);
-  box-shadow: 0 0 10px var(--user-color, var(--accent-primary));
+  transform: scale(1.1);
 }
 
 /* Checked By Popover Dropdown */
@@ -902,7 +914,6 @@
   background: rgba(248, 81, 73, 0.2);
   border-color: rgba(248, 81, 73, 0.5);
   color: var(--status-danger);
-  box-shadow: 0 0 8px rgba(248, 81, 73, 0.25);
 }
 
 .btn-task-icon.active-note {
@@ -920,19 +931,16 @@
 
 .btn-task-icon.btn-auto-icon:hover {
   border-color: var(--accent-secondary);
-  box-shadow: 0 0 8px rgba(88, 166, 255, 0.25);
 }
 
 .btn-task-icon.btn-auto-icon.btn-auto-success {
   background: rgba(24, 237, 179, 0.15);
   border-color: rgba(24, 237, 179, 0.55);
   color: var(--accent-primary);
-  box-shadow: 0 0 8px rgba(24, 237, 179, 0.3);
 }
 
 .btn-task-icon.btn-auto-icon.btn-auto-success:hover {
   border-color: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(24, 237, 179, 0.45);
 }
 
 /* Automation cURL Button */
@@ -955,7 +963,7 @@
 .btn-automation-trigger:hover {
   background: linear-gradient(135deg, rgba(88, 166, 255, 0.3), rgba(188, 140, 255, 0.3));
   border-color: var(--accent-secondary);
-  box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 /* Issue Note Drawer */
@@ -1339,7 +1347,7 @@
 .todoist-task-row:hover .todoist-circle.is-rhombus:not(.is-optional),
 .todoist-task-row:hover .todoist-circle.has-automation:not(.is-optional) {
   border-color: #79c0ff !important;
-  box-shadow: 0 0 8px rgba(88, 166, 255, 0.5);
+  box-shadow: none;
 }
 
 /* 3. Optional Task, No Hook: Dashed Yellow Circle (◌) */
@@ -1357,7 +1365,7 @@
 
 .todoist-task-row:hover .todoist-circle.is-optional:not(.is-rhombus) {
   border-color: #e3b341 !important;
-  box-shadow: 0 0 8px rgba(227, 179, 65, 0.4);
+  box-shadow: none;
 }
 
 /* 4. Optional Task + Hook: Dashed Cyan Rhombus (⬪) */
@@ -1377,7 +1385,7 @@
 .todoist-task-row:hover .todoist-circle.is-optional.is-rhombus,
 .todoist-task-row:hover .todoist-circle.is-hexagon {
   border-color: #79c0ff !important;
-  box-shadow: 0 0 10px rgba(121, 192, 255, 0.6);
+  box-shadow: none;
 }
 
 .todoist-inputs-group {
@@ -1598,7 +1606,7 @@
   border-color: #c084fc;
   background: rgba(192, 132, 252, 0.25);
   color: #f3e8ff;
-  box-shadow: 0 0 10px rgba(192, 132, 252, 0.35);
+  box-shadow: none;
 }
 
 /* Week Day Badges to the left of task name */
@@ -1707,10 +1715,8 @@
 .todoist-action-sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(4, 7, 10, 0.75);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-  z-index: 10500;
+  background: rgba(4, 7, 10, 0.85);
+  z-index: 30000;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1725,7 +1731,7 @@
   width: 100%;
   max-width: 500px;
   padding: 1.25rem 1.25rem calc(1.25rem + env(safe-area-inset-bottom, 0px)) 1.25rem;
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
   animation: slideUpSheet 0.22s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1881,14 +1887,14 @@
     align-items: center;
     justify-content: center;
     padding: 0 2px;
-    box-shadow: 0 0 6px var(--accent-primary-glow);
+    box-shadow: none;
   }
 
   #btn-toggle-tmpl-submission-hook.has-hook {
     color: var(--accent-secondary) !important;
     border-color: var(--accent-secondary) !important;
     background: rgba(88, 166, 255, 0.15) !important;
-    box-shadow: 0 0 8px rgba(88, 166, 255, 0.4);
+    box-shadow: none;
   }
 
   .todoist-header-actions .modal-close {
@@ -2116,7 +2122,7 @@
   color: #04100c;
   border-color: var(--accent-primary);
   font-weight: 700;
-  box-shadow: 0 0 10px rgba(24, 237, 179, 0.3);
+  box-shadow: none;
 }
 
 .alarm-time-input {
@@ -2161,18 +2167,16 @@
 
 .todoist-drag-ghost {
   position: fixed;
-  z-index: 10600;
+  z-index: 30000;
   pointer-events: none;
   box-sizing: border-box;
   opacity: 0.96;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 0 1.5px var(--accent-primary), 0 0 24px rgba(24, 237, 179, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1.5px var(--accent-primary);
   background: var(--bg-surface-elevated);
   border: 1px solid rgba(24, 237, 179, 0.4);
   border-radius: var(--radius-md);
   will-change: transform, top, left;
   transform: translate3d(0, 0, 0) scale(1.02);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
 }
 
 .is-dragging {
@@ -2193,9 +2197,8 @@
   top: -3px;
   left: 0;
   right: 0;
-  height: 3.5px;
+  height: 3px;
   background: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
   border-radius: 3px;
   z-index: 20;
   pointer-events: none;
@@ -2211,9 +2214,8 @@
   bottom: -3px;
   left: 0;
   right: 0;
-  height: 3.5px;
+  height: 3px;
   background: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
   border-radius: 3px;
   z-index: 20;
   pointer-events: none;
@@ -2334,7 +2336,7 @@
 .section-color-trigger-btn:hover {
   transform: scale(1.2);
   border-color: #ffffff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
 .section-color-popover {
@@ -2370,14 +2372,14 @@
 .section-color-dot:hover {
   transform: scale(1.25);
   border-color: #ffffff;
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
   z-index: 2;
 }
 
 .section-color-dot.active {
   border-color: #ffffff;
   transform: scale(1.15);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .btn-toggle-optional {

@@ -18,7 +18,7 @@ const serverConfig = userConfig.server || {};
 const authConfig = userConfig.auth || {};
 const retentionConfig = userConfig.retention || {};
 
-const PORT = process.env.PORT || serverConfig.port || 3011;
+const PORT = process.env.PORT || serverConfig.port || 3020;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'av_audit_secure_session_secret_2026';
 const TIMEZONE = serverConfig.timezone || 'America/Los_Angeles';
 const SESSION_COOKIE_NAME = 'av_audit_session';
