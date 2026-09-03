@@ -18,7 +18,7 @@ const serverConfig = userConfig.server || {};
 const authConfig = userConfig.auth || {};
 const retentionConfig = userConfig.retention || {};
 
-const PORT = process.env.PORT || serverConfig.port || 3020;
+const PORT = process.env.PORT || serverConfig.port || 3011;
 const SESSION_SECRET = process.env.SESSION_SECRET || 'av_audit_secure_session_secret_2026';
 const TIMEZONE = serverConfig.timezone || 'America/Los_Angeles';
 const SESSION_COOKIE_NAME = 'av_audit_session';
@@ -38,6 +38,20 @@ const DEFAULT_ADMIN_PASSWORD = authConfig.defaultAdminPassword || 'admin123';
 const DEFAULT_LOG_RETENTION_DAYS = parseInt(retentionConfig.defaultLogRetentionDays, 10) || 30;
 const CHECKLIST_SUBMISSION_PURGE_HOURS = parseInt(retentionConfig.checklistSubmissionPurgeHours, 10) || 6;
 
+/**
+ * Resolves relative or localhost URLs dynamically to the active configured PORT
+ */
+function resolveUrl(url) {
+  if (!url || typeof url !== 'string') return url;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('/')) {
+    return `http://127.0.0.1:${PORT}${trimmed}`;
+  }
+  return trimmed.replace(/^http:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?(\/.*)?$/i, (match, path) => {
+    return `http://127.0.0.1:${PORT}${path || ''}`;
+  });
+}
+
 module.exports = {
   PORT,
   TIMEZONE,
@@ -51,5 +65,6 @@ module.exports = {
   DEFAULT_ADMIN_PASSWORD,
   DEFAULT_LOG_RETENTION_DAYS,
   CHECKLIST_SUBMISSION_PURGE_HOURS,
-  DATA_DIR: process.env.DATA_DIR || './data'
+  DATA_DIR: process.env.DATA_DIR || './data',
+  resolveUrl
 };

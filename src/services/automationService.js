@@ -1,4 +1,5 @@
 const { db } = require('../db/database');
+const { resolveUrl } = require('../config/config');
 
 class AutomationService {
   async executeAutomation({ method, url, headers, body, checklistId, itemId, itemTitle }, actingUser, ipAddress) {
@@ -6,6 +7,7 @@ class AutomationService {
       throw new Error('Automation URL is required.');
     }
 
+    const targetUrl = resolveUrl(url);
     const httpMethod = (method || 'GET').toUpperCase();
     let parsedHeaders = {};
     if (typeof headers === 'string' && headers.trim()) {
@@ -45,7 +47,7 @@ class AutomationService {
         fetchOptions.body = typeof body === 'string' ? body : JSON.stringify(body);
       }
 
-      const res = await fetch(url, fetchOptions);
+      const res = await fetch(targetUrl, fetchOptions);
       responseStatus = res.status;
       isSuccess = res.ok;
 

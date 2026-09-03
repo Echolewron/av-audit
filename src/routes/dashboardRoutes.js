@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { db } = require('../db/database');
+const { resolveUrl } = require('../config/config');
 const { authMiddleware } = require('../middleware/auth');
 const { requirePermission } = require('../middleware/rbac');
 const dashboardAutomationService = require('../services/dashboardAutomationService');
@@ -237,7 +238,8 @@ router.post('/execute-action', async (req, res) => {
       };
       if (body) fetchOptions.body = body;
 
-      const fetchRes = await fetch(url, fetchOptions);
+      const targetUrl = resolveUrl(url);
+      const fetchRes = await fetch(targetUrl, fetchOptions);
       const text = await fetchRes.text();
       let parsedData = null;
       try {

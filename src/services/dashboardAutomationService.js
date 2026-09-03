@@ -1,4 +1,5 @@
 const { db } = require('../db/database');
+const { resolveUrl } = require('../config/config');
 
 /**
  * Server-Side Dashboard Automation & HTTP Polling Service
@@ -269,6 +270,7 @@ class DashboardAutomationService {
           }
         } else if (actionType === 'webhook') {
           const evaluatedUrl = this.evalTemplateString(step.url || '', localContext);
+          const targetUrl = resolveUrl(evaluatedUrl);
           const evaluatedBody = this.evalTemplateString(step.body || step.payload || '', localContext);
           const method = (step.method || 'GET').toUpperCase();
 
@@ -282,7 +284,7 @@ class DashboardAutomationService {
               fetchOptions.body = evaluatedBody;
             }
 
-            const res = await fetch(evaluatedUrl, fetchOptions);
+            const res = await fetch(targetUrl, fetchOptions);
             const text = await res.text();
             let parsed = null;
             try { parsed = JSON.parse(text); } catch (e) { parsed = text; }
@@ -397,14 +399,15 @@ class DashboardAutomationService {
           const pollOnce = async () => {
             let payload = {};
             if (pollingConfig.url) {
+              const targetUrl = resolveUrl(pollingConfig.url);
               try {
-                const res = await fetch(pollingConfig.url, { signal: AbortSignal.timeout(8000) });
+                const res = await fetch(targetUrl, { signal: AbortSignal.timeout(8000) });
                 if (res.ok) {
                   const text = await res.text();
                   try { payload = JSON.parse(text); } catch (e) { payload = { response: text, data: text }; }
                 }
               } catch (err) {
-                console.warn(`[Server Polling] Failed fetching ${pollingConfig.url}:`, err.message);
+                console.warn(`[Server Polling] Failed fetching ${targetUrl}:`, err.message);
               }
             }
             await this.executeSequence(dashboardId, widget.id, 'onPolling', payload, { automationId: rule.id });
