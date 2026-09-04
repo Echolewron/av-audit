@@ -1,7 +1,4 @@
-Fix these issues:
+- Dashboard Setting misses setting to control which role can see this dashboard and which role cannot. It was there before, but it is no longer visible. Fix
 
-- In checklist template editor, when in mobile mode and pressing three dot button on a task, the pop up appears behind the template editor modal, making it inaccessble until modal is closed.
 
-- Remove all blurs and glows. For background blurs when modal is open, replace it my dark semi-transparent background. Tell me if this improves performance in any way.
-
-- 
+No browser or API testing necessary

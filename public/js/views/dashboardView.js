@@ -3671,7 +3671,7 @@ const dashboardView = {
 
   // ================= CREATE DASHBOARD MODAL =================
   async openCreateModal() {
-    await this.loadRoles();
+    await this.loadRoles(true);
 
     const inputName = document.getElementById('create-dash-name');
     const inputDesc = document.getElementById('create-dash-description');
@@ -3686,10 +3686,10 @@ const dashboardView = {
     if (inputHex) inputHex.value = defaultColor;
     if (previewBox) previewBox.style.backgroundColor = defaultColor;
     if (allRolesCheck) allRolesCheck.checked = true;
-    if (rolesContainer) rolesContainer.style.display = 'none';
+    if (rolesContainer) rolesContainer.style.display = 'flex';
 
     this.renderColorSwatches('create', defaultColor);
-    this.renderRoleCheckboxes('create', []);
+    this.renderRoleCheckboxes('create', ['*']);
 
     helpers.openModal('modal-create-dashboard');
     if (inputName) setTimeout(() => inputName.focus(), 100);
@@ -3713,11 +3713,18 @@ const dashboardView = {
     const color_code = inputHex ? inputHex.value.trim() : '#4986e7';
     let allowed_roles = ['*'];
 
-    if (allRolesCheck && !allRolesCheck.checked && rolesContainer) {
-      allowed_roles = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-      if (allowed_roles.length === 0) {
+    if (allRolesCheck && allRolesCheck.checked) {
+      allowed_roles = ['*'];
+    } else if (rolesContainer) {
+      const checkedBoxes = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      if (checkedBoxes.length === 0) {
         helpers.showToast('Please select at least one authorized role or allow all roles.', 'warning');
         return;
+      }
+      if (this.roles.length > 0 && checkedBoxes.length === this.roles.length) {
+        allowed_roles = ['*'];
+      } else {
+        allowed_roles = checkedBoxes;
       }
     }
 
@@ -3738,7 +3745,7 @@ const dashboardView = {
       return;
     }
 
-    await this.loadRoles();
+    await this.loadRoles(true);
 
     const inputId = document.getElementById('settings-dash-id');
     const inputName = document.getElementById('settings-dash-name');
@@ -3758,10 +3765,10 @@ const dashboardView = {
 
     const isAllRoles = !current.allowed_roles || current.allowed_roles.includes('*');
     if (allRolesCheck) allRolesCheck.checked = isAllRoles;
-    if (rolesContainer) rolesContainer.style.display = isAllRoles ? 'none' : 'flex';
+    if (rolesContainer) rolesContainer.style.display = 'flex';
 
     this.renderColorSwatches('settings', color);
-    this.renderRoleCheckboxes('settings', current.allowed_roles || []);
+    this.renderRoleCheckboxes('settings', current.allowed_roles && current.allowed_roles.length > 0 ? current.allowed_roles : ['*']);
 
     helpers.openModal('modal-dashboard-settings');
   },
@@ -3788,11 +3795,18 @@ const dashboardView = {
     const color_code = inputHex ? inputHex.value.trim() : '#4986e7';
     let allowed_roles = ['*'];
 
-    if (allRolesCheck && !allRolesCheck.checked && rolesContainer) {
-      allowed_roles = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-      if (allowed_roles.length === 0) {
+    if (allRolesCheck && allRolesCheck.checked) {
+      allowed_roles = ['*'];
+    } else if (rolesContainer) {
+      const checkedBoxes = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+      if (checkedBoxes.length === 0) {
         helpers.showToast('Please select at least one authorized role or allow all roles.', 'warning');
         return;
+      }
+      if (this.roles.length > 0 && checkedBoxes.length === this.roles.length) {
+        allowed_roles = ['*'];
+      } else {
+        allowed_roles = checkedBoxes;
       }
     }
 
@@ -3867,6 +3881,7 @@ const dashboardView = {
 
   renderRoleCheckboxes(prefix, selectedRoleIds) {
     const container = document.getElementById(`${prefix}-dash-roles-container`);
+    const allRolesCheck = document.getElementById(`${prefix}-dash-all-roles-check`);
     if (!container) return;
 
     if (this.roles.length === 0) {
@@ -3875,9 +3890,10 @@ const dashboardView = {
     }
 
     const selectedSet = new Set(selectedRoleIds);
+    const isAll = selectedSet.has('*');
 
     container.innerHTML = this.roles.map(role => {
-      const isChecked = selectedSet.has(role.id) || selectedSet.has('*');
+      const isChecked = isAll || selectedSet.has(role.id);
       const badgeStyle = `background: ${role.color_hex}22; color: ${role.color_hex}; border: 1px solid ${role.color_hex}55;`;
 
       return `
@@ -3894,6 +3910,24 @@ const dashboardView = {
         </div>
       `;
     }).join('');
+
+    // Sync master checkbox and individual role checkboxes
+    if (allRolesCheck) {
+      allRolesCheck.onchange = () => {
+        const checked = allRolesCheck.checked;
+        container.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+          cb.checked = checked;
+        });
+      };
+    }
+
+    container.onchange = (e) => {
+      if (e.target && e.target.type === 'checkbox' && allRolesCheck) {
+        const roleCheckboxes = Array.from(container.querySelectorAll('input[type="checkbox"]'));
+        const allChecked = roleCheckboxes.length > 0 && roleCheckboxes.every(cb => cb.checked);
+        allRolesCheck.checked = allChecked;
+      }
+    };
   }
 };
 
