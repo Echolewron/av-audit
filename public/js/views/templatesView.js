@@ -3,6 +3,7 @@ const templatesView = {
   templates: [],
   editingTemplate: null,
   activeSheetTargetNode: null,
+  sortableInstances: [],
 
   historyStack: [],
   historyIndex: -1,
@@ -341,6 +342,13 @@ const templatesView = {
         document.querySelectorAll('.template-dropdown-menu.is-open').forEach(m => m.classList.remove('is-open'));
       }
     });
+
+    const modal = document.getElementById('modal-template-editor');
+    if (modal) {
+      modal.querySelectorAll('[data-close-modal]').forEach(btn => {
+        btn.addEventListener('click', () => this.destroySortables());
+      });
+    }
   },
 
   bindActionSheetEvents() {
@@ -379,6 +387,32 @@ const templatesView = {
           this.updateNodeShape(childNode);
           this.closeActionSheet();
           childNode.querySelector('.tmpl-item-title')?.focus();
+        }
+      });
+    }
+
+    const btnIndent = document.getElementById('sheet-btn-indent-task');
+    if (btnIndent) {
+      btnIndent.addEventListener('click', () => {
+        if (this.activeSheetTargetNode) {
+          const ok = this.indentTask(this.activeSheetTargetNode);
+          if (!ok) {
+            helpers.showToast('Cannot indent: no task above to nest under.', 'info');
+          }
+          this.closeActionSheet();
+        }
+      });
+    }
+
+    const btnOutdent = document.getElementById('sheet-btn-outdent-task');
+    if (btnOutdent) {
+      btnOutdent.addEventListener('click', () => {
+        if (this.activeSheetTargetNode) {
+          const ok = this.outdentTask(this.activeSheetTargetNode);
+          if (!ok) {
+            helpers.showToast('Already at top level of checklist.', 'info');
+          }
+          this.closeActionSheet();
         }
       });
     }
@@ -1288,6 +1322,8 @@ const templatesView = {
       if (!this.isUndoingRedoing) this.pushHistoryState();
     }
 
+    this.initSortableOnContainer(tasksContainer);
+
     return section;
   },
 
@@ -1327,6 +1363,14 @@ const templatesView = {
         
         <!-- Desktop Hover Actions -->
         <div class="todoist-actions-bar">
+          <button type="button" class="todoist-btn-action tmpl-btn-outdent-task" title="Outdent / Promote task (Shift+Tab)">
+            <span class="btn-icon">←</span>
+            <span class="btn-text">Outdent</span>
+          </button>
+          <button type="button" class="todoist-btn-action tmpl-btn-indent-task" title="Indent / Make subtask of task above (Tab)">
+            <span class="btn-icon">→</span>
+            <span class="btn-text">Indent</span>
+          </button>
           <button type="button" class="todoist-btn-action tmpl-btn-toggle-optional" title="Toggle task optionality">
             <span class="btn-icon">⬠</span>
             <span class="btn-text">Req</span>
@@ -1412,6 +1456,8 @@ const templatesView = {
     const btnToggleAuto = node.querySelector('.tmpl-btn-toggle-auto');
     const btnCloseAuto = node.querySelector('.tmpl-btn-close-auto-drawer');
     const btnAddSubtask = node.querySelector('.tmpl-btn-add-subtask');
+    const btnIndent = node.querySelector('.tmpl-btn-indent-task');
+    const btnOutdent = node.querySelector('.tmpl-btn-outdent-task');
     const btnToggleOpt = node.querySelector('.tmpl-btn-toggle-optional');
     const btnDelete = node.querySelector('.tmpl-btn-delete-node');
     const autoUrlInput = node.querySelector('.tmpl-auto-url');
@@ -1449,8 +1495,19 @@ const templatesView = {
       });
     }
 
-    // Keyboard Flow: Enter key creates a new sibling task below
+    // Keyboard Flow: Tab/Shift+Tab indents/outdents, Enter creates sibling below
     titleInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          const ok = this.outdentTask(node);
+          if (!ok && navigator.vibrate) navigator.vibrate(50);
+        } else {
+          const ok = this.indentTask(node);
+          if (!ok && navigator.vibrate) navigator.vibrate(50);
+        }
+        return;
+      }
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         const siblingItem = {
@@ -1481,6 +1538,38 @@ const templatesView = {
         if (!this.isUndoingRedoing) this.pushHistoryState();
       }
     });
+
+    descInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          const ok = this.outdentTask(node);
+          if (!ok && navigator.vibrate) navigator.vibrate(50);
+        } else {
+          const ok = this.indentTask(node);
+          if (!ok && navigator.vibrate) navigator.vibrate(50);
+        }
+      }
+    });
+
+    // Indent / Outdent Buttons
+    if (btnIndent) {
+      btnIndent.addEventListener('click', () => {
+        const ok = this.indentTask(node);
+        if (!ok) {
+          helpers.showToast('Cannot indent: no task above to nest under.', 'info');
+        }
+      });
+    }
+
+    if (btnOutdent) {
+      btnOutdent.addEventListener('click', () => {
+        const ok = this.outdentTask(node);
+        if (!ok) {
+          helpers.showToast('Already at top level of checklist.', 'info');
+        }
+      });
+    }
 
     // Subtask button
     btnAddSubtask.addEventListener('click', () => {
@@ -1657,373 +1746,178 @@ const templatesView = {
     // Initial shape update
     this.updateNodeShape(node);
 
+    // Initialize Sortable on subtasks container
+    this.initSortableOnContainer(childrenContainer);
+
     return node;
   },
 
-  setupDragAndDrop(treeContainer) {
-    if (!treeContainer || treeContainer._hasPointerDndBound) return;
-    treeContainer._hasPointerDndBound = true;
-
-    let draggedItem = null;
-    let isSection = false;
-    let dragGhost = null;
-    let startX = 0;
-    let startY = 0;
-    let currentX = 0;
-    let currentY = 0;
-    let offsetX = 0;
-    let offsetY = 0;
-    let isDragging = false;
-    let activePointerId = null;
-    let autoScrollRaf = null;
-    let currentDropTarget = null;
-    let currentDropPos = null; // 'above', 'below', 'inside', 'append'
-
-    const getScrollContainer = () => {
-      return document.querySelector('#modal-template-editor .todoist-editor-body') || treeContainer.closest('.todoist-editor-body');
-    };
-
-    const cleanupIndicators = () => {
-      document.querySelectorAll('.drag-target-above, .drag-target-below, .drag-target-inside').forEach(el => {
-        el.classList.remove('drag-target-above', 'drag-target-below', 'drag-target-inside');
-      });
-    };
-
-    const stopAutoScroll = () => {
-      if (autoScrollRaf) {
-        cancelAnimationFrame(autoScrollRaf);
-        autoScrollRaf = null;
-      }
-    };
-
-    const findDropTarget = (x, y) => {
-      if (!draggedItem) return null;
-
-      cleanupIndicators();
-
-      if (isSection) {
-        // Reordering Sections anywhere within treeContainer (relative to any root item: section or root task)
-        const topLevelItems = Array.from(treeContainer.children).filter(el => {
-          return el !== draggedItem && (el.classList.contains('todoist-section-block') || el.classList.contains('todoist-task-node'));
-        });
-
-        if (topLevelItems.length === 0) {
-          return { target: treeContainer, position: 'append' };
-        }
-
-        for (const item of topLevelItems) {
-          const rect = item.getBoundingClientRect();
-          if (y >= rect.top - 15 && y <= rect.bottom + 15) {
-            const isBelow = (y - rect.top) / rect.height > 0.5;
-            item.classList.add(isBelow ? 'drag-target-below' : 'drag-target-above');
-            return { target: item, position: isBelow ? 'below' : 'above' };
-          }
-        }
-
-        const first = topLevelItems[0];
-        const last = topLevelItems[topLevelItems.length - 1];
-        if (first && y < first.getBoundingClientRect().top) {
-          first.classList.add('drag-target-above');
-          return { target: first, position: 'above' };
-        }
-        if (last && y > last.getBoundingClientRect().bottom) {
-          last.classList.add('drag-target-below');
-          return { target: last, position: 'below' };
-        }
-
-        let closest = null;
-        let minDist = Infinity;
-        let pos = 'below';
-        for (const item of topLevelItems) {
-          const rect = item.getBoundingClientRect();
-          const centerY = rect.top + rect.height / 2;
-          const dist = Math.abs(y - centerY);
-          if (dist < minDist) {
-            minDist = dist;
-            closest = item;
-            pos = y > centerY ? 'below' : 'above';
-          }
-        }
-        if (closest) {
-          closest.classList.add(pos === 'below' ? 'drag-target-below' : 'drag-target-above');
-          return { target: closest, position: pos };
-        }
-        return null;
-      }
-
-      // Reordering Tasks
-      // 1. Check sections for placing tasks before/after section or into section tasks list
-      const allSectionBlocks = Array.from(treeContainer.querySelectorAll('.todoist-section-block'));
-      for (const sBlock of allSectionBlocks) {
-        const sRect = sBlock.getBoundingClientRect();
-        const sHeader = sBlock.querySelector('.todoist-section-header');
-        const hRect = sHeader ? sHeader.getBoundingClientRect() : sRect;
-        const sTasksList = sBlock.querySelector('.tmpl-section-tasks');
-
-        // Above section header -> drop before section at root level
-        if (y >= sRect.top - 14 && y <= hRect.top + hRect.height * 0.4) {
-          sBlock.classList.add('drag-target-above');
-          return { target: sBlock, position: 'above' };
-        }
-
-        // Inside section with empty task list -> drop inside section
-        if (sTasksList && sTasksList.children.length === 0 && y > hRect.top && y <= sRect.bottom - 10) {
-          sTasksList.classList.add('drag-target-inside');
-          return { target: sTasksList, position: 'inside' };
-        }
-
-        // Below section -> drop after section at root level
-        if (y >= sRect.bottom - 12 && y <= sRect.bottom + 14) {
-          sBlock.classList.add('drag-target-below');
-          return { target: sBlock, position: 'below' };
-        }
-      }
-
-      // 2. Find all candidate task nodes in tree (excluding self and any of its descendants)
-      const allTasks = Array.from(treeContainer.querySelectorAll('.todoist-task-node')).filter(node => {
-        return node !== draggedItem && !draggedItem.contains(node);
-      });
-
-      if (allTasks.length === 0 && allSectionBlocks.length === 0) {
-        return { target: treeContainer, position: 'append' };
-      }
-
-      let closestTarget = null;
-      let minDistance = Infinity;
-      let closestPos = 'below';
-
-      for (const task of allTasks) {
-        const row = task.querySelector(':scope > .todoist-task-row') || task;
-        const rect = row.getBoundingClientRect();
-
-        if (y >= rect.top - 6 && y <= rect.bottom + 6) {
-          // Nesting as subtask: if cursor is shifted to the right or in the vertical center band
-          const isNestZone = (x > rect.left + 35) && (y >= rect.top + rect.height * 0.2 && y <= rect.bottom - rect.height * 0.2);
-          if (isNestZone) {
-            task.classList.add('drag-target-inside');
-            const childrenContainer = task.querySelector(':scope > .tmpl-children-container');
-            return { target: childrenContainer || task, position: 'inside' };
-          }
-
-          const isBelow = (y - rect.top) / rect.height > 0.5;
-          task.classList.add(isBelow ? 'drag-target-below' : 'drag-target-above');
-          return { target: task, position: isBelow ? 'below' : 'above' };
-        }
-
-        const centerY = rect.top + rect.height / 2;
-        const dist = Math.abs(y - centerY);
-        if (dist < minDistance) {
-          minDistance = dist;
-          closestTarget = task;
-          closestPos = y > centerY ? 'below' : 'above';
-        }
-      }
-
-      // 3. If dragging below the last element in treeContainer
-      const treeRect = treeContainer.getBoundingClientRect();
-      if (y > treeRect.bottom - 25) {
-        return { target: treeContainer, position: 'append' };
-      }
-
-      if (closestTarget) {
-        closestTarget.classList.add(closestPos === 'below' ? 'drag-target-below' : 'drag-target-above');
-        return { target: closestTarget, position: closestPos };
-      }
-
-      return { target: treeContainer, position: 'append' };
-    };
-
-    const runAutoScroll = () => {
-      if (!isDragging || !draggedItem) {
-        stopAutoScroll();
-        return;
-      }
-
-      const scrollContainer = getScrollContainer();
-
-      if (scrollContainer) {
-        const sRect = scrollContainer.getBoundingClientRect();
-        const edgeZone = Math.min(85, sRect.height * 0.28);
-        let delta = 0;
-
-        if (currentY < sRect.top + edgeZone && currentY >= sRect.top - 60) {
-          const proximity = Math.max(0, 1 - (currentY - sRect.top) / edgeZone);
-          delta = -Math.round(2 + Math.min(22, proximity * 20));
-        } else if (currentY > sRect.bottom - edgeZone && currentY <= sRect.bottom + 60) {
-          const proximity = Math.max(0, 1 - (sRect.bottom - currentY) / edgeZone);
-          delta = Math.round(2 + Math.min(22, proximity * 20));
-        }
-
-        if (delta !== 0) {
-          scrollContainer.scrollTop += delta;
-        }
-      }
-
-      // Also scroll viewport if near window edge (mobile / small screens)
-      if (window.innerHeight) {
-        if (currentY < 50) {
-          window.scrollBy(0, -6);
-        } else if (currentY > window.innerHeight - 50) {
-          window.scrollBy(0, 6);
-        }
-      }
-
-      // Continuously refresh drop target calculation during scroll
-      const res = findDropTarget(currentX, currentY);
-      if (res) {
-        currentDropTarget = res.target;
-        currentDropPos = res.position;
-      }
-
-      autoScrollRaf = requestAnimationFrame(runAutoScroll);
-    };
-
-    const handlePointerMove = (e) => {
-      if (activePointerId === null || e.pointerId !== activePointerId) return;
-
-      currentX = e.clientX;
-      currentY = e.clientY;
-
-      if (!isDragging) {
-        const dist = Math.hypot(currentX - startX, currentY - startY);
-        if (dist < 4) return;
-
-        isDragging = true;
-        draggedItem.classList.add('is-dragging');
-
-        const itemRect = draggedItem.getBoundingClientRect();
-        offsetX = Math.min(Math.max(currentX - itemRect.left, 20), itemRect.width - 20);
-        offsetY = Math.min(Math.max(currentY - itemRect.top, 15), 35);
-
-        dragGhost = document.createElement('div');
-        dragGhost.className = 'todoist-drag-ghost';
-        const titleText = isSection
-          ? (draggedItem.querySelector('.tmpl-section-title')?.value || 'Untitled Section')
-          : (draggedItem.querySelector('.tmpl-item-title')?.value || 'Untitled Task');
-
-        dragGhost.innerHTML = `
-          <div style="display:flex; align-items:center; gap:0.6rem; padding:0.55rem 0.85rem;">
-            <span style="color:var(--accent-primary); font-size:1.15rem; line-height:1;">⠿</span>
-            <span style="font-size:0.875rem; font-weight:600; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:280px;">${helpers.escapeHtml(titleText)}</span>
-            ${isSection ? '<span class="badge badge-purple" style="font-size:0.65rem; margin-left:auto;">Section</span>' : ''}
-          </div>
-        `;
-        dragGhost.style.left = `${currentX - offsetX}px`;
-        dragGhost.style.top = `${currentY - offsetY}px`;
-        dragGhost.style.width = `${Math.min(Math.max(itemRect.width, 240), 400)}px`;
-        document.body.appendChild(dragGhost);
-
-        if (navigator.vibrate) navigator.vibrate(20);
-        runAutoScroll();
-      }
-
-      if (dragGhost) {
-        dragGhost.style.left = `${currentX - offsetX}px`;
-        dragGhost.style.top = `${currentY - offsetY}px`;
-      }
-    };
-
-    const endDrag = (commit = true) => {
-      stopAutoScroll();
-
-      if (dragGhost) {
-        dragGhost.remove();
-        dragGhost = null;
-      }
-
-      if (draggedItem) {
-        draggedItem.classList.remove('is-dragging');
-        const handle = draggedItem.querySelector('.todoist-drag-handle');
-        if (handle) handle.classList.remove('is-active-drag');
-      }
-
-      cleanupIndicators();
-
-      if (commit && isDragging && draggedItem && currentDropTarget) {
+  destroySortables() {
+    if (Array.isArray(this.sortableInstances)) {
+      this.sortableInstances.forEach(inst => {
         try {
-          if (currentDropPos === 'above') {
-            currentDropTarget.parentNode.insertBefore(draggedItem, currentDropTarget);
-          } else if (currentDropPos === 'below') {
-            currentDropTarget.parentNode.insertBefore(draggedItem, currentDropTarget.nextSibling);
-          } else if (currentDropPos === 'inside') {
-            currentDropTarget.appendChild(draggedItem);
-          } else if (currentDropPos === 'append') {
-            treeContainer.appendChild(draggedItem);
+          if (inst && typeof inst.destroy === 'function') {
+            inst.destroy();
           }
-
-          if (!isSection) {
-            templatesView.updateNodeShape(draggedItem);
-            const parentTask = draggedItem.parentElement?.closest('.todoist-task-node');
-            if (parentTask) templatesView.updateNodeShape(parentTask);
-            const sec = draggedItem.closest('.todoist-section-block');
-            if (sec) templatesView.updateAllSectionTaskShapes(sec);
-          }
-
-          templatesView.pushHistoryState();
-
-          if (navigator.vibrate) navigator.vibrate(15);
-        } catch (err) {
-          console.warn('Drag drop placement error:', err);
-        }
-      }
-
-      window.removeEventListener('pointermove', handlePointerMove);
-      window.removeEventListener('pointerup', handlePointerUp);
-      window.removeEventListener('pointercancel', handlePointerCancel);
-      window.removeEventListener('keydown', handleKeyDown);
-
-      draggedItem = null;
-      isDragging = false;
-      activePointerId = null;
-      currentDropTarget = null;
-      currentDropPos = null;
-    };
-
-    const handlePointerUp = (e) => {
-      if (activePointerId !== null && e.pointerId === activePointerId) {
-        endDrag(true);
-      }
-    };
-
-    const handlePointerCancel = (e) => {
-      if (activePointerId !== null && e.pointerId === activePointerId) {
-        endDrag(false);
-      }
-    };
-
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isDragging) {
-        endDrag(false);
-      }
-    };
-
-    // Pointerdown listener attached via delegation to treeContainer
-    treeContainer.addEventListener('pointerdown', (e) => {
-      const handle = e.target.closest('.todoist-drag-handle');
-      if (!handle) return;
-
-      if (e.button !== undefined && e.button !== 0) return;
-
-      const item = handle.closest('.todoist-task-node, .todoist-section-block');
-      if (!item) return;
-
-      e.preventDefault();
-
-      draggedItem = item;
-      isSection = item.classList.contains('todoist-section-block');
-      startX = e.clientX;
-      startY = e.clientY;
-      currentX = startX;
-      currentY = startY;
-      activePointerId = e.pointerId;
-      isDragging = false;
-      handle.classList.add('is-active-drag');
-
-      window.addEventListener('pointermove', handlePointerMove, { passive: false });
-      window.addEventListener('pointerup', handlePointerUp);
-      window.addEventListener('pointercancel', handlePointerCancel);
-      window.addEventListener('keydown', handleKeyDown);
+        } catch (_) { }
+      });
+    }
+    this.sortableInstances = [];
+    document.querySelectorAll('#modal-template-editor [data-sortable-bound]').forEach(el => {
+      delete el._sortableInstance;
+      delete el.dataset.sortableBound;
     });
+  },
+
+  initSortableOnContainer(containerEl) {
+    if (!containerEl || typeof Sortable === 'undefined') return null;
+
+    if (containerEl._sortableInstance) {
+      return containerEl._sortableInstance;
+    }
+
+    const isRoot = containerEl.id === 'tmpl-items-builder-tree';
+
+    const inst = new Sortable(containerEl, {
+      group: {
+        name: 'tmpl-checklist-group',
+        pull: true,
+        put: (to, from, draggedEl) => {
+          if (!draggedEl) return false;
+          // Sections can ONLY ever be placed in the root tree canvas
+          if (draggedEl.classList.contains('todoist-section-block')) {
+            return isRoot;
+          }
+          // Task nodes can be placed anywhere (root canvas, inside section, or inside subtasks)
+          return draggedEl.classList.contains('todoist-task-node');
+        }
+      },
+      draggable: isRoot ? '.todoist-section-block, .todoist-task-node' : '.todoist-task-node',
+      handle: '.todoist-drag-handle',
+      animation: 150,
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      emptyInsertThreshold: 15,
+      ghostClass: 'todoist-sortable-ghost',
+      chosenClass: 'todoist-sortable-chosen',
+      dragClass: 'todoist-sortable-drag',
+      onStart: () => {
+        document.body.classList.add('tmpl-is-sorting');
+      },
+      onEnd: (evt) => {
+        document.body.classList.remove('tmpl-is-sorting');
+        this.handleSortableEnd(evt);
+      }
+    });
+
+    containerEl._sortableInstance = inst;
+    containerEl.dataset.sortableBound = 'true';
+    if (!this.sortableInstances) this.sortableInstances = [];
+    this.sortableInstances.push(inst);
+    return inst;
+  },
+
+  handleSortableEnd(evt) {
+    const item = evt.item;
+    if (!item) return;
+
+    if (item.classList.contains('todoist-task-node')) {
+      this.updateNodeShape(item);
+      const parentTask = item.parentElement?.closest('.todoist-task-node');
+      if (parentTask) this.updateNodeShape(parentTask);
+      const sec = item.closest('.todoist-section-block');
+      if (sec) this.updateAllSectionTaskShapes(sec);
+    } else if (item.classList.contains('todoist-section-block')) {
+      this.updateAllSectionTaskShapes(item);
+    }
+
+    if (evt.from !== evt.to || evt.oldIndex !== evt.newIndex) {
+      if (!this.isUndoingRedoing) this.pushHistoryState();
+      if (navigator.vibrate) navigator.vibrate(15);
+    }
+  },
+
+  setupDragAndDrop(treeContainer) {
+    if (!treeContainer || typeof Sortable === 'undefined') return;
+
+    this.destroySortables();
+
+    // 1. Root container (reordering sections and root tasks)
+    this.initSortableOnContainer(treeContainer);
+
+    // 2. All section task containers
+    treeContainer.querySelectorAll('.tmpl-section-tasks').forEach(secList => {
+      this.initSortableOnContainer(secList);
+    });
+
+    // 3. All nested subtask containers
+    treeContainer.querySelectorAll('.tmpl-children-container').forEach(childList => {
+      this.initSortableOnContainer(childList);
+    });
+  },
+
+  indentTask(node) {
+    if (!node || !node.classList.contains('todoist-task-node')) return false;
+
+    // Must have a preceding sibling task to nest under
+    const prevSibling = node.previousElementSibling;
+    if (!prevSibling || !prevSibling.classList.contains('todoist-task-node')) {
+      return false;
+    }
+
+    let childrenContainer = prevSibling.querySelector(':scope > .tmpl-children-container');
+    if (!childrenContainer) {
+      childrenContainer = document.createElement('div');
+      childrenContainer.className = 'todoist-children-container tmpl-children-container';
+      prevSibling.appendChild(childrenContainer);
+    }
+
+    childrenContainer.appendChild(node);
+    this.initSortableOnContainer(childrenContainer);
+
+    this.updateNodeShape(node);
+    this.updateNodeShape(prevSibling);
+    const sec = node.closest('.todoist-section-block');
+    if (sec) this.updateAllSectionTaskShapes(sec);
+
+    node.querySelector('.tmpl-item-title')?.focus();
+
+    if (!this.isUndoingRedoing) this.pushHistoryState();
+    if (navigator.vibrate) navigator.vibrate(15);
+    return true;
+  },
+
+  outdentTask(node) {
+    if (!node || !node.classList.contains('todoist-task-node')) return false;
+
+    const parentTask = node.parentElement?.closest('.todoist-task-node');
+    if (parentTask) {
+      // Outdent from subtask level to immediately after parent task
+      parentTask.after(node);
+      this.updateNodeShape(node);
+      this.updateNodeShape(parentTask);
+      const sec = node.closest('.todoist-section-block');
+      if (sec) this.updateAllSectionTaskShapes(sec);
+      node.querySelector('.tmpl-item-title')?.focus();
+      if (!this.isUndoingRedoing) this.pushHistoryState();
+      if (navigator.vibrate) navigator.vibrate(15);
+      return true;
+    }
+
+    const parentSection = node.closest('.todoist-section-block');
+    if (parentSection) {
+      // Outdent from section tasks list into root checklist canvas after the section
+      parentSection.after(node);
+      this.updateNodeShape(node);
+      this.updateAllSectionTaskShapes(parentSection);
+      node.querySelector('.tmpl-item-title')?.focus();
+      if (!this.isUndoingRedoing) this.pushHistoryState();
+      if (navigator.vibrate) navigator.vibrate(15);
+      return true;
+    }
+
+    // Already at root level
+    return false;
   },
 
   serializeItemNode(node) {
@@ -2173,6 +2067,7 @@ const templatesView = {
         helpers.showToast('Template created successfully!', 'success');
       }
       helpers.closeModal('modal-template-editor');
+      this.destroySortables();
       this.loadTemplates();
     } catch (err) {
       helpers.showToast(err.message || 'Failed to save template', 'error');

@@ -2229,6 +2229,41 @@
   position: relative;
 }
 
+/* SortableJS drag & drop styles in Template Editor */
+.todoist-sortable-ghost {
+  opacity: 0.35 !important;
+  outline: 2px dashed var(--accent-primary) !important;
+  outline-offset: -2px;
+  background: rgba(24, 237, 179, 0.08) !important;
+  border-radius: var(--radius-md);
+}
+
+.todoist-sortable-chosen {
+  cursor: grabbing !important;
+  background: var(--bg-surface-elevated);
+}
+
+.todoist-sortable-drag {
+  opacity: 0.95 !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 0 1.5px var(--accent-primary) !important;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-elevated) !important;
+}
+
+/* While sorting, give empty subtask containers receptive drop padding */
+body.tmpl-is-sorting .todoist-children-container {
+  min-height: 12px;
+  border-left-color: rgba(24, 237, 179, 0.4);
+  transition: min-height 0.15s ease;
+}
+
+body.tmpl-is-sorting .tmpl-section-tasks:empty {
+  min-height: 28px;
+  outline: 1.5px dashed rgba(24, 237, 179, 0.35);
+  border-radius: var(--radius-sm);
+  margin: 0.25rem 0;
+}
+
 /* Template Editor Undo / Redo Toolbar */
 .todoist-undo-redo-group {
   display: flex;
