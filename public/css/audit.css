@@ -94,6 +94,11 @@
   flex: 0 1 auto;
 }
 
+.audit-custom-dropdown:has(.audit-dropdown-menu.show) {
+  z-index: 1050 !important;
+  position: relative;
+}
+
 .audit-dropdown-btn {
   display: inline-flex;
   align-items: center;

@@ -238,6 +238,13 @@
   display: inline-block;
 }
 
+tr.user-row-item:has(.account-actions-menu.show),
+.user-cell-actions:has(.account-actions-menu.show),
+.account-actions-dropdown:has(.account-actions-menu.show) {
+  z-index: 1060 !important;
+  position: relative;
+}
+
 .account-actions-btn {
   width: 32px !important;
   height: 32px !important;
@@ -279,6 +286,12 @@
 
 .account-actions-menu.show {
   display: flex;
+}
+
+.data-table tr.user-row-item:last-child .account-actions-menu,
+.data-table tr.user-row-item:nth-last-child(2):not(:first-child) .account-actions-menu {
+  top: auto;
+  bottom: calc(100% + 4px);
 }
 
 .account-action-item {

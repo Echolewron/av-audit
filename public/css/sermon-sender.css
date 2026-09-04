@@ -362,6 +362,12 @@
   border: 1px solid rgba(168, 85, 247, 0.4);
 }
 
+.sermon-input-group:has(.sermon-context-dropdown-menu.open),
+.sermon-context-custom-select:has(.sermon-context-dropdown-menu.open) {
+  z-index: 200 !important;
+  position: relative;
+}
+
 .sermon-context-dropdown-menu {
   position: absolute;
   top: calc(100% + 6px);

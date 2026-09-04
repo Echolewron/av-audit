@@ -29,6 +29,12 @@
   position: relative;
 }
 
+.dashboard-title-area:has(.dashboard-dropdown-menu.open),
+.dashboard-title-row:has(.dashboard-dropdown-menu.open) {
+  z-index: 1200 !important;
+  position: relative;
+}
+
 .dashboard-header-desc {
   font-size: 0.875rem;
   color: var(--text-muted);
