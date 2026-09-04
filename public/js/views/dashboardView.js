@@ -302,7 +302,7 @@ const dashboardView = {
 
   render() {
     if (this.canAccessDashboards()) {
-      if (!this.dashboards || this.dashboards.length === 0 || this._needsReload) {
+      if (!this._dashboardsLoaded || this._needsReload) {
         this._needsReload = false;
         this.loadDashboards(this.activeDashboardId);
       } else {
@@ -324,6 +324,7 @@ const dashboardView = {
 
   updatePermissionsUI() {
     const canManage = this.canManageDashboards();
+    const hasActiveDashboard = !!this.getActiveDashboard();
     const btnToggleEdit = document.getElementById('btn-toggle-dashboard-edit');
     const btnExport = document.getElementById('btn-export-dashboard');
     const btnImport = document.getElementById('btn-import-dashboard');
@@ -331,11 +332,11 @@ const dashboardView = {
     const btnOpenCreate = document.getElementById('btn-open-create-dashboard');
     const dropdownFooter = document.getElementById('dashboard-dropdown-footer');
 
-    if (btnToggleEdit) btnToggleEdit.style.display = canManage ? 'inline-flex' : 'none';
-    if (btnExport) btnExport.style.display = canManage ? 'inline-flex' : 'none';
+    if (btnToggleEdit) btnToggleEdit.style.display = (canManage && hasActiveDashboard) ? 'inline-flex' : 'none';
+    if (btnExport) btnExport.style.display = (canManage && hasActiveDashboard) ? 'inline-flex' : 'none';
     if (btnImport) btnImport.style.display = canManage ? 'inline-flex' : 'none';
-    if (btnOpenSettings) btnOpenSettings.style.display = canManage ? 'inline-flex' : 'none';
-    if (btnOpenCreate) btnOpenCreate.style.display = canManage ? 'inline-flex' : 'none';
+    if (btnOpenSettings) btnOpenSettings.style.display = (canManage && hasActiveDashboard) ? 'inline-flex' : 'none';
+    if (btnOpenCreate) btnOpenCreate.style.display = canManage ? 'flex' : 'none';
     if (dropdownFooter) dropdownFooter.style.display = canManage ? 'block' : 'none';
   },
 
@@ -386,7 +387,6 @@ const dashboardView = {
     if (switcherBtn) {
       switcherBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (this.dashboards.length === 0) return;
         this.toggleDropdown();
       });
     }
@@ -734,6 +734,7 @@ const dashboardView = {
     try {
       const res = await api.dashboards.getAll();
       this.dashboards = res.dashboards || [];
+      this._dashboardsLoaded = true;
 
       if (this.dashboards.length > 0) {
         if (preferredId && this.dashboards.some(d => d.id === preferredId)) {
@@ -1022,30 +1023,51 @@ const dashboardView = {
 
     if (!current || this.dashboards.length === 0) {
       if (switcherBtn) {
-        switcherBtn.disabled = true;
-        switcherBtn.classList.add('disabled');
+        switcherBtn.disabled = false;
+        switcherBtn.removeAttribute('disabled');
+        switcherBtn.classList.remove('disabled');
       }
       if (titleEl) titleEl.textContent = 'No Dashboards Available';
-      if (descEl) descEl.textContent = 'You do not currently have access to any dashboards.';
+      if (descEl) {
+        descEl.textContent = 'You do not currently have access to any dashboards.';
+        descEl.style.display = 'block';
+      }
       if (colorDot) {
         colorDot.style.backgroundColor = '#6e7681';
         colorDot.style.color = '#6e7681';
       }
       if (stageContainer) {
+        const canManage = this.canManageDashboards();
         stageContainer.innerHTML = `
           <div class="dashboard-stage-empty">
             <div class="dashboard-empty-icon-box">🎛️</div>
-            <h3>No Dashboard Available</h3>
+            <h3>No Dashboards Available</h3>
             <p>You do not currently have access to any dashboards.</p>
+            ${canManage ? `
+              <button type="button" class="btn btn-primary" id="btn-stage-create-dashboard" style="display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem; padding: 0.65rem 1.25rem;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                <span>Create New Dashboard</span>
+              </button>
+            ` : ''}
           </div>
         `;
+
+        if (canManage) {
+          const btnStageCreate = document.getElementById('btn-stage-create-dashboard');
+          if (btnStageCreate) {
+            btnStageCreate.addEventListener('click', () => this.openCreateModal());
+          }
+        }
       }
-      this.closeDropdown();
       return;
     }
 
     if (switcherBtn) {
       switcherBtn.disabled = false;
+      switcherBtn.removeAttribute('disabled');
       switcherBtn.classList.remove('disabled');
     }
 
@@ -3578,7 +3600,6 @@ const dashboardView = {
 
   // ================= SWITCHER & DASHBOARD MANAGEMENT =================
   toggleDropdown() {
-    if (this.dashboards.length === 0) return;
     if (this.isDropdownOpen) {
       this.closeDropdown();
     } else {
@@ -3587,13 +3608,17 @@ const dashboardView = {
   },
 
   openDropdown() {
-    if (this.dashboards.length === 0) return;
     this.isDropdownOpen = true;
     const btn = document.getElementById('btn-dashboard-switcher');
     const menu = document.getElementById('dashboard-dropdown-menu');
     const searchInput = document.getElementById('input-search-dashboards');
 
-    if (btn) btn.classList.add('active');
+    if (btn) {
+      btn.classList.add('active');
+      btn.disabled = false;
+      btn.removeAttribute('disabled');
+      btn.classList.remove('disabled');
+    }
     if (menu) menu.classList.add('open');
 
     this.renderDropdownList();
@@ -3614,6 +3639,15 @@ const dashboardView = {
   renderDropdownList() {
     const listContainer = document.getElementById('dashboard-dropdown-list');
     if (!listContainer) return;
+
+    if (this.dashboards.length === 0) {
+      listContainer.innerHTML = `
+        <div class="dashboard-empty-search">
+          No dashboards available
+        </div>
+      `;
+      return;
+    }
 
     const filtered = this.dashboards.filter(d => {
       if (!this.searchTerm) return true;

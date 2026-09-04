@@ -10,6 +10,8 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 100;
 }
 
 .dashboard-title-area {
@@ -17,12 +19,14 @@
   flex-direction: column;
   gap: 0.35rem;
   position: relative;
+  z-index: 105;
 }
 
 .dashboard-title-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  position: relative;
 }
 
 .dashboard-header-desc {
@@ -46,7 +50,8 @@
   font-family: var(--font-sans);
   font-size: 1.05rem;
   font-weight: 600;
-  cursor: pointer;
+  cursor: pointer !important;
+  pointer-events: auto !important;
   transition: none;
   box-shadow: var(--shadow-sm);
   user-select: none;
@@ -65,11 +70,11 @@
 
 .dashboard-switcher-btn.disabled,
 .dashboard-switcher-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed !important;
+  opacity: 0.9;
   border-color: var(--border-subtle);
   box-shadow: none;
-  pointer-events: none;
+  cursor: pointer !important;
+  pointer-events: auto !important;
 }
 
 .dashboard-color-indicator {
@@ -158,7 +163,7 @@
 /* ================= CUSTOM FLOATING DROPDOWN MENU ================= */
 .dashboard-dropdown-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 6px);
   left: 0;
   width: 360px;
   max-width: calc(100vw - 32px);
@@ -167,7 +172,7 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.15);
   transform: translateZ(0);
-  z-index: 500;
+  z-index: 1000;
   display: flex;
   flex-direction: column;
   opacity: 0;

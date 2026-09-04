@@ -374,50 +374,50 @@
               <div class="dashboard-title-row">
                 <!-- Custom Dropdown Trigger Button -->
                 <button type="button" class="dashboard-switcher-btn" id="btn-dashboard-switcher" title="Switch Dashboard">
-                  <span class="dashboard-color-indicator" id="current-dashboard-color-dot" style="background-color: #58a6ff; color: #58a6ff;"></span>
-                  <span class="dashboard-title-text" id="current-dashboard-title">Loading Dashboard...</span>
+                  <span class="dashboard-color-indicator" id="current-dashboard-color-dot" style="background-color: #6e7681; color: #6e7681;"></span>
+                  <span class="dashboard-title-text" id="current-dashboard-title">No Dashboards Available</span>
                   <svg class="dashboard-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </button>
-              </div>
-              <p class="dashboard-header-desc" id="current-dashboard-description"></p>
 
-              <!-- Custom Floating Dropdown Menu -->
-              <div class="dashboard-dropdown-menu" id="dashboard-dropdown-menu">
-                <!-- Search bar on top -->
-                <div class="dashboard-dropdown-search-wrapper">
-                  <div class="dashboard-search-input-group">
-                    <svg class="dashboard-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="11" cy="11" r="8"></circle>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                    </svg>
-                    <input type="text" class="dashboard-search-input" id="input-search-dashboards" placeholder="Search dashboards...">
-                    <button type="button" class="dashboard-search-clear-btn" id="btn-clear-dashboard-search" title="Clear search">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                <!-- Custom Floating Dropdown Menu -->
+                <div class="dashboard-dropdown-menu" id="dashboard-dropdown-menu">
+                  <!-- Search bar on top -->
+                  <div class="dashboard-dropdown-search-wrapper">
+                    <div class="dashboard-search-input-group">
+                      <svg class="dashboard-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                       </svg>
+                      <input type="text" class="dashboard-search-input" id="input-search-dashboards" placeholder="Search dashboards...">
+                      <button type="button" class="dashboard-search-clear-btn" id="btn-clear-dashboard-search" title="Clear search">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <line x1="18" y1="6" x2="6" y2="18"></line>
+                          <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Middle list of dashboards -->
+                  <div class="dashboard-dropdown-list" id="dashboard-dropdown-list">
+                    <!-- Populated dynamically by dashboardView.js -->
+                  </div>
+
+                  <!-- Bottom create button (Restricted) -->
+                  <div class="dashboard-dropdown-footer" id="dashboard-dropdown-footer">
+                    <button type="button" class="btn-create-dashboard-dropdown" id="btn-open-create-dashboard">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                      </svg>
+                      <span>Create New Dashboard</span>
                     </button>
                   </div>
                 </div>
-
-                <!-- Middle list of dashboards -->
-                <div class="dashboard-dropdown-list" id="dashboard-dropdown-list">
-                  <!-- Populated dynamically by dashboardView.js -->
-                </div>
-
-                <!-- Bottom create button (Restricted) -->
-                <div class="dashboard-dropdown-footer" id="dashboard-dropdown-footer">
-                  <button type="button" class="btn-create-dashboard-dropdown" id="btn-open-create-dashboard">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="12" y1="5" x2="12" y2="19"></line>
-                      <line x1="5" y1="12" x2="19" y2="12"></line>
-                    </svg>
-                    <span>Create New Dashboard</span>
-                  </button>
-                </div>
               </div>
+              <p class="dashboard-header-desc" id="current-dashboard-description"></p>
             </div>
 
             <!-- Header Actions: Edit Mode, Export, Import, Settings (Symbols-only & Identical size) -->
@@ -2106,7 +2106,7 @@
   <script src="/js/utils/dragDrop.js?v=3.7"></script>
   <script src="/js/views/authView.js?v=4.2"></script>
   <script src="/js/views/updateView.js?v=4.0"></script>
-  <script src="/js/views/dashboardView.js?v=3.9"></script>
+  <script src="/js/views/dashboardView.js?v=4.0"></script>
   <script src="/js/views/sermonSenderView.js?v=4.0"></script>
   <script src="/js/views/checklistsView.js?v=3.9"></script>
   <script src="/js/views/templatesView.js?v=3.7"></script>
