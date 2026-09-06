@@ -2585,7 +2585,9 @@ body.editing-mode .add-section-container {
     max-width: 96vw !important;
     margin: 6px auto !important;
     border-radius: 12px !important;
-    max-height: 94vh !important;
+    max-height: 92vh !important;
+    max-height: calc(100dvh - 1.5rem - env(safe-area-inset-bottom, 0px)) !important;
+    max-height: calc(100svh - 1.5rem - env(safe-area-inset-bottom, 0px)) !important;
   }
 
   .lovelace-modal-nav-tabs {
@@ -2602,7 +2604,9 @@ body.editing-mode .add-section-container {
     grid-template-columns: 1fr;
     gap: 14px;
     padding: 12px 10px;
-    max-height: calc(92vh - 110px);
+    max-height: calc(90vh - 110px);
+    max-height: calc(100dvh - 110px - env(safe-area-inset-bottom, 0px));
+    max-height: calc(100svh - 110px - env(safe-area-inset-bottom, 0px));
   }
 
   .card-config-preview-pane {

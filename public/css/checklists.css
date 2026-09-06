@@ -1946,7 +1946,7 @@
   }
 
   .todoist-editor-footer {
-    padding: 0.75rem 0.85rem;
+    padding: 0.75rem 0.85rem max(0.75rem, env(safe-area-inset-bottom, 0px)) 0.85rem;
     flex-shrink: 0;
     display: flex;
     gap: 0.65rem;
