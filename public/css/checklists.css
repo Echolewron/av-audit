@@ -2272,19 +2272,6 @@
   background: var(--bg-surface-elevated) !important;
 }
 
-/* While sorting, give empty subtask containers receptive drop padding */
-body.tmpl-is-sorting .todoist-children-container {
-  min-height: 12px;
-  border-left-color: rgba(24, 237, 179, 0.4);
-  transition: min-height 0.15s ease;
-}
-
-body.tmpl-is-sorting .tmpl-section-tasks:empty {
-  min-height: 28px;
-  outline: 1.5px dashed rgba(24, 237, 179, 0.35);
-  border-radius: var(--radius-sm);
-  margin: 0.25rem 0;
-}
 
 /* Template Editor Undo / Redo Toolbar */
 .todoist-undo-redo-group {
