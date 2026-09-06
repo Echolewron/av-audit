@@ -2189,16 +2189,19 @@
 
 .todoist-drag-ghost {
   position: fixed;
+  top: 0;
+  left: 0;
   z-index: 30000;
   pointer-events: none;
   box-sizing: border-box;
   opacity: 0.96;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1.5px var(--accent-primary);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1.5px var(--accent-primary), 0 0 20px rgba(24, 237, 179, 0.25);
   background: var(--bg-surface-elevated);
   border: 1px solid rgba(24, 237, 179, 0.4);
   border-radius: var(--radius-md);
-  will-change: transform, top, left;
-  transform: translate3d(0, 0, 0) scale(1.02);
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  transition: none;
 }
 
 .is-dragging {
@@ -2219,8 +2222,9 @@
   top: -3px;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 3.5px;
   background: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
   border-radius: 3px;
   z-index: 20;
   pointer-events: none;
@@ -2236,8 +2240,9 @@
   bottom: -3px;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 3.5px;
   background: var(--accent-primary);
+  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
   border-radius: 3px;
   z-index: 20;
   pointer-events: none;
@@ -2247,29 +2252,9 @@
   outline: 2px dashed #a371f7 !important;
   outline-offset: 2px;
   background: rgba(163, 113, 247, 0.12) !important;
+  box-shadow: 0 0 12px rgba(163, 113, 247, 0.25) !important;
   border-radius: var(--radius-md);
   position: relative;
-}
-
-/* SortableJS drag & drop styles in Template Editor */
-.todoist-sortable-ghost {
-  opacity: 0.35 !important;
-  outline: 2px dashed var(--accent-primary) !important;
-  outline-offset: -2px;
-  background: rgba(24, 237, 179, 0.08) !important;
-  border-radius: var(--radius-md);
-}
-
-.todoist-sortable-chosen {
-  cursor: grabbing !important;
-  background: var(--bg-surface-elevated);
-}
-
-.todoist-sortable-drag {
-  opacity: 0.95 !important;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6), 0 0 0 1.5px var(--accent-primary) !important;
-  border-radius: var(--radius-md);
-  background: var(--bg-surface-elevated) !important;
 }
 
 
