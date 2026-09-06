@@ -4,9 +4,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AV Audit — Real-Time Operational Checklist & Auditing Platform</title>
-  <meta name="description"
-    content="Real-time multi-user operational checklist platform, Discord-style role hierarchy, and smart auditing system for AV environments.">
+  <title>AV Audit</title>
+  <meta name="description" content="AV control center plaform">
 
   <!-- Favicon & Mobile Touch Icons -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -40,7 +39,8 @@
     <!-- Deep Tech Circuit Trace Background -->
     <div class="auth-bg-circuit-wrapper" aria-hidden="true">
       <div class="auth-vignette-overlay"></div>
-      <svg class="auth-circuit-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <svg class="auth-circuit-svg" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice"
+        xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="circuitGradMint" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#1fe5a8" stop-opacity="0.85" />
@@ -56,15 +56,27 @@
 
         <!-- Static Background Grid Pattern Dots -->
         <g class="circuit-grid-dots" opacity="0.12" fill="#1fe5a8">
-          <circle cx="100" cy="100" r="1.5" /><circle cx="200" cy="100" r="1.5" /><circle cx="300" cy="100" r="1.5" />
-          <circle cx="1200" cy="100" r="1.5" /><circle cx="1300" cy="100" r="1.5" /><circle cx="1400" cy="100" r="1.5" />
-          <circle cx="100" cy="800" r="1.5" /><circle cx="200" cy="800" r="1.5" /><circle cx="300" cy="800" r="1.5" />
-          <circle cx="1200" cy="800" r="1.5" /><circle cx="1300" cy="800" r="1.5" /><circle cx="1400" cy="800" r="1.5" />
-          <circle cx="200" cy="300" r="1.5" /><circle cx="1240" cy="300" r="1.5" /><circle cx="200" cy="600" r="1.5" /><circle cx="1240" cy="600" r="1.5" />
+          <circle cx="100" cy="100" r="1.5" />
+          <circle cx="200" cy="100" r="1.5" />
+          <circle cx="300" cy="100" r="1.5" />
+          <circle cx="1200" cy="100" r="1.5" />
+          <circle cx="1300" cy="100" r="1.5" />
+          <circle cx="1400" cy="100" r="1.5" />
+          <circle cx="100" cy="800" r="1.5" />
+          <circle cx="200" cy="800" r="1.5" />
+          <circle cx="300" cy="800" r="1.5" />
+          <circle cx="1200" cy="800" r="1.5" />
+          <circle cx="1300" cy="800" r="1.5" />
+          <circle cx="1400" cy="800" r="1.5" />
+          <circle cx="200" cy="300" r="1.5" />
+          <circle cx="1240" cy="300" r="1.5" />
+          <circle cx="200" cy="600" r="1.5" />
+          <circle cx="1240" cy="600" r="1.5" />
         </g>
 
         <!-- Static Bus Lines (45-degree isometric schematic traces) -->
-        <g class="circuit-static-lines" stroke="rgba(31, 229, 168, 0.14)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <g class="circuit-static-lines" stroke="rgba(31, 229, 168, 0.14)" stroke-width="1.5" fill="none"
+          stroke-linecap="round" stroke-linejoin="round">
           <!-- Top Left Quadrant -->
           <path d="M-20,40 L180,40 L260,120 L420,120 L480,180 L560,180" />
           <path d="M40,-20 L40,140 L160,260 L160,400 L240,480 L380,480" />
@@ -93,21 +105,29 @@
         <!-- Active Data Pulse Paths (CSS Animated Electrical Pulses) -->
         <g class="circuit-pulse-lines" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <!-- Pulse 1: Top-Left Upper Bus -->
-          <path class="circuit-pulse-path pulse-1" d="M-20,40 L180,40 L260,120 L420,120 L480,180 L560,180" stroke="url(#circuitGradMint)" stroke-width="2.5" />
+          <path class="circuit-pulse-path pulse-1" d="M-20,40 L180,40 L260,120 L420,120 L480,180 L560,180"
+            stroke="url(#circuitGradMint)" stroke-width="2.5" />
           <!-- Pulse 2: Bottom-Right Lower Bus -->
-          <path class="circuit-pulse-path pulse-2" d="M1460,860 L1260,860 L1180,780 L1020,780 L960,720 L880,720" stroke="url(#circuitGradCyan)" stroke-width="2.5" />
+          <path class="circuit-pulse-path pulse-2" d="M1460,860 L1260,860 L1180,780 L1020,780 L960,720 L880,720"
+            stroke="url(#circuitGradCyan)" stroke-width="2.5" />
           <!-- Pulse 3: Top-Right Vertical Feed -->
-          <path class="circuit-pulse-path pulse-3" d="M1400,-20 L1400,140 L1280,260 L1280,400 L1200,480 L1060,480" stroke="url(#circuitGradMint)" stroke-width="2.2" />
+          <path class="circuit-pulse-path pulse-3" d="M1400,-20 L1400,140 L1280,260 L1280,400 L1200,480 L1060,480"
+            stroke="url(#circuitGradMint)" stroke-width="2.2" />
           <!-- Pulse 4: Bottom-Left Vertical Feed -->
-          <path class="circuit-pulse-path pulse-4" d="M40,920 L40,760 L160,640 L160,500 L240,420 L380,420" stroke="url(#circuitGradCyan)" stroke-width="2.2" />
+          <path class="circuit-pulse-path pulse-4" d="M40,920 L40,760 L160,640 L160,500 L240,420 L380,420"
+            stroke="url(#circuitGradCyan)" stroke-width="2.2" />
           <!-- Pulse 5: Top-Right Upper Bus -->
-          <path class="circuit-pulse-path pulse-5" d="M1460,40 L1260,40 L1180,120 L1020,120 L960,180 L880,180" stroke="url(#circuitGradMint)" stroke-width="2.5" />
+          <path class="circuit-pulse-path pulse-5" d="M1460,40 L1260,40 L1180,120 L1020,120 L960,180 L880,180"
+            stroke="url(#circuitGradMint)" stroke-width="2.5" />
           <!-- Pulse 6: Bottom-Left Lower Bus -->
-          <path class="circuit-pulse-path pulse-6" d="M-20,860 L180,860 L260,780 L420,780 L480,720 L560,720" stroke="url(#circuitGradMint)" stroke-width="2.5" />
+          <path class="circuit-pulse-path pulse-6" d="M-20,860 L180,860 L260,780 L420,780 L480,720 L560,720"
+            stroke="url(#circuitGradMint)" stroke-width="2.5" />
           <!-- Pulse 7: Top-Left Diagonal Branch -->
-          <path class="circuit-pulse-path pulse-7" d="M120,-20 L120,80 L280,240 L380,240" stroke="url(#circuitGradCyan)" stroke-width="2" />
+          <path class="circuit-pulse-path pulse-7" d="M120,-20 L120,80 L280,240 L380,240" stroke="url(#circuitGradCyan)"
+            stroke-width="2" />
           <!-- Pulse 8: Bottom-Right Diagonal Branch -->
-          <path class="circuit-pulse-path pulse-8" d="M1320,920 L1320,820 L1160,660 L1060,660" stroke="url(#circuitGradMint)" stroke-width="2" />
+          <path class="circuit-pulse-path pulse-8" d="M1320,920 L1320,820 L1160,660 L1060,660"
+            stroke="url(#circuitGradMint)" stroke-width="2" />
         </g>
 
         <!-- Terminal Nodes & Vertices -->
@@ -152,8 +172,8 @@
       </div>
       <div class="auth-header">
         <div class="auth-brand-badge">AV</div>
-        <h1 class="auth-title">AV Audit Console</h1>
-        <p class="auth-subtitle">Operational checklist & smart auditing platform</p>
+        <h1 class="auth-title">AV Audit</h1>
+        <p class="auth-subtitle">AV tech operations platform</p>
       </div>
 
       <div class="auth-tabs">
@@ -165,12 +185,14 @@
       <form id="form-login" novalidate>
         <div class="form-group">
           <label class="form-label" for="login-username">Username</label>
-          <input type="text" id="login-username" class="form-control" placeholder="Enter username" required autofocus autocomplete="username">
+          <input type="text" id="login-username" class="form-control" placeholder="Enter username" required autofocus
+            autocomplete="username">
           <div class="form-error-msg" id="error-login-username"></div>
         </div>
         <div class="form-group">
           <label class="form-label" for="login-password">Password</label>
-          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+          <input type="password" id="login-password" class="form-control" placeholder="••••••••" required
+            autocomplete="current-password">
           <div class="form-error-msg" id="error-login-password"></div>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;"
@@ -195,7 +217,8 @@
         </div>
         <div class="form-group">
           <label class="form-label" for="reg-confirm-password">Confirm Password</label>
-          <input type="password" id="reg-confirm-password" class="form-control" placeholder="Repeat password" required autocomplete="new-password">
+          <input type="password" id="reg-confirm-password" class="form-control" placeholder="Repeat password" required
+            autocomplete="new-password">
           <div class="form-error-msg" id="error-reg-confirm-password"></div>
         </div>
         <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 0.5rem;"
@@ -237,8 +260,10 @@
         <li class="nav-item" data-nav="dashboard">
           <a class="nav-link" data-view="dashboard" data-title="Dashboard" id="nav-dashboard">
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25A2.25 2.25 0 0 1 13.5 18v-2.25Z" />
               </svg>
             </span>
             <span class="nav-text">Dashboard</span>
@@ -247,8 +272,10 @@
         <li class="nav-item" data-nav="sermon-sender">
           <a class="nav-link" data-view="sermon-sender" data-title="Recordings Sender" id="nav-sermon-sender">
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M12 18.75a6 6 0 0 0 6-6v-1.5m-6 7.5a6 6 0 0 1-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 0 1-3-3V4.5a3 3 0 1 1 6 0v8.25a3 3 0 0 1-3 3Z" />
               </svg>
             </span>
             <span class="nav-text">Recordings Sender</span>
@@ -257,8 +284,10 @@
         <li class="nav-item" data-nav="checklists">
           <a class="nav-link active" data-view="checklists" data-title="Checklists" id="nav-checklists">
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.09 1.976 1.053 1.976 2.188V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.108c0-1.135.845-2.098 1.976-2.188.374-.03.748-.057 1.124-.08M8.25 8.25h8.25M9 13.5l2.25 2.25L15 12" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M11.35 3.836c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m8.9-4.414c.376.023.75.05 1.124.08 1.131.09 1.976 1.053 1.976 2.188V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.108c0-1.135.845-2.098 1.976-2.188.374-.03.748-.057 1.124-.08M8.25 8.25h8.25M9 13.5l2.25 2.25L15 12" />
               </svg>
             </span>
             <span class="nav-text">Checklists</span>
@@ -268,8 +297,10 @@
         <li class="nav-item" data-nav="roles">
           <a class="nav-link" data-view="roles" data-title="Roles & Permissions" id="nav-roles">
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
               </svg>
             </span>
             <span class="nav-text">Roles & Permissions</span>
@@ -278,8 +309,10 @@
         <li class="nav-item" data-nav="accounts">
           <a class="nav-link" data-view="accounts" data-title="Accounts" id="nav-accounts">
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
               </svg>
             </span>
             <span class="nav-text">Accounts</span>
@@ -289,8 +322,10 @@
         <li class="nav-item" data-nav="audit">
           <a class="nav-link" data-view="audit" data-title="Audit Log" id="nav-audit">
             <span class="nav-icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
               </svg>
             </span>
             <span class="nav-text">Audit Log</span>
@@ -306,9 +341,12 @@
               <div class="user-name" id="profile-username">Administrator</div>
             </div>
             <div class="user-profile-actions">
-              <button id="btn-user-settings" class="btn btn-secondary btn-icon btn-sm" title="Account Settings & Password" aria-label="Account Settings">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+              <button id="btn-user-settings" class="btn btn-secondary btn-icon btn-sm"
+                title="Account Settings & Password" aria-label="Account Settings">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               </button>
@@ -323,7 +361,8 @@
             <span class="badge user-role-badge" id="profile-role-badge">Admin</span>
           </div>
         </div>
-        <div class="sidebar-version-badge" id="sidebar-version-badge" role="button" tabindex="0" title="Check for Updates">
+        <div class="sidebar-version-badge" id="sidebar-version-badge" role="button" tabindex="0"
+          title="Check for Updates">
           <span class="version-dot"></span>
           <span class="version-text" id="app-version-label">beta 1.0.0</span>
         </div>
@@ -354,7 +393,8 @@
           </div>
           <!-- Public View Login Button -->
           <button class="btn btn-primary btn-sm" id="btn-public-login" style="display: none;">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
               <polyline points="10 17 15 12 10 7"></polyline>
               <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -373,10 +413,13 @@
             <div class="dashboard-title-area">
               <div class="dashboard-title-row">
                 <!-- Custom Dropdown Trigger Button -->
-                <button type="button" class="dashboard-switcher-btn" id="btn-dashboard-switcher" title="Switch Dashboard">
-                  <span class="dashboard-color-indicator" id="current-dashboard-color-dot" style="background-color: #6e7681; color: #6e7681;"></span>
+                <button type="button" class="dashboard-switcher-btn" id="btn-dashboard-switcher"
+                  title="Switch Dashboard">
+                  <span class="dashboard-color-indicator" id="current-dashboard-color-dot"
+                    style="background-color: #6e7681; color: #6e7681;"></span>
                   <span class="dashboard-title-text" id="current-dashboard-title">No Dashboards Available</span>
-                  <svg class="dashboard-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <svg class="dashboard-caret" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2.5">
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
                 </button>
@@ -386,13 +429,17 @@
                   <!-- Search bar on top -->
                   <div class="dashboard-dropdown-search-wrapper">
                     <div class="dashboard-search-input-group">
-                      <svg class="dashboard-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <svg class="dashboard-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                       </svg>
-                      <input type="text" class="dashboard-search-input" id="input-search-dashboards" placeholder="Search dashboards...">
-                      <button type="button" class="dashboard-search-clear-btn" id="btn-clear-dashboard-search" title="Clear search">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <input type="text" class="dashboard-search-input" id="input-search-dashboards"
+                        placeholder="Search dashboards...">
+                      <button type="button" class="dashboard-search-clear-btn" id="btn-clear-dashboard-search"
+                        title="Clear search">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2.5">
                           <line x1="18" y1="6" x2="6" y2="18"></line>
                           <line x1="6" y1="6" x2="18" y2="18"></line>
                         </svg>
@@ -408,7 +455,8 @@
                   <!-- Bottom create button (Restricted) -->
                   <div class="dashboard-dropdown-footer" id="dashboard-dropdown-footer">
                     <button type="button" class="btn-create-dashboard-dropdown" id="btn-open-create-dashboard">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <line x1="12" y1="5" x2="12" y2="19"></line>
                         <line x1="5" y1="12" x2="19" y2="12"></line>
                       </svg>
@@ -422,31 +470,42 @@
 
             <!-- Header Actions: Edit Mode, Export, Import, Settings (Symbols-only & Identical size) -->
             <div class="dashboard-header-actions">
-              <button type="button" class="btn-dashboard-header-action btn-dashboard-edit" id="btn-toggle-dashboard-edit" title="Toggle Edit Mode (Add/Edit Cards, Sections, Badges)">
-                <svg class="icon-edit-mode" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-edit"
+                id="btn-toggle-dashboard-edit" title="Toggle Edit Mode (Add/Edit Cards, Sections, Badges)">
+                <svg class="icon-edit-mode" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M12 20h9"></path>
                   <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
                 </svg>
               </button>
-              <button type="button" class="btn-dashboard-header-action btn-dashboard-export" id="btn-export-dashboard" title="Export Dashboard (Download JSON)">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-export" id="btn-export-dashboard"
+                title="Export Dashboard (Download JSON)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="17 8 12 3 7 8"></polyline>
                   <line x1="12" y1="3" x2="12" y2="15"></line>
                 </svg>
               </button>
-              <button type="button" class="btn-dashboard-header-action btn-dashboard-import" id="btn-import-dashboard" title="Import Dashboard (Upload JSON)">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-import" id="btn-import-dashboard"
+                title="Import Dashboard (Upload JSON)">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                   <polyline points="7 10 12 15 17 10"></polyline>
                   <line x1="12" y1="15" x2="12" y2="3"></line>
                 </svg>
               </button>
-              <input type="file" id="input-import-dashboard-file" accept=".json,application/json" style="display: none;">
-              <button type="button" class="btn-dashboard-header-action btn-dashboard-settings" id="btn-open-dashboard-settings" title="Dashboard Settings">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <input type="file" id="input-import-dashboard-file" accept=".json,application/json"
+                style="display: none;">
+              <button type="button" class="btn-dashboard-header-action btn-dashboard-settings"
+                id="btn-open-dashboard-settings" title="Dashboard Settings">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                  </path>
                 </svg>
               </button>
             </div>
@@ -472,7 +531,7 @@
         <!-- ================= VIEW: RECORDINGS SENDER ================= -->
         <section class="view-section" id="view-sermon-sender">
           <div class="sermon-sender-container">
-            
+
             <!-- Left/Main Interactive Stage -->
             <div class="sermon-main-panel">
               <div class="sermon-header-bar">
@@ -481,10 +540,14 @@
                   <p class="sermon-page-subtitle">Automatically compress and email recordings</p>
                 </div>
                 <div class="sermon-header-actions">
-                  <button type="button" class="btn-sermon-settings" id="btn-open-sermon-settings" title="Recordings Sender Settings (Gmail credentials, templates, retention)">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <button type="button" class="btn-sermon-settings" id="btn-open-sermon-settings"
+                    title="Recordings Sender Settings (Gmail credentials, templates, retention)">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="12" cy="12" r="3"></circle>
-                      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                      <path
+                        d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                      </path>
                     </svg>
                   </button>
                 </div>
@@ -493,29 +556,33 @@
               <!-- Content Stage View 1: Big Drag-and-Drop Upload Square -->
               <div class="sermon-upload-stage" id="sermon-upload-stage">
                 <div class="sermon-upload-dropzone" id="sermon-upload-dropzone">
-                  <input type="file" id="sermon-file-input" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac" style="display: none;">
+                  <input type="file" id="sermon-file-input" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.flac"
+                    style="display: none;">
                   <div class="sermon-dropzone-inner">
                     <div class="sermon-dropzone-icon-glow">
-                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="17 8 12 3 7 8"></polyline>
                         <line x1="12" y1="3" x2="12" y2="15"></line>
                       </svg>
                     </div>
                     <h2 class="sermon-dropzone-title">Upload File</h2>
-                    <p class="sermon-dropzone-sub">Drag and drop your MP3 / audio recording here, or <span class="sermon-browse-link">browse</span></p>
+                    <p class="sermon-dropzone-sub">Drag and drop your MP3 / audio recording here, or <span
+                        class="sermon-browse-link">browse</span></p>
                   </div>
                 </div>
               </div>
 
               <!-- Content Stage View 2: Form & Progress Stepper Stage -->
               <div class="sermon-form-stage" id="sermon-form-stage" style="display: none;">
-                
+
                 <!-- File Preview Card & Inputs Grid -->
                 <div class="sermon-form-card">
                   <div class="sermon-file-preview-banner">
                     <div class="sermon-file-logo-box">
-                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 18V5l12-2v13"></path>
                         <circle cx="6" cy="18" r="3"></circle>
                         <circle cx="18" cy="16" r="3"></circle>
@@ -525,7 +592,8 @@
                       <div class="sermon-file-name" id="sermon-selected-filename">sermon_recording.mp3</div>
                       <div class="sermon-file-size" id="sermon-selected-filesize">0 MB</div>
                     </div>
-                    <button type="button" class="btn-sermon-change-file" id="btn-sermon-change-file" title="Choose a different file">Change File</button>
+                    <button type="button" class="btn-sermon-change-file" id="btn-sermon-change-file"
+                      title="Choose a different file">Change File</button>
                   </div>
 
                   <div class="sermon-inputs-grid">
@@ -534,7 +602,8 @@
                       <label class="form-label" for="input-sermon-title">
                         Sermon Title <span class="required-star">*</span>
                       </label>
-                      <input type="text" id="input-sermon-title" class="form-control sermon-text-input" placeholder="e.g. The Lord Is My Shepherd" required autocomplete="off">
+                      <input type="text" id="input-sermon-title" class="form-control sermon-text-input"
+                        placeholder="e.g. The Lord Is My Shepherd" required autocomplete="off">
                       <span class="form-hint">Automatically formatted in Title Case</span>
                     </div>
 
@@ -547,20 +616,22 @@
                         <div class="sermon-context-selected-box" id="sermon-context-selected-trigger">
                           <span class="sermon-ctx-pill-tag" id="sermon-ctx-current-tag" style="display: none;"></span>
                           <span class="sermon-ctx-selected-text" id="sermon-ctx-selected-text">Select context...</span>
-                          <svg class="sermon-caret-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <svg class="sermon-caret-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.5">
                             <polyline points="6 9 12 15 18 9"></polyline>
                           </svg>
                         </div>
-                        
+
                         <!-- Dropdown Menu -->
                         <div class="sermon-context-dropdown-menu" id="sermon-context-dropdown-menu">
                           <div class="sermon-context-options-list" id="sermon-context-options-list">
                             <!-- Populated dynamically with timed relevancy ordering -->
                           </div>
-                          
+
                           <!-- Custom Context Input at bottom -->
                           <div class="sermon-context-custom-input-box">
-                            <input type="text" id="input-sermon-custom-context" class="form-control form-control-sm" placeholder="Enter custom context (press Enter)...">
+                            <input type="text" id="input-sermon-custom-context" class="form-control form-control-sm"
+                              placeholder="Enter custom context (press Enter)...">
                           </div>
                         </div>
                       </div>
@@ -571,7 +642,8 @@
                   <div class="sermon-form-actions">
                     <button type="button" class="btn btn-secondary" id="btn-cancel-sermon-form">Cancel</button>
                     <button type="button" class="btn btn-primary btn-sermon-send" id="btn-send-sermon">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
                         <line x1="22" y1="2" x2="11" y2="13"></line>
                         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                       </svg>
@@ -612,7 +684,8 @@
                       </div>
                       <div class="sermon-step-content">
                         <div class="sermon-step-title">Compressing audio (~15MB target)</div>
-                        <div class="sermon-step-desc" id="sermon-step-compress-desc">Optimizing audio bitrate with FFmpeg</div>
+                        <div class="sermon-step-desc" id="sermon-step-compress-desc">Optimizing audio bitrate with
+                          FFmpeg</div>
                       </div>
                     </div>
 
@@ -626,7 +699,8 @@
                       </div>
                       <div class="sermon-step-content">
                         <div class="sermon-step-title">Sending Gmail with attachment</div>
-                        <div class="sermon-step-desc" id="sermon-step-email-desc">Delivering email to recipient via SMTP</div>
+                        <div class="sermon-step-desc" id="sermon-step-email-desc">Delivering email to recipient via SMTP
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -635,8 +709,10 @@
                   <div class="sermon-completion-card" id="sermon-completion-card" style="display: none;">
                     <div class="sermon-completion-icon">🎉</div>
                     <h3 class="sermon-completion-title" id="sermon-completion-title">Recording Sent Successfully!</h3>
-                    <p class="sermon-completion-msg" id="sermon-completion-msg">The recording has been compressed and emailed.</p>
-                    <button type="button" class="btn btn-primary" id="btn-send-another-sermon">Send Another Recording</button>
+                    <p class="sermon-completion-msg" id="sermon-completion-msg">The recording has been compressed and
+                      emailed.</p>
+                    <button type="button" class="btn btn-primary" id="btn-send-another-sermon">Send Another
+                      Recording</button>
                   </div>
                 </div>
 
@@ -648,13 +724,15 @@
             <aside class="sermon-history-sidebar" id="sermon-history-sidebar">
               <div class="sermon-history-header">
                 <div class="sermon-history-header-title">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
                   <span>Submissions History</span>
                 </div>
-                <button type="button" class="btn-refresh-sermon-history" id="btn-refresh-sermon-history" title="Refresh history list">
+                <button type="button" class="btn-refresh-sermon-history" id="btn-refresh-sermon-history"
+                  title="Refresh history list">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="23 4 23 10 17 10"></polyline>
                     <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
@@ -767,12 +845,15 @@
                 <span>Active Viewers:</span>
                 <span class="execution-viewers-list" id="exec-viewers-list">You</span>
               </div>
-              <button class="btn btn-secondary btn-lg btn-exec-action" id="btn-unsubmit-checklist" style="display:none;">
+              <button class="btn btn-secondary btn-lg btn-exec-action" id="btn-unsubmit-checklist"
+                style="display:none;">
                 <span class="btn-icon">↩️</span>
                 <span class="btn-text">Reopen Checklist</span>
               </button>
-              <button class="btn btn-secondary btn-lg btn-exec-action" id="btn-share-checklist" title="Share checklist via link">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <button class="btn btn-secondary btn-lg btn-exec-action" id="btn-share-checklist"
+                title="Share checklist via link">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="18" cy="5" r="3"></circle>
                   <circle cx="6" cy="12" r="3"></circle>
                   <circle cx="18" cy="19" r="3"></circle>
@@ -781,7 +862,8 @@
                 </svg>
                 <span class="btn-text">Share</span>
               </button>
-              <button class="btn btn-outline-danger btn-lg btn-exec-action" id="btn-delete-checklist" title="Delete Checklist">
+              <button class="btn btn-outline-danger btn-lg btn-exec-action" id="btn-delete-checklist"
+                title="Delete Checklist">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -868,7 +950,8 @@
             <div class="pending-queue-section" id="pending-queue-section">
               <div class="pending-queue-header">
                 <div class="pending-queue-title">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
@@ -925,10 +1008,13 @@
               <p>Day-grouped system event timeline formatted in America/Los_Angeles timezone</p>
             </div>
             <div class="view-header-actions">
-              <button class="btn btn-secondary btn-icon" id="btn-audit-settings" title="Audit Settings" aria-label="Audit Settings">
+              <button class="btn btn-secondary btn-icon" id="btn-audit-settings" title="Audit Settings"
+                aria-label="Audit Settings">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <circle cx="12" cy="12" r="3"></circle>
-                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                  </path>
                 </svg>
               </button>
             </div>
@@ -941,22 +1027,26 @@
                 <!-- 1. Global Search -->
                 <div class="audit-filter-item audit-filter-search">
                   <div class="audit-input-icon-wrapper">
-                    <svg class="audit-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="11" cy="11" r="8"/>
-                      <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                    <svg class="audit-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
-                    <input type="text" id="audit-global-search" class="form-control" placeholder="Search anything (action, summary, user...)" autocomplete="off">
+                    <input type="text" id="audit-global-search" class="form-control"
+                      placeholder="Search anything (action, summary, user...)" autocomplete="off">
                   </div>
                 </div>
 
                 <!-- 2. Rich Category Dropdown -->
                 <div class="audit-filter-item audit-custom-dropdown" id="audit-category-dropdown">
-                  <button type="button" class="audit-dropdown-btn" id="audit-category-btn" aria-haspopup="listbox" aria-expanded="false">
+                  <button type="button" class="audit-dropdown-btn" id="audit-category-btn" aria-haspopup="listbox"
+                    aria-expanded="false">
                     <span class="audit-dropdown-selected" id="audit-category-selected">
                       <span class="cat-pill cat-ALL">All Categories</span>
                     </span>
-                    <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M6 9l6 6 6-6"/>
+                    <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <path d="M6 9l6 6 6-6" />
                     </svg>
                   </button>
                   <div class="audit-dropdown-menu" id="audit-category-menu" role="listbox">
@@ -968,21 +1058,25 @@
 
                 <!-- 3. Rich User Dropdown with Search -->
                 <div class="audit-filter-item audit-custom-dropdown" id="audit-user-dropdown">
-                  <button type="button" class="audit-dropdown-btn" id="audit-user-btn" aria-haspopup="listbox" aria-expanded="false">
+                  <button type="button" class="audit-dropdown-btn" id="audit-user-btn" aria-haspopup="listbox"
+                    aria-expanded="false">
                     <span class="audit-dropdown-selected" id="audit-user-selected">
                       <span class="user-pill user-ALL">All Users</span>
                     </span>
-                    <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M6 9l6 6 6-6"/>
+                    <svg class="dropdown-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <path d="M6 9l6 6 6-6" />
                     </svg>
                   </button>
                   <div class="audit-dropdown-menu" id="audit-user-menu" role="listbox">
                     <div class="audit-dropdown-search-box">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <line x1="21" y1="21" x2="16.65" y2="16.65" />
                       </svg>
-                      <input type="text" id="audit-user-search-input" class="form-control form-control-sm" placeholder="Filter user name..." autocomplete="off">
+                      <input type="text" id="audit-user-search-input" class="form-control form-control-sm"
+                        placeholder="Filter user name..." autocomplete="off">
                     </div>
                     <div class="audit-dropdown-list" id="audit-user-items-list">
                       <!-- Populated dynamically with users & role colors -->
@@ -993,20 +1087,22 @@
                 <!-- 4. Flatpickr Date (or Range) Picker -->
                 <div class="audit-filter-item audit-filter-date">
                   <div class="audit-input-icon-wrapper">
-                    <svg class="audit-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                      <line x1="16" y1="2" x2="16" y2="6"/>
-                      <line x1="8" y1="2" x2="8" y2="6"/>
-                      <line x1="3" y1="10" x2="21" y2="10"/>
+                    <svg class="audit-input-icon" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                    <input type="text" id="audit-flatpickr-date" class="form-control" placeholder="Select date or range..." readonly>
+                    <input type="text" id="audit-flatpickr-date" class="form-control"
+                      placeholder="Select date or range..." readonly>
                   </div>
                 </div>
 
                 <!-- Clear Button -->
                 <button class="btn btn-secondary btn-sm" id="btn-clear-audit-filters" title="Reset all 4 filters">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                   </svg>
                   Clear
                 </button>
@@ -1035,7 +1131,8 @@
           <div
             style="background: var(--bg-surface-elevated); border: 1px solid var(--border-muted); border-radius: var(--radius-lg); padding: 3rem 2rem; box-shadow: var(--shadow-lg);">
             <div style="margin-bottom: 1.25rem; color: var(--accent-primary); display: flex; justify-content: center;">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
+                stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
@@ -1046,9 +1143,11 @@
               approves your account and assigns a role, access will be automatically enabled.
             </p>
             <div style="display:flex; justify-content:center; gap:1rem;">
-              <button class="btn btn-secondary" id="btn-check-pending-status" style="display: inline-flex; align-items: center; gap: 0.5rem;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+              <button class="btn btn-secondary" id="btn-check-pending-status"
+                style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
                 </svg>
                 <span>Check Status</span>
               </button>
@@ -1089,14 +1188,18 @@
         <div class="modal-title" id="template-editor-modal-title">🛠️ Template Editor</div>
         <div class="todoist-header-actions">
           <div class="todoist-undo-redo-group">
-            <button type="button" class="btn btn-secondary btn-sm tmpl-history-btn" id="btn-tmpl-undo" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <button type="button" class="btn btn-secondary btn-sm tmpl-history-btn" id="btn-tmpl-undo"
+              title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M3 7v6h6" />
                 <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
               </svg>
             </button>
-            <button type="button" class="btn btn-secondary btn-sm tmpl-history-btn" id="btn-tmpl-redo" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <button type="button" class="btn btn-secondary btn-sm tmpl-history-btn" id="btn-tmpl-redo"
+              title="Redo (Ctrl+Y)" aria-label="Redo" disabled>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M21 7v6h-6" />
                 <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
               </svg>
@@ -1210,7 +1313,8 @@
                 <span class="todoist-add-plus">+</span>
                 <span>Add task</span>
               </button>
-              <button type="button" class="todoist-add-task-btn" id="btn-add-section" style="color:var(--accent-secondary);">
+              <button type="button" class="todoist-add-task-btn" id="btn-add-section"
+                style="color:var(--accent-secondary);">
                 <span class="todoist-add-plus" style="color:var(--accent-secondary);">+</span>
                 <span>Add section</span>
               </button>
@@ -1338,12 +1442,15 @@
         <form id="form-create-dashboard">
           <div class="form-group">
             <label class="form-label" for="create-dash-name">Dashboard Title</label>
-            <input type="text" id="create-dash-name" class="form-control" placeholder="e.g. Broadcast Control Booth" required autofocus>
+            <input type="text" id="create-dash-name" class="form-control" placeholder="e.g. Broadcast Control Booth"
+              required autofocus>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="create-dash-description">Description (Optional)</label>
-            <textarea id="create-dash-description" class="form-control" rows="3" placeholder="e.g. Live stage audio & streaming management console" style="resize: vertical; min-height: 80px;"></textarea>
+            <textarea id="create-dash-description" class="form-control" rows="3"
+              placeholder="e.g. Live stage audio & streaming management console"
+              style="resize: vertical; min-height: 80px;"></textarea>
           </div>
 
           <div class="form-group">
@@ -1354,7 +1461,8 @@
               </div>
               <div class="color-custom-input-group">
                 <div class="color-preview-box" id="create-dash-color-preview" style="background-color: #58a6ff;"></div>
-                <input type="text" id="create-dash-color-hex" class="form-control" style="font-family: var(--font-mono); width: 110px;" value="#58a6ff" maxlength="7">
+                <input type="text" id="create-dash-color-hex" class="form-control"
+                  style="font-family: var(--font-mono); width: 110px;" value="#58a6ff" maxlength="7">
               </div>
             </div>
           </div>
@@ -1362,11 +1470,15 @@
           <div class="form-group">
             <label class="form-label">Authorized Roles Access</label>
             <div style="margin-bottom: 0.75rem;">
-              <label style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; font-size: 0.875rem; color: var(--text-primary);">
+              <label
+                style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; font-size: 0.875rem; color: var(--text-primary);">
                 <div class="custom-checkbox-wrapper">
                   <input type="checkbox" id="create-dash-all-roles-check" checked>
                   <span class="custom-check-box">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                   </span>
                 </div>
                 <span>Allow all authorized roles to view this dashboard</span>
@@ -1395,7 +1507,7 @@
       <div class="modal-body">
         <form id="form-dashboard-settings">
           <input type="hidden" id="settings-dash-id">
-          
+
           <div class="form-group">
             <label class="form-label" for="settings-dash-name">Dashboard Title</label>
             <input type="text" id="settings-dash-name" class="form-control" required>
@@ -1403,7 +1515,8 @@
 
           <div class="form-group">
             <label class="form-label" for="settings-dash-description">Description</label>
-            <textarea id="settings-dash-description" class="form-control" rows="3" placeholder="Dashboard description..." style="resize: vertical; min-height: 80px;"></textarea>
+            <textarea id="settings-dash-description" class="form-control" rows="3"
+              placeholder="Dashboard description..." style="resize: vertical; min-height: 80px;"></textarea>
           </div>
 
           <div class="form-group">
@@ -1413,8 +1526,10 @@
                 <!-- Swatch buttons populated dynamically -->
               </div>
               <div class="color-custom-input-group">
-                <div class="color-preview-box" id="settings-dash-color-preview" style="background-color: #58a6ff;"></div>
-                <input type="text" id="settings-dash-color-hex" class="form-control" style="font-family: var(--font-mono); width: 110px;" value="#58a6ff" maxlength="7">
+                <div class="color-preview-box" id="settings-dash-color-preview" style="background-color: #58a6ff;">
+                </div>
+                <input type="text" id="settings-dash-color-hex" class="form-control"
+                  style="font-family: var(--font-mono); width: 110px;" value="#58a6ff" maxlength="7">
               </div>
             </div>
           </div>
@@ -1422,11 +1537,15 @@
           <div class="form-group">
             <label class="form-label">Authorized Roles Access</label>
             <div style="margin-bottom: 0.75rem;">
-              <label style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; font-size: 0.875rem; color: var(--text-primary);">
+              <label
+                style="display: flex; align-items: center; gap: 0.65rem; cursor: pointer; font-size: 0.875rem; color: var(--text-primary);">
                 <div class="custom-checkbox-wrapper">
                   <input type="checkbox" id="settings-dash-all-roles-check">
                   <span class="custom-check-box">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                      stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
                   </span>
                 </div>
                 <span>Allow all authorized roles to view this dashboard</span>
@@ -1444,7 +1563,8 @@
               <div class="danger-zone-desc">Permanently remove this dashboard workspace</div>
             </div>
             <button type="button" class="btn-delete-dashboard-icon" id="btn-delete-dashboard" title="Delete Dashboard">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="3 6 5 6 21 6"></polyline>
                 <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                 <line x1="10" y1="11" x2="10" y2="17"></line>
@@ -1471,8 +1591,10 @@
 
       <!-- 4 Lovelace Navigation Tabs -->
       <div class="lovelace-modal-nav-tabs" id="card-config-tabs">
-        <button type="button" class="lovelace-tab-btn active" data-tab="properties" id="tab-btn-properties">⚙️ Properties</button>
-        <button type="button" class="lovelace-tab-btn" data-tab="automation" id="tab-btn-automation">⚡ Automation</button>
+        <button type="button" class="lovelace-tab-btn active" data-tab="properties" id="tab-btn-properties">⚙️
+          Properties</button>
+        <button type="button" class="lovelace-tab-btn" data-tab="automation" id="tab-btn-automation">⚡
+          Automation</button>
         <button type="button" class="lovelace-tab-btn" data-tab="layout" id="tab-btn-layout">📐 Layout & Grid</button>
         <button type="button" class="lovelace-tab-btn" data-tab="yaml" id="tab-btn-yaml">💻 YAML / Code</button>
       </div>
@@ -1484,7 +1606,7 @@
 
         <!-- Left Pane: Tab Form Panels -->
         <div class="card-config-form-container">
-          
+
           <!-- TAB 1: ⚙️ PROPERTIES -->
           <div class="lovelace-tab-pane active" id="tab-pane-properties">
             <div class="form-group" id="group-cfg-type">
@@ -1506,8 +1628,10 @@
               <label class="form-label" for="card-cfg-label">
                 Label <small class="form-code-pill">${widget.label}</small>
               </label>
-              <input type="text" id="card-cfg-label" class="form-control" placeholder="e.g. Master Fader or ${widget.value} + '%'">
-              <small class="form-text-muted">Supports JS template string formatting like <code>${widget.property} + '%'</code></small>
+              <input type="text" id="card-cfg-label" class="form-control"
+                placeholder="e.g. Master Fader or ${widget.value} + '%'">
+              <small class="form-text-muted">Supports JS template string formatting like
+                <code>${widget.property} + '%'</code></small>
             </div>
 
             <div class="form-group" id="group-cfg-subtitle">
@@ -1530,27 +1654,36 @@
                   Accent / Display Color <small class="form-code-pill">${widget.color}</small>
                 </label>
                 <div style="display: flex; gap: 0.5rem; align-items: center;">
-                  <input type="color" id="card-cfg-color-picker" value="#38bdf8" style="width: 40px; height: 38px; padding: 2px; border: 1px solid var(--ha-border); border-radius: 6px; background: transparent; cursor: pointer;">
-                  <input type="text" id="card-cfg-color" class="form-control" value="#38bdf8" placeholder="#38bdf8 or ${widget.value} > 30 ? '#00ff00' : '#ff0000'" style="font-family: var(--font-mono);">
+                  <input type="color" id="card-cfg-color-picker" value="#38bdf8"
+                    style="width: 40px; height: 38px; padding: 2px; border: 1px solid var(--ha-border); border-radius: 6px; background: transparent; cursor: pointer;">
+                  <input type="text" id="card-cfg-color" class="form-control" value="#38bdf8"
+                    placeholder="#38bdf8 or ${widget.value} > 30 ? '#00ff00' : '#ff0000'"
+                    style="font-family: var(--font-mono);">
                 </div>
               </div>
             </div>
 
             <div class="form-group" id="group-cfg-enabled" style="margin-top: 0.25rem;">
-              <label class="role-checkbox-label" style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
-                <input type="checkbox" id="card-cfg-enabled" checked style="accent-color: #38bdf8; width: 18px; height: 18px;">
+              <label class="role-checkbox-label"
+                style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                <input type="checkbox" id="card-cfg-enabled" checked
+                  style="accent-color: #38bdf8; width: 18px; height: 18px;">
                 <span style="font-weight: 500;">Enabled <small class="form-code-pill">${widget.enabled}</small></span>
               </label>
-              <small class="form-text-muted" style="display: block; margin-top: 2px;">When disabled, interactions are blocked and the card is visually dimmed.</small>
+              <small class="form-text-muted" style="display: block; margin-top: 2px;">When disabled, interactions are
+                blocked and the card is visually dimmed.</small>
             </div>
 
             <!-- Display Text Specific (Badge & Graph): display -->
             <div id="prop-section-display" class="card-extra-options-box" style="display: none;">
               <div class="extra-options-title">Status Display Text</div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="card-cfg-display">Display Text <small class="form-code-pill">${widget.display}</small></label>
-                <input type="text" id="card-cfg-display" class="form-control" placeholder="e.g. Online or ${data.status} or ${widget.value} + ' °C'">
-                <small class="form-text-muted">Supports JS expressions, template variables like <code>${data.status}</code>, and string formatting.</small>
+                <label class="form-label" for="card-cfg-display">Display Text <small
+                    class="form-code-pill">${widget.display}</small></label>
+                <input type="text" id="card-cfg-display" class="form-control"
+                  placeholder="e.g. Online or ${data.status} or ${widget.value} + ' °C'">
+                <small class="form-text-muted">Supports JS expressions, template variables like
+                  <code>${data.status}</code>, and string formatting.</small>
               </div>
             </div>
 
@@ -1558,7 +1691,8 @@
             <div id="prop-section-toggle" class="card-extra-options-box" style="display: none;">
               <div class="extra-options-title">Toggle Switch State</div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="card-cfg-state">State <small class="form-code-pill">${widget.state}</small></label>
+                <label class="form-label" for="card-cfg-state">State <small
+                    class="form-code-pill">${widget.state}</small></label>
                 <select id="card-cfg-state" class="form-control form-select">
                   <option value="off">Off (false)</option>
                   <option value="on">On (true)</option>
@@ -1571,15 +1705,18 @@
               <div class="extra-options-title">Numeric Calibration Limits</div>
               <div class="form-row" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                 <div class="form-group" style="flex: 1; min-width: 100px;">
-                  <label class="form-label" for="card-cfg-value">Value <small class="form-code-pill">${widget.value}</small></label>
+                  <label class="form-label" for="card-cfg-value">Value <small
+                      class="form-code-pill">${widget.value}</small></label>
                   <input type="number" id="card-cfg-value" class="form-control" value="50">
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 100px;">
-                  <label class="form-label" for="card-cfg-min">Min <small class="form-code-pill">${widget.min}</small></label>
+                  <label class="form-label" for="card-cfg-min">Min <small
+                      class="form-code-pill">${widget.min}</small></label>
                   <input type="number" id="card-cfg-min" class="form-control" value="0">
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 100px;">
-                  <label class="form-label" for="card-cfg-max">Max <small class="form-code-pill">${widget.max}</small></label>
+                  <label class="form-label" for="card-cfg-max">Max <small
+                      class="form-code-pill">${widget.max}</small></label>
                   <input type="number" id="card-cfg-max" class="form-control" value="100">
                 </div>
               </div>
@@ -1589,7 +1726,8 @@
             <div id="prop-section-stepper" class="card-extra-options-box" style="display: none;">
               <div class="extra-options-title">Stepper Increments</div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="card-cfg-step-value">Step Value <small class="form-code-pill">${widget.step_value}</small></label>
+                <label class="form-label" for="card-cfg-step-value">Step Value <small
+                    class="form-code-pill">${widget.step_value}</small></label>
                 <input type="number" id="card-cfg-step-value" class="form-control" value="1" step="any">
               </div>
             </div>
@@ -1599,17 +1737,21 @@
               <div class="extra-options-title">Graph Configuration</div>
               <div class="form-row" style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
                 <div class="form-group" style="flex: 1; min-width: 120px;">
-                  <label class="form-label" for="card-cfg-new-data">New Data Point <small class="form-code-pill">${widget.new_data}</small></label>
+                  <label class="form-label" for="card-cfg-new-data">New Data Point <small
+                      class="form-code-pill">${widget.new_data}</small></label>
                   <input type="number" id="card-cfg-new-data" class="form-control" placeholder="e.g. 42.5" step="any">
                 </div>
                 <div class="form-group" style="flex: 1; min-width: 120px;">
-                  <label class="form-label" for="card-cfg-graph-length">Graph Length <small class="form-code-pill">${widget.graph_length}</small></label>
+                  <label class="form-label" for="card-cfg-graph-length">Graph Length <small
+                      class="form-code-pill">${widget.graph_length}</small></label>
                   <input type="number" id="card-cfg-graph-length" class="form-control" value="20" min="2" max="200">
                 </div>
               </div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" for="card-cfg-data">Initial Data Points (JSON array or comma-separated)</label>
-                <input type="text" id="card-cfg-data" class="form-control" placeholder="[10, 15, 22, 28, 35, 42]" style="font-family: var(--font-mono);">
+                <label class="form-label" for="card-cfg-data">Initial Data Points (JSON array or
+                  comma-separated)</label>
+                <input type="text" id="card-cfg-data" class="form-control" placeholder="[10, 15, 22, 28, 35, 42]"
+                  style="font-family: var(--font-mono);">
               </div>
             </div>
 
@@ -1617,11 +1759,15 @@
             <div id="prop-section-alert" class="card-extra-options-box" style="display: none;">
               <div class="extra-options-title">Alert Warning Configuration</div>
               <div class="form-group" style="margin-bottom: 0;">
-                <label class="role-checkbox-label" style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
-                  <input type="checkbox" id="card-cfg-alert-on" checked style="accent-color: #f85149; width: 18px; height: 18px;">
-                  <span style="font-weight: 500;">Alert Active <small class="form-code-pill">${widget.alert_on}</small></span>
+                <label class="role-checkbox-label"
+                  style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <input type="checkbox" id="card-cfg-alert-on" checked
+                    style="accent-color: #f85149; width: 18px; height: 18px;">
+                  <span style="font-weight: 500;">Alert Active <small
+                      class="form-code-pill">${widget.alert_on}</small></span>
                 </label>
-                <small class="form-text-muted" style="display: block; margin-top: 2px;">When active, this card continuously flashes bright red and white to signal critical attention.</small>
+                <small class="form-text-muted" style="display: block; margin-top: 2px;">When active, this card
+                  continuously flashes bright red and white to signal critical attention.</small>
               </div>
             </div>
           </div>
@@ -1631,10 +1777,15 @@
             <div class="automations-top-bar">
               <div class="automations-top-info">
                 <div class="automations-top-title">Automations & Action Pipelines</div>
-                <div class="automations-top-desc">Create rules that trigger on user taps, toggle changes, values, <code>/info</code> channels, or polling intervals.</div>
+                <div class="automations-top-desc">Create rules that trigger on user taps, toggle changes, values,
+                  <code>/info</code> channels, or polling intervals.
+                </div>
               </div>
               <button type="button" class="btn btn-primary btn-sm" id="btn-add-macro-rule">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 Add Automation
               </button>
             </div>
@@ -1645,9 +1796,13 @@
             </div>
 
             <!-- Bottom Add Button -->
-            <div class="automations-bottom-actions" id="automations-bottom-actions" style="margin-top: 10px; margin-bottom: 15px; display: flex; justify-content: center;">
+            <div class="automations-bottom-actions" id="automations-bottom-actions"
+              style="margin-top: 10px; margin-bottom: 15px; display: flex; justify-content: center;">
               <button type="button" class="btn btn-secondary btn-sm" id="btn-add-macro-rule-bottom">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
                 Add Another Automation
               </button>
             </div>
@@ -1751,7 +1906,8 @@
       </div>
 
       <div class="modal-footer" style="justify-content: space-between;">
-        <button type="button" class="btn btn-outline-danger btn-sm" id="btn-delete-card-modal" style="display: none;">Delete Widget</button>
+        <button type="button" class="btn btn-outline-danger btn-sm" id="btn-delete-card-modal"
+          style="display: none;">Delete Widget</button>
         <div style="display: flex; gap: 0.5rem; margin-left: auto;">
           <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
           <button type="button" class="btn btn-primary" id="btn-save-card-config">Save Widget</button>
@@ -1767,7 +1923,9 @@
         <div class="modal-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
           </svg>
           <span>Recordings Sender Settings</span>
         </div>
@@ -1777,42 +1935,57 @@
       <div class="modal-body">
         <form id="form-sermon-settings">
           <div class="form-group">
-            <label class="form-label" for="sermon-cfg-sender-email">Sender Gmail Address <span class="required-star">*</span></label>
-            <input type="email" id="sermon-cfg-sender-email" class="form-control" placeholder="sender@gmail.com" required>
+            <label class="form-label" for="sermon-cfg-sender-email">Sender Gmail Address <span
+                class="required-star">*</span></label>
+            <input type="email" id="sermon-cfg-sender-email" class="form-control" placeholder="sender@gmail.com"
+              required>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="sermon-cfg-sender-password">Sender Gmail App Password <span class="required-star">*</span></label>
+            <label class="form-label" for="sermon-cfg-sender-password">Sender Gmail App Password <span
+                class="required-star">*</span></label>
             <div class="password-toggle-group" style="position: relative;">
-              <input type="password" id="sermon-cfg-sender-password" class="form-control" placeholder="16-character App Password" required>
-              <button type="button" class="btn-toggle-password-visibility" id="btn-toggle-sermon-app-pass" title="Toggle password visibility" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;">
-                <svg class="icon-eye-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <input type="password" id="sermon-cfg-sender-password" class="form-control"
+                placeholder="16-character App Password" required>
+              <button type="button" class="btn-toggle-password-visibility" id="btn-toggle-sermon-app-pass"
+                title="Toggle password visibility"
+                style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                <svg class="icon-eye-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                   <circle cx="12" cy="12" r="3"></circle>
                 </svg>
-                <svg class="icon-eye-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                <svg class="icon-eye-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+                  <path
+                    d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                  </path>
                   <line x1="1" y1="1" x2="23" y2="23"></line>
                 </svg>
               </button>
             </div>
-            <span class="form-hint">Generated from Google Account &gt; Security &gt; 2-Step Verification &gt; App passwords</span>
+            <span class="form-hint">Generated from Google Account &gt; Security &gt; 2-Step Verification &gt; App
+              passwords</span>
           </div>
 
           <div class="form-group">
-            <label class="form-label" for="sermon-cfg-receiver-email">Receiver Gmail Address <span class="required-star">*</span></label>
-            <input type="email" id="sermon-cfg-receiver-email" class="form-control" placeholder="receiver@gmail.com" required>
+            <label class="form-label" for="sermon-cfg-receiver-email">Receiver Gmail Address <span
+                class="required-star">*</span></label>
+            <input type="email" id="sermon-cfg-receiver-email" class="form-control" placeholder="receiver@gmail.com"
+              required>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="sermon-cfg-subject-template">Email Subject Template</label>
-            <input type="text" id="sermon-cfg-subject-template" class="form-control" placeholder="{context} Sermon {date}">
+            <input type="text" id="sermon-cfg-subject-template" class="form-control"
+              placeholder="{context} Sermon {date}">
             <span class="form-hint">Variables: <code>{context}</code>, <code>{title}</code>, <code>{date}</code></span>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="sermon-cfg-body-template">Email Body Content Template</label>
-            <textarea id="sermon-cfg-body-template" class="form-control" rows="4" placeholder="God bless you. This is the recording for the sermon delivered on {date}, &quot;{title}.&quot;"></textarea>
+            <textarea id="sermon-cfg-body-template" class="form-control" rows="4"
+              placeholder="God bless you. This is the recording for the sermon delivered on {date}, &quot;{title}.&quot;"></textarea>
             <span class="form-hint">Variables: <code>{context}</code>, <code>{title}</code>, <code>{date}</code></span>
           </div>
 
@@ -1843,9 +2016,12 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-header">
         <div class="modal-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
           </svg>
           <span>Recordings Sender Settings</span>
         </div>
@@ -1857,16 +2033,29 @@
           <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
             <div class="form-group">
               <label class="form-label" for="sermon-cfg-sender-email">Sender Gmail Address</label>
-              <input type="email" id="sermon-cfg-sender-email" class="form-control" placeholder="yourchurch@gmail.com" required autocomplete="off">
+              <input type="email" id="sermon-cfg-sender-email" class="form-control" placeholder="yourchurch@gmail.com"
+                required autocomplete="off">
               <span class="form-hint">Gmail account used to send recordings</span>
             </div>
             <div class="form-group">
               <label class="form-label" for="sermon-cfg-sender-password">Gmail App Password</label>
               <div style="position: relative; display: flex; align-items: center;">
-                <input type="password" id="sermon-cfg-sender-password" class="form-control" style="padding-right: 2.5rem;" placeholder="16-character App Password" required autocomplete="off">
-                <button type="button" id="btn-toggle-sermon-app-pass" style="position: absolute; right: 0.5rem; background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem; display: flex; align-items: center;">
-                  <svg class="icon-eye-show" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                  <svg class="icon-eye-hide" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                <input type="password" id="sermon-cfg-sender-password" class="form-control"
+                  style="padding-right: 2.5rem;" placeholder="16-character App Password" required autocomplete="off">
+                <button type="button" id="btn-toggle-sermon-app-pass"
+                  style="position: absolute; right: 0.5rem; background: transparent; border: none; color: var(--text-muted); cursor: pointer; padding: 0.25rem; display: flex; align-items: center;">
+                  <svg class="icon-eye-show" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg class="icon-eye-hide" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" style="display: none;">
+                    <path
+                      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+                    </path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
                 </button>
               </div>
               <span class="form-hint">Generated under Google Account &gt; Security &gt; App Passwords</span>
@@ -1875,20 +2064,26 @@
 
           <div class="form-group" style="margin-bottom: 1rem;">
             <label class="form-label" for="sermon-cfg-receiver-email">Recipient Email Address(es)</label>
-            <input type="text" id="sermon-cfg-receiver-email" class="form-control" placeholder="pastor@church.org, media@church.org" required autocomplete="off">
+            <input type="text" id="sermon-cfg-receiver-email" class="form-control"
+              placeholder="pastor@church.org, media@church.org" required autocomplete="off">
             <span class="form-hint">Separate multiple email addresses with commas</span>
           </div>
 
           <div class="form-group" style="margin-bottom: 1rem;">
             <label class="form-label" for="sermon-cfg-subject-template">Email Subject Template</label>
-            <input type="text" id="sermon-cfg-subject-template" class="form-control" placeholder="{context} Sermon {date}">
-            <span class="form-hint">Available tokens: <code>{context}</code>, <code>{date}</code>, <code>{title}</code></span>
+            <input type="text" id="sermon-cfg-subject-template" class="form-control"
+              placeholder="{context} Sermon {date}">
+            <span class="form-hint">Available tokens: <code>{context}</code>, <code>{date}</code>,
+              <code>{title}</code></span>
           </div>
 
           <div class="form-group" style="margin-bottom: 1rem;">
             <label class="form-label" for="sermon-cfg-body-template">Email Body Template</label>
-            <textarea id="sermon-cfg-body-template" class="form-control" rows="3" placeholder="God bless you. This is the recording for the sermon delivered on {date}, '{title}'." style="resize: vertical; font-family: inherit;"></textarea>
-            <span class="form-hint">Available tokens: <code>{context}</code>, <code>{date}</code>, <code>{title}</code></span>
+            <textarea id="sermon-cfg-body-template" class="form-control" rows="3"
+              placeholder="God bless you. This is the recording for the sermon delivered on {date}, '{title}'."
+              style="resize: vertical; font-family: inherit;"></textarea>
+            <span class="form-hint">Available tokens: <code>{context}</code>, <code>{date}</code>,
+              <code>{title}</code></span>
           </div>
 
           <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
@@ -1920,7 +2115,9 @@
         <div class="modal-title">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="3"></circle>
-            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0 .33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+            </path>
           </svg>
           <span>Audit Log Settings</span>
         </div>
@@ -1930,23 +2127,30 @@
       <div class="modal-body">
         <!-- Retention Policy Section -->
         <div class="form-group" style="margin-bottom: 1.5rem;">
-          <label class="form-label" for="retention-days-input" style="font-size: 0.9rem; margin-bottom: 0.5rem;">Automated Log Retention (Days)</label>
+          <label class="form-label" for="retention-days-input"
+            style="font-size: 0.9rem; margin-bottom: 0.5rem;">Automated Log Retention (Days)</label>
           <div style="display: flex; gap: 0.75rem; align-items: center;">
-            <input type="number" id="retention-days-input" class="form-control" style="max-width: 140px; height: 42px; font-size: 0.95rem;" min="1" max="365" value="30">
-            <button type="button" class="btn btn-secondary" id="btn-save-retention" style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center;">Save Policy</button>
+            <input type="number" id="retention-days-input" class="form-control"
+              style="max-width: 140px; height: 42px; font-size: 0.95rem;" min="1" max="365" value="30">
+            <button type="button" class="btn btn-secondary" id="btn-save-retention"
+              style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center;">Save
+              Policy</button>
           </div>
-          <span class="form-hint" style="margin-top: 0.4rem; display: block;">Logs older than this threshold are automatically purged by the system.</span>
+          <span class="form-hint" style="margin-top: 0.4rem; display: block;">Logs older than this threshold are
+            automatically purged by the system.</span>
         </div>
 
         <hr style="border: 0; border-top: 1px solid var(--border-subtle); margin: 1.5rem 0;">
 
         <!-- Danger Zone: Purge All Logs -->
         <div class="form-group">
-          <label class="form-label" style="color: var(--status-danger); font-size: 0.9rem; margin-bottom: 0.5rem;">Danger Zone</label>
+          <label class="form-label"
+            style="color: var(--status-danger); font-size: 0.9rem; margin-bottom: 0.5rem;">Danger Zone</label>
           <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.85rem;">
             Permanently delete all historical audit logs. This action cannot be undone.
           </p>
-          <button type="button" class="btn btn-outline-danger" id="btn-purge-all" style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+          <button type="button" class="btn btn-outline-danger" id="btn-purge-all"
+            style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -1957,7 +2161,8 @@
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-close-modal style="height: 42px; padding: 0 1.5rem; font-size: 0.9rem;">Close</button>
+        <button type="button" class="btn btn-secondary" data-close-modal
+          style="height: 42px; padding: 0 1.5rem; font-size: 0.9rem;">Close</button>
       </div>
     </div>
   </div>
@@ -1967,8 +2172,10 @@
     <div class="modal-dialog modal-md">
       <div class="modal-header">
         <div class="modal-title">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
             <circle cx="12" cy="12" r="3" />
           </svg>
           <span>Account Settings</span>
@@ -1977,35 +2184,43 @@
       </div>
       <form id="form-change-password" novalidate>
         <div class="modal-body">
-          <div class="settings-user-summary" style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: var(--radius-md); margin-bottom: 1.25rem;">
-            <div class="user-avatar" id="modal-settings-avatar" style="width: 38px; height: 38px; font-size: 1.1rem;">A</div>
+          <div class="settings-user-summary"
+            style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: var(--radius-md); margin-bottom: 1.25rem;">
+            <div class="user-avatar" id="modal-settings-avatar" style="width: 38px; height: 38px; font-size: 1.1rem;">A
+            </div>
             <div style="flex: 1; min-width: 0;">
-              <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);" id="modal-settings-username">Admin</div>
+              <div style="font-weight: 600; font-size: 0.95rem; color: var(--text-primary);"
+                id="modal-settings-username">Admin</div>
               <div style="font-size: 0.775rem; color: var(--text-secondary);">Security & Password Credentials</div>
             </div>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="settings-current-password">Current Password</label>
-            <input type="password" id="settings-current-password" class="form-control" placeholder="Enter current password" required autocomplete="current-password">
+            <input type="password" id="settings-current-password" class="form-control"
+              placeholder="Enter current password" required autocomplete="current-password">
             <div class="form-error-msg" id="error-settings-current-password"></div>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="settings-new-password">New Password</label>
-            <input type="password" id="settings-new-password" class="form-control" placeholder="Minimum 4 characters" minlength="4" required autocomplete="new-password">
+            <input type="password" id="settings-new-password" class="form-control" placeholder="Minimum 4 characters"
+              minlength="4" required autocomplete="new-password">
             <div class="form-error-msg" id="error-settings-new-password"></div>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="settings-confirm-password">Confirm New Password</label>
-            <input type="password" id="settings-confirm-password" class="form-control" placeholder="Repeat new password" required autocomplete="new-password">
+            <input type="password" id="settings-confirm-password" class="form-control" placeholder="Repeat new password"
+              required autocomplete="new-password">
             <div class="form-error-msg" id="error-settings-confirm-password"></div>
           </div>
         </div>
         <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-          <button type="button" class="btn btn-secondary" data-close-modal style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem;">Cancel</button>
-          <button type="submit" class="btn btn-primary" id="btn-save-password-change" style="height: 42px; padding: 0 1.5rem; font-size: 0.9rem;">
+          <button type="button" class="btn btn-secondary" data-close-modal
+            style="height: 42px; padding: 0 1.25rem; font-size: 0.9rem;">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-save-password-change"
+            style="height: 42px; padding: 0 1.5rem; font-size: 0.9rem;">
             Update Password
           </button>
         </div>
@@ -2017,21 +2232,24 @@
   <div id="inactivity-warning-banner" class="inactivity-card" style="display: none;" role="alert" aria-live="assertive">
     <div class="inactivity-card-content">
       <div class="inactivity-icon-badge">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <circle cx="12" cy="12" r="10"></circle>
           <polyline points="12 6 12 12 16 14"></polyline>
         </svg>
       </div>
       <div class="inactivity-text-group">
         <div class="inactivity-title">Are you still there?</div>
-        <div class="inactivity-subtitle">Your session will expire in <span class="inactivity-timer-pill" id="inactivity-countdown-display">10:00</span></div>
+        <div class="inactivity-subtitle">Your session will expire in <span class="inactivity-timer-pill"
+            id="inactivity-countdown-display">10:00</span></div>
       </div>
       <button type="button" class="inactivity-extend-btn" id="btn-extend-session" title="Extend session by 2 hours">
         <div class="inactivity-btn-progress-track">
           <div class="inactivity-btn-progress-bar" id="inactivity-btn-progress-bar"></div>
         </div>
         <span class="inactivity-btn-content">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
             <polyline points="20 6 9 17 4 12"></polyline>
           </svg>
           <span>I'm Still Here</span>
@@ -2072,7 +2290,8 @@
           <div class="update-changelog-box" id="update-changelog-box"></div>
         </div>
 
-        <div class="alert alert-warning" id="update-admin-warning" style="display: none; margin-top: 1rem; font-size: 0.825rem;">
+        <div class="alert alert-warning" id="update-admin-warning"
+          style="display: none; margin-top: 1rem; font-size: 0.825rem;">
           ⚠️ Updating will briefly pause operations and reload all connected screens.
         </div>
       </div>

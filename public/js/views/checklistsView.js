@@ -687,7 +687,7 @@ const checklistsView = {
         const timeStr = item.checked_at ? helpers.formatTimeLA(item.checked_at) : (item.checked_at_la || helpers.formatTimeLA(new Date()));
 
         checkedBadgeHtml = `
-          <div class="task-checked-badge-wrap">
+          <div class="task-checked-badge-wrap" data-checker="${helpers.escapeHtml(username)}">
             <button type="button" class="task-checked-avatar" data-action="toggle-checker-popover" title="Checked by ${helpers.escapeHtml(username)}" style="--user-color: ${roleColor};">
               <span>${helpers.escapeHtml(initial)}</span>
             </button>
@@ -723,10 +723,6 @@ const checklistsView = {
             <button class="btn-task-icon ${hasIssue ? 'active-issue' : ''}" data-action="toggle-issue" data-item-id="${item.id}" ${isSubmitted ? 'disabled' : ''} title="${hasIssue ? 'Clear Issue' : 'Flag Issue / Blocked'}">
               <span class="btn-icon-symbol">⚠️</span>
               <span class="btn-icon-text">${hasIssue ? 'Clear Issue' : 'Flag Issue'}</span>
-            </button>
-            <button class="btn-task-icon ${item.issue_note && !hasIssue ? 'active-note' : ''}" data-action="edit-note" data-item-id="${item.id}" ${isSubmitted ? 'disabled' : ''} title="Add / Edit Note">
-              <span class="btn-icon-symbol">📝</span>
-              <span class="btn-icon-text">${item.issue_note && !hasIssue ? 'Edit Note' : 'Add Note'}</span>
             </button>
           </div>
         `;
@@ -820,17 +816,6 @@ const checklistsView = {
       });
     });
 
-    // Note button with snappy optimistic UI update
-    container.querySelectorAll('[data-action="edit-note"]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const itemId = btn.dataset.itemId;
-        const note = prompt('Add/Update task execution note:');
-        if (note !== null) {
-          this.optimisticUpdateNote(itemId, note);
-        }
-      });
-    });
 
     // Automation Trigger (Compact icon button)
     container.querySelectorAll('[data-action="run-automation"]').forEach(btn => {
