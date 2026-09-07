@@ -8,9 +8,87 @@ const dashboardBlocklyService = {
   isInitialized: false,
   activeWidgetProperties: ['label', 'subtitle', 'icon', 'color', 'state', 'value'],
 
-  // 1. Define Modern Dark Theme for Blockly
+  // 1. Define Modern Custom Renderer & Dark Minimalist Theme for Blockly
+  registerCustomRenderer() {
+    if (typeof Blockly === 'undefined' || !Blockly.blockRendering) return;
+    if (Blockly.registry && Blockly.registry.hasItem(Blockly.registry.Type.RENDERER, 'modern_dark')) return;
+
+    const BaseRenderer = Blockly.zelos ? Blockly.zelos.Renderer : Blockly.blockRendering.Renderer;
+    const BaseConstantProvider = Blockly.zelos ? Blockly.zelos.ConstantProvider : Blockly.blockRendering.ConstantProvider;
+
+    class ModernConstantProvider extends BaseConstantProvider {
+      constructor() {
+        super();
+        this.GRID_UNIT = 4;
+        
+        // Thicker, spacious blocks with modern rounded corners
+        this.CORNER_RADIUS = 8;
+        this.NOTCH_WIDTH = 22;
+        this.NOTCH_HEIGHT = 6;
+        this.NOTCH_OFFSET_LEFT = 18;
+
+        // Spacious Statement Padding & Indents
+        this.STATEMENT_INPUT_PADDING_LEFT = 24;
+        this.STATEMENT_BOTTOM_SPACER = 8;
+        this.BETWEEN_STATEMENT_PADDING_Y = 8;
+
+        // Modern Input & Text Field Geometry
+        this.FIELD_TEXT_FONTSIZE = 12;
+        this.FIELD_TEXT_FONTWEIGHT = '600';
+        this.FIELD_TEXT_FONTFAMILY = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
+        this.FIELD_TEXT_HEIGHT = 24;
+        this.FIELD_BORDER_RECT_RADIUS = 6;
+        this.FIELD_BORDER_RECT_HEIGHT = 30;
+        this.FIELD_BORDER_RECT_X_PADDING = 10;
+        this.FIELD_BORDER_RECT_Y_PADDING = 4;
+        this.FIELD_DROPDOWN_BORDER_RECT_HEIGHT = 30;
+
+        // Enhanced Block Thickness / Heights
+        this.DUMMY_INPUT_MIN_HEIGHT = 40;
+        this.MIN_BLOCK_HEIGHT = 42;
+        this.TOP_ROW_MIN_HEIGHT = 6;
+        this.BOTTOM_ROW_MIN_HEIGHT = 6;
+        this.EMPTY_STATEMENT_INPUT_HEIGHT = 36;
+        this.EMPTY_INLINE_INPUT_HEIGHT = 32;
+
+        // Start Hat for Root Triggers
+        this.START_HAT_HEIGHT = 16;
+        this.START_HAT_WIDTH = 90;
+      }
+
+      /**
+       * CSS generated directly by renderer for ultra-clean minimalist rendering
+       */
+      getCSS_(selector) {
+        const base = super.getCSS_(selector) || [];
+        return [
+          ...base,
+          `${selector} .blocklyPath { stroke-width: 1.5px !important; stroke-linejoin: round !important; }`,
+          `${selector} .blocklySelected > .blocklyPath { stroke: #38bdf8 !important; stroke-width: 2.5px !important; filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.55)); }`,
+          `${selector} .blocklyFieldRect { fill: rgba(0, 0, 0, 0.35) !important; stroke: rgba(255, 255, 255, 0.12) !important; stroke-width: 1px !important; rx: 6px !important; ry: 6px !important; }`,
+          `${selector} .blocklyEditableText:hover > .blocklyFieldRect { fill: rgba(0, 0, 0, 0.55) !important; stroke: rgba(255, 255, 255, 0.3) !important; }`,
+          `${selector} .blocklyDropdownText, ${selector} .blocklyText { fill: #f8fafc !important; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important; font-weight: 600 !important; font-size: 11.5px !important; }`,
+          `${selector} .blocklyNonEditableText > .blocklyText { fill: #e2e8f0 !important; font-weight: 700 !important; }`
+        ];
+      }
+    }
+
+    class ModernRenderer extends BaseRenderer {
+      constructor(name) {
+        super(name);
+      }
+      makeConstants_() {
+        return new ModernConstantProvider();
+      }
+    }
+
+    Blockly.blockRendering.register('modern_dark', ModernRenderer);
+  },
+
   defineTheme() {
     if (typeof Blockly === 'undefined') return;
+
+    this.registerCustomRenderer();
 
     if (Blockly.Themes && Blockly.Themes.HaDarkTheme) {
       return Blockly.Themes.HaDarkTheme;
@@ -20,69 +98,69 @@ const dashboardBlocklyService = {
       base: Blockly.Themes.Classic,
       blockStyles: {
         trigger_blocks: {
-          colourPrimary: '#0284c7',
-          colourSecondary: '#0369a1',
+          colourPrimary: '#0c324e',
+          colourSecondary: '#071f32',
           colourTertiary: '#38bdf8',
           hat: 'cap'
         },
         logic_blocks: {
-          colourPrimary: '#9333ea',
-          colourSecondary: '#7e22ce',
+          colourPrimary: '#341a54',
+          colourSecondary: '#200f35',
           colourTertiary: '#c084fc'
         },
         loop_blocks: {
-          colourPrimary: '#d97706',
-          colourSecondary: '#b45309',
+          colourPrimary: '#4a2505',
+          colourSecondary: '#2f1602',
           colourTertiary: '#fbbf24'
         },
         action_blocks: {
-          colourPrimary: '#059669',
-          colourSecondary: '#047857',
+          colourPrimary: '#0b3d2f',
+          colourSecondary: '#06261d',
           colourTertiary: '#34d399'
         },
         network_blocks: {
-          colourPrimary: '#2563eb',
-          colourSecondary: '#1d4ed8',
+          colourPrimary: '#163359',
+          colourSecondary: '#0d2038',
           colourTertiary: '#60a5fa'
         },
         notify_blocks: {
-          colourPrimary: '#db2777',
-          colourSecondary: '#be185d',
+          colourPrimary: '#4a1233',
+          colourSecondary: '#2e0a1f',
           colourTertiary: '#f472b6'
         },
         time_blocks: {
-          colourPrimary: '#475569',
-          colourSecondary: '#334155',
+          colourPrimary: '#222d3b',
+          colourSecondary: '#151d27',
           colourTertiary: '#94a3b8'
         }
       },
       categoryStyles: {
-        triggers_category: { colour: '#0284c7' },
-        logic_category: { colour: '#9333ea' },
-        loops_category: { colour: '#d97706' },
-        properties_category: { colour: '#059669' },
-        network_category: { colour: '#2563eb' },
-        notify_category: { colour: '#db2777' },
-        time_category: { colour: '#475569' }
+        triggers_category: { colour: '#38bdf8' },
+        logic_category: { colour: '#c084fc' },
+        loops_category: { colour: '#fbbf24' },
+        properties_category: { colour: '#34d399' },
+        network_category: { colour: '#60a5fa' },
+        notify_category: { colour: '#f472b6' },
+        time_category: { colour: '#94a3b8' }
       },
       componentStyles: {
-        workspaceBackgroundColour: '#11151f',
-        toolboxBackgroundColour: '#161b26',
+        workspaceBackgroundColour: '#0b0f17',
+        toolboxBackgroundColour: '#111622',
         toolboxForegroundColour: '#e2e8f0',
-        flyoutBackgroundColour: '#1a202c',
-        flyoutForegroundColour: '#e2e8f0',
-        flyoutOpacity: 0.96,
-        scrollbarColour: '#334155',
-        scrollbarOpacity: 0.7,
+        flyoutBackgroundColour: '#141b29',
+        flyoutForegroundColour: '#f1f5f9',
+        flyoutOpacity: 0.98,
+        scrollbarColour: '#243044',
+        scrollbarOpacity: 0.65,
         insertionMarkerColour: '#38bdf8',
         insertionMarkerOpacity: 0.85,
         markerColour: '#38bdf8',
         cursorColour: '#38bdf8'
       },
       fontStyle: {
-        family: "'Inter', -apple-system, sans-serif",
+        family: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
         weight: '600',
-        size: 11
+        size: 11.5
       }
     });
 
@@ -381,7 +459,7 @@ const dashboardBlocklyService = {
       trashcan: true,
       scrollbars: true,
       sounds: false,
-      renderer: 'geras',
+      renderer: 'modern_dark',
       media: '/js/libs/blockly/media/'
     });
 

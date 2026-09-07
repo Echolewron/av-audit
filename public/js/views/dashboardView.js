@@ -2305,7 +2305,6 @@ const dashboardView = {
     }
 
     this.syncDraftToForm();
-    this.renderAutomationsList();
     this.update12x4MatrixGrid();
     this.updateYamlCodeEditor();
     this.updateModalLivePreview();
@@ -2323,13 +2322,21 @@ const dashboardView = {
       p.classList.toggle('active', p.id === `tab-pane-${tab}`);
     });
 
+    const modalBody = document.querySelector('#modal-configure-card .lovelace-modal-body-split');
+    const modalDialog = document.querySelector('#modal-configure-card .modal-dialog');
+
     if (tab === 'automation') {
+      if (modalBody) modalBody.classList.add('modal-automation-fullwidth');
+      if (modalDialog) modalDialog.classList.add('modal-dialog-wide');
       this.initBlocklyWorkspace();
       if (window.dashboardBlocklyService) {
         setTimeout(() => {
           dashboardBlocklyService.resize();
         }, 50);
       }
+    } else {
+      if (modalBody) modalBody.classList.remove('modal-automation-fullwidth');
+      if (modalDialog) modalDialog.classList.remove('modal-dialog-wide');
     }
   },
 
@@ -2455,7 +2462,6 @@ const dashboardView = {
             }
           }
           this.togglePropertySections(newType);
-          this.renderAutomationsList();
           this.updateModalLivePreview();
           this.updateYamlCodeEditor();
         }
@@ -2615,7 +2621,6 @@ const dashboardView = {
           this.activeCardConfig.automations = JSON.parse(JSON.stringify(this.cardSchemas.alert.defaults.automations));
         }
       }
-      this.renderAutomationsList();
     }
 
     this.activeCardConfig.label = document.getElementById('card-cfg-label').value;
@@ -3744,10 +3749,10 @@ const dashboardView = {
     const current = this.getActiveDashboard();
     if (!current || !this.activeCardConfig) return;
 
-    // Sync latest automation rules from Blockly workspace if open
+    // Sync latest automation rules from Blockly if open
     if (window.dashboardBlocklyService && dashboardBlocklyService.workspace) {
       const exportedRules = dashboardBlocklyService.exportRulesToJson();
-      if (Array.isArray(exportedRules)) {
+      if (Array.isArray(exportedRules) && exportedRules.length > 0) {
         this.activeCardConfig.automations = exportedRules;
       }
     }
