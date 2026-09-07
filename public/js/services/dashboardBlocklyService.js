@@ -20,7 +20,7 @@ const dashboardBlocklyService = {
       constructor() {
         super();
         this.GRID_UNIT = 4;
-        
+
         // Sleek modern rounded blocks without excess bulk
         this.CORNER_RADIUS = 8;
         this.NOTCH_WIDTH = 20;
@@ -86,7 +86,7 @@ const dashboardBlocklyService = {
 
     // Keep category selection blocks at constant 1.0 scale regardless of workspace zoom
     if (Blockly.Flyout && Blockly.Flyout.prototype) {
-      Blockly.Flyout.prototype.getFlyoutScale = function() {
+      Blockly.Flyout.prototype.getFlyoutScale = function () {
         return 1.0;
       };
     }
@@ -130,11 +130,6 @@ const dashboardBlocklyService = {
           colourSecondary: '#0d2038',
           colourTertiary: '#60a5fa'
         },
-        notify_blocks: {
-          colourPrimary: '#4a1233',
-          colourSecondary: '#2e0a1f',
-          colourTertiary: '#f472b6'
-        },
         time_blocks: {
           colourPrimary: '#222d3b',
           colourSecondary: '#151d27',
@@ -147,7 +142,6 @@ const dashboardBlocklyService = {
         loops_category: { colour: '#fbbf24' },
         properties_category: { colour: '#34d399' },
         network_category: { colour: '#60a5fa' },
-        notify_category: { colour: '#f472b6' },
         time_category: { colour: '#94a3b8' }
       },
       componentStyles: {
@@ -356,34 +350,6 @@ const dashboardBlocklyService = {
       }
     };
 
-    // 7. TOAST NOTIFICATION BLOCK
-    Blockly.Blocks['ha_toast'] = {
-      init: function () {
-        this.appendDummyInput()
-          .appendField('💬 TOAST')
-          .appendField(new Blockly.FieldTextInput('Action executed successfully!'), 'MESSAGE');
-
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setStyle('notify_blocks');
-        this.setTooltip('Displays a popup toast notification to the user.');
-      }
-    };
-
-    // 8. CONFIRMATION PROMPT BLOCK
-    Blockly.Blocks['ha_confirm'] = {
-      init: function () {
-        this.appendDummyInput()
-          .appendField('⚠️ CONFIRM')
-          .appendField(new Blockly.FieldTextInput('Are you sure you want to proceed?'), 'MESSAGE');
-
-        this.setPreviousStatement(true, null);
-        this.setNextStatement(true, null);
-        this.setStyle('notify_blocks');
-        this.setTooltip('Prompts the user with a confirmation dialog. Stops execution if cancelled.');
-      }
-    };
-
     this.isInitialized = true;
   },
 
@@ -438,15 +404,6 @@ const dashboardBlocklyService = {
           categorystyle: 'time_category',
           contents: [
             { kind: 'block', type: 'ha_delay' }
-          ]
-        },
-        {
-          kind: 'category',
-          name: '💬 Toasts & Alerts',
-          categorystyle: 'notify_category',
-          contents: [
-            { kind: 'block', type: 'ha_toast' },
-            { kind: 'block', type: 'ha_confirm' }
           ]
         }
       ]
@@ -622,18 +579,6 @@ const dashboardBlocklyService = {
         block.setFieldValue(parseFloat(step.seconds !== undefined ? step.seconds : 0.5), 'SECONDS');
         block.initSvg();
         block.render();
-
-      } else if (type === 'toast' || type === 'notification') {
-        block = this.workspace.newBlock('ha_toast');
-        block.setFieldValue(step.message || step.msg || '', 'MESSAGE');
-        block.initSvg();
-        block.render();
-
-      } else if (type === 'confirmation' || type === 'confirm') {
-        block = this.workspace.newBlock('ha_confirm');
-        block.setFieldValue(step.message || step.msg || '', 'MESSAGE');
-        block.initSvg();
-        block.render();
       }
 
       if (block && block.previousConnection && targetConnection) {
@@ -760,24 +705,6 @@ const dashboardBlocklyService = {
           id: `blk_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
           type: 'delay',
           seconds
-        });
-
-      } else if (type === 'ha_toast') {
-        const message = currentBlock.getFieldValue('MESSAGE') || '';
-
-        actions.push({
-          id: `blk_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-          type: 'toast',
-          message
-        });
-
-      } else if (type === 'ha_confirm') {
-        const message = currentBlock.getFieldValue('MESSAGE') || '';
-
-        actions.push({
-          id: `blk_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-          type: 'confirmation',
-          message
         });
       }
 

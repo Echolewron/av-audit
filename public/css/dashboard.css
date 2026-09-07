@@ -3460,6 +3460,20 @@ body .blocklyDropDownDiv .blocklyMenuSeparator,
   border: 0 !important;
 }
 
+/* Card Extra Options & Confirmation Property Boxes */
+.card-extra-options-box {
+  background: #141923;
+  border: 1px solid var(--ha-border);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-top: 0.75rem;
+}
 
-
-
+.extra-options-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ha-text-secondary);
+  margin-bottom: 0.75rem;
+}

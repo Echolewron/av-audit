@@ -25,8 +25,8 @@ const dashboardView = {
   // Card Types & Properties Schema
   cardSchemas: {
     alert: {
-      name: 'Alert Button',
-      description: 'Flashing warning button with tap dismissal',
+      name: 'Alert Warning Card',
+      description: 'Flashing hazard alert tile',
       properties: ['label', 'subtitle', 'icon', 'color', 'enabled', 'alert_on'],
       triggers: ['onTap', 'onInfo', 'onPolling'],
       defaults: {
@@ -37,6 +37,8 @@ const dashboardView = {
         color: '#f85149',
         enabled: true,
         alert_on: true,
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: [
@@ -63,6 +65,8 @@ const dashboardView = {
         icon: '💡',
         color: '#38bdf8',
         enabled: true,
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: [
@@ -89,6 +93,8 @@ const dashboardView = {
         color: '#10b981',
         enabled: true,
         state: 'off',
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: [
@@ -124,6 +130,8 @@ const dashboardView = {
         value: 50,
         min: 0,
         max: 100,
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: [
@@ -153,6 +161,8 @@ const dashboardView = {
         min: -20,
         max: 60,
         step_value: 1,
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: [
@@ -181,6 +191,8 @@ const dashboardView = {
         value: 75,
         min: 0,
         max: 100,
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: []
@@ -201,6 +213,8 @@ const dashboardView = {
         value: 42,
         min: 0,
         max: 100,
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: []
@@ -222,6 +236,8 @@ const dashboardView = {
         display: '42.5 °C',
         new_data: 42.5,
         graph_length: 20,
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         cols: 6,
         rows: 1,
         automations: []
@@ -238,6 +254,8 @@ const dashboardView = {
         icon: '🏷️',
         display: 'Online',
         color: '#38bdf8',
+        prompt_confirmation: false,
+        confirmation_message: 'Are you sure you want to proceed?',
         automations: []
       }
     }
@@ -1170,9 +1188,12 @@ const dashboardView = {
           e.stopPropagation();
           this.openBadgeModal(badgeId);
         } else {
+          const confirmed = this.checkConfirmationPrompt(badge, 'onTap', { widget: badge });
+          if (!confirmed) return;
+
           el.classList.add('badge-optimistic-tap');
           setTimeout(() => el.classList.remove('badge-optimistic-tap'), 250);
-          this.executeTrigger(badge, 'onTap', { widget: badge });
+          this.executeTrigger(badge, 'onTap', { widget: badge }, true);
         }
       });
     });
@@ -1594,27 +1615,19 @@ const dashboardView = {
 
   checkConfirmationPrompt(card, triggerName, payloadData = {}) {
     if (!card) return true;
-    const automations = this.normalizeAutomations(card.automations || card.pipelines);
-    const matchingRules = automations.filter(a => a.enabled !== false && a.trigger && a.trigger.type === triggerName);
 
-    if (matchingRules.length > 0) {
+    // Card-level Prompt Confirmation property (from ⚙️ Properties tab)
+    if (card.prompt_confirmation || card.confirm_prompt) {
       const normalizedData = this.normalizePayload(payloadData);
       const evalContext = { widget: { ...card }, data: normalizedData };
-
-      for (const rule of matchingRules) {
-        const actions = Array.isArray(rule.actions) ? rule.actions : [];
-        for (const step of actions) {
-          const type = step.type || step.action;
-          if (type === 'confirmation' || type === 'confirm') {
-            const promptMsg = this.evalTemplateString(step.message || step.msg || 'Are you sure you want to proceed?', evalContext);
-            const userConfirmed = window.confirm(promptMsg);
-            if (!userConfirmed) {
-              return false;
-            }
-          }
-        }
+      const rawMsg = card.confirmation_message || card.confirm_message || 'Are you sure you want to proceed?';
+      const promptMsg = this.evalTemplateString(rawMsg, evalContext);
+      const userConfirmed = window.confirm(promptMsg);
+      if (!userConfirmed) {
+        return false;
       }
     }
+
     return true;
   },
 
@@ -2108,9 +2121,13 @@ const dashboardView = {
           this.updateCardElementInDom(card);
         });
       } else {
+        // 1. Check confirmation prompt synchronously if configured
+        const confirmed = this.checkConfirmationPrompt(card, 'onTap', { widget: p });
+        if (!confirmed) return;
+
         cardEl.classList.add('widget-optimistic-tap');
         setTimeout(() => cardEl.classList.remove('widget-optimistic-tap'), 250);
-        this.executeTrigger(card, 'onTap', { widget: p });
+        this.executeTrigger(card, 'onTap', { widget: p }, true);
       }
     });
 
@@ -2436,7 +2453,8 @@ const dashboardView = {
       'card-cfg-type', 'card-cfg-label', 'card-cfg-subtitle', 'card-cfg-icon',
       'card-cfg-color', 'card-cfg-color-picker', 'card-cfg-enabled', 'card-cfg-alert-on', 'card-cfg-state',
       'card-cfg-value', 'card-cfg-min', 'card-cfg-max', 'card-cfg-step-value',
-      'card-cfg-display', 'card-cfg-new-data', 'card-cfg-graph-length', 'card-cfg-data'
+      'card-cfg-display', 'card-cfg-new-data', 'card-cfg-graph-length', 'card-cfg-data',
+      'card-cfg-prompt-confirmation', 'card-cfg-confirmation-message'
     ];
 
     fields.forEach(id => {
@@ -2446,6 +2464,19 @@ const dashboardView = {
         el.addEventListener('change', () => this.syncFormToDraft());
       }
     });
+
+    // Prompt Confirmation checkbox listener to toggle message field disabled state
+    const promptConfirmEl = document.getElementById('card-cfg-prompt-confirmation');
+    const confirmMsgEl = document.getElementById('card-cfg-confirmation-message');
+    if (promptConfirmEl && confirmMsgEl) {
+      promptConfirmEl.addEventListener('change', () => {
+        confirmMsgEl.disabled = !promptConfirmEl.checked;
+        if (promptConfirmEl.checked && !confirmMsgEl.value.trim()) {
+          confirmMsgEl.value = 'Are you sure you want to proceed?';
+        }
+        this.syncFormToDraft();
+      });
+    }
 
     // Card Type Selector Change
     const typeSel = document.getElementById('card-cfg-type');
@@ -2631,6 +2662,17 @@ const dashboardView = {
     this.activeCardConfig.color = document.getElementById('card-cfg-color').value;
     this.activeCardConfig.enabled = document.getElementById('card-cfg-enabled').checked;
 
+    // Prompt Confirmation
+    const promptConfirmEl = document.getElementById('card-cfg-prompt-confirmation');
+    const confirmMsgEl = document.getElementById('card-cfg-confirmation-message');
+    if (promptConfirmEl) {
+      this.activeCardConfig.prompt_confirmation = promptConfirmEl.checked;
+      if (confirmMsgEl) {
+        confirmMsgEl.disabled = !promptConfirmEl.checked;
+        this.activeCardConfig.confirmation_message = confirmMsgEl.value;
+      }
+    }
+
     const alertOnEl = document.getElementById('card-cfg-alert-on');
     if (alertOnEl) {
       this.activeCardConfig.alert_on = alertOnEl.checked;
@@ -2698,6 +2740,16 @@ const dashboardView = {
     if (colorPicker && /^#[0-9A-Fa-f]{6}$/.test(color)) colorPicker.value = color;
 
     document.getElementById('card-cfg-enabled').checked = card.enabled !== undefined ? Boolean(card.enabled) : true;
+
+    // Prompt Confirmation
+    const promptConfirmEl = document.getElementById('card-cfg-prompt-confirmation');
+    const confirmMsgEl = document.getElementById('card-cfg-confirmation-message');
+    if (promptConfirmEl && confirmMsgEl) {
+      const isConfirmed = Boolean(card.prompt_confirmation || card.confirm_prompt);
+      promptConfirmEl.checked = isConfirmed;
+      confirmMsgEl.value = card.confirmation_message || card.confirm_message || 'Are you sure you want to proceed?';
+      confirmMsgEl.disabled = !isConfirmed;
+    }
 
     // Alert
     const alertOnEl = document.getElementById('card-cfg-alert-on');
@@ -2825,7 +2877,6 @@ const dashboardView = {
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="set_property">+ Property</button>
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="webhook">+ Webhook</button>
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="delay">+ Delay</button>
-                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="toast">+ Toast</button>
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="if-else">+ Nested If</button>
               </div>
             </div>
@@ -2841,7 +2892,6 @@ const dashboardView = {
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="set_property">+ Property</button>
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="webhook">+ Webhook</button>
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="delay">+ Delay</button>
-                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="toast">+ Toast</button>
               </div>
             </div>
           </div>
@@ -2879,7 +2929,6 @@ const dashboardView = {
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="set_property">+ Property</button>
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="webhook">+ Webhook</button>
                 <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="delay">+ Delay</button>
-                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="toast">+ Toast</button>
               </div>
             </div>
           </div>
@@ -2936,15 +2985,6 @@ const dashboardView = {
             <textarea class="block-step-webhook-body" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder='Optional Request Body JSON / Template (e.g. {"level": "\${widget.value}", "state": "\${widget.state}"})'>${helpers.escapeHtml(step.body || step.payload || '')}</textarea>
           </div>
         `;
-      } else if (type === 'toast' || type === 'notification') {
-        blockColor = '#ec4899';
-        iconEmoji = '💬';
-        pillName = 'Toast Notification';
-        fieldsHtml = `
-          <div class="block-fields-row">
-            <input type="text" class="form-control block-step-toast-msg" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder="Notification message to display..." value="${helpers.escapeHtml(step.message || step.msg || '')}" style="flex: 1; font-size: 0.8rem;">
-          </div>
-        `;
       } else if (type === 'delay') {
         blockColor = '#64748b';
         iconEmoji = '⏱️';
@@ -2963,15 +3003,6 @@ const dashboardView = {
         fieldsHtml = `
           <div class="block-fields-row">
             <input type="text" class="form-control block-step-condition-expr" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder="e.g. data.battery < 20 || widget.value >= 100" value="${helpers.escapeHtml(step.expression || step.expr || '')}" style="flex: 1; font-size: 0.8rem; font-family: var(--font-mono); color: #c084fc;">
-          </div>
-        `;
-      } else if (type === 'confirmation' || type === 'confirm') {
-        blockColor = '#fbbf24';
-        iconEmoji = '⚠️';
-        pillName = 'Confirm Dialog';
-        fieldsHtml = `
-          <div class="block-fields-row">
-            <input type="text" class="form-control block-step-confirm-msg" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder='e.g. Are you sure you want to proceed?' value="${helpers.escapeHtml(step.message || step.msg || '')}" style="flex: 1; font-size: 0.8rem; font-family: var(--font-mono); color: #fbbf24;">
           </div>
         `;
       }
@@ -3457,18 +3488,6 @@ const dashboardView = {
       });
     });
 
-    container.querySelectorAll('.block-step-confirm-msg').forEach(input => {
-      input.addEventListener('input', (e) => {
-        const macroIdx = Number(input.dataset.macroIdx);
-        const blockId = input.dataset.blockId;
-        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
-        if (block) {
-          block.message = e.target.value;
-          this.updateYamlCodeEditor();
-        }
-      });
-    });
-
     // Initialize Sortable for all nested drop-zones
     this.initMacroStepsSortables(container);
   },
@@ -3585,17 +3604,11 @@ const dashboardView = {
           const bodyInput = childEl.querySelector(`.block-step-webhook-body[data-block-id="${blockId}"]`);
           if (bodyInput) block.body = bodyInput.value;
 
-          const toastInput = childEl.querySelector(`.block-step-toast-msg[data-block-id="${blockId}"]`);
-          if (toastInput) block.message = toastInput.value;
-
           const delayInput = childEl.querySelector(`.block-step-delay-sec[data-block-id="${blockId}"]`);
           if (delayInput) block.seconds = parseFloat(delayInput.value) || 0.5;
 
           const condExpr = childEl.querySelector(`.block-step-condition-expr[data-block-id="${blockId}"]`);
           if (condExpr) block.expression = condExpr.value;
-
-          const confirmMsg = childEl.querySelector(`.block-step-confirm-msg[data-block-id="${blockId}"]`);
-          if (confirmMsg) block.message = confirmMsg.value;
 
           if (block.type === 'if-else' || block.type === 'if' || block.type === 'condition_block') {
             const thenSlot = childEl.querySelector('.slot-then');
@@ -3651,12 +3664,8 @@ const dashboardView = {
         count: 2,
         bodyBlocks: [{ id: `${newId}_b1`, type: 'delay', seconds: 0.5 }]
       };
-    } else if (actionType === 'toast' || actionType === 'notification') {
-      newStep = { id: newId, type: 'toast', message: 'Action executed successfully!' };
     } else if (actionType === 'condition') {
       newStep = { id: newId, type: 'condition', expression: 'data.battery !== undefined' };
-    } else if (actionType === 'confirmation' || actionType === 'confirm') {
-      newStep = { id: newId, type: 'confirmation', message: 'Are you sure you want to proceed?' };
     }
 
     if (!newStep) return;

@@ -1591,8 +1591,10 @@
 
       <!-- 4 Lovelace Navigation Tabs -->
       <div class="lovelace-modal-nav-tabs" id="card-config-tabs">
-        <button type="button" class="lovelace-tab-btn active" data-tab="properties" id="tab-btn-properties">⚙️ Properties</button>
-        <button type="button" class="lovelace-tab-btn" data-tab="automation" id="tab-btn-automation">⚡ Automation</button>
+        <button type="button" class="lovelace-tab-btn active" data-tab="properties" id="tab-btn-properties">⚙️
+          Properties</button>
+        <button type="button" class="lovelace-tab-btn" data-tab="automation" id="tab-btn-automation">⚡
+          Automation</button>
         <button type="button" class="lovelace-tab-btn" data-tab="layout" id="tab-btn-layout">📐 Layout & Grid</button>
         <button type="button" class="lovelace-tab-btn" data-tab="yaml" id="tab-btn-yaml">💻 YAML / Code</button>
       </div>
@@ -1768,20 +1770,50 @@
                   continuously flashes bright red and white to signal critical attention.</small>
               </div>
             </div>
+
+            <!-- Prompt Confirmation: prompt_confirmation, confirmation_message -->
+            <div id="prop-section-confirmation" class="card-extra-options-box" style="margin-top: 1rem;">
+              <div class="extra-options-title"
+                style="display: flex; justify-content: space-between; align-items: center;">
+                <span>⚠️ PROMPT CONFIRMATION</span>
+                <span class="form-code-pill" style="font-size: 0.7rem;">${widget.prompt_confirmation}</span>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.75rem;">
+                <label class="role-checkbox-label"
+                  style="cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                  <input type="checkbox" id="card-cfg-prompt-confirmation"
+                    style="accent-color: #f59e0b; width: 18px; height: 18px;">
+                  <span style="font-weight: 500;">Prompt confirmation before action (Yes / No)</span>
+                </label>
+                <small class="form-text-muted" style="display: block; margin-top: 2px;">When enabled, clicking or
+                  toggling this card will prompt the user with a confirmation popup before executing.</small>
+              </div>
+              <div class="form-group" style="margin-bottom: 0;" id="group-cfg-confirmation-message">
+                <label class="form-label" for="card-cfg-confirmation-message">Confirmation Message <small
+                    class="form-code-pill">${widget.confirmation_message}</small></label>
+                <input type="text" id="card-cfg-confirmation-message" class="form-control"
+                  placeholder="Are you sure you want to proceed?" disabled>
+              </div>
+            </div>
           </div>
 
           <!-- TAB 2: ⚡ AUTOMATIONS (GOOGLE BLOCKLY VISUAL LOGIC BUILDER) -->
           <div class="lovelace-tab-pane" id="tab-pane-automation">
-            <div class="automations-top-bar" style="display: flex; justify-content: space-between; align-items: center; background: #141923; border: 1px solid var(--ha-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 12px;">
+            <div class="automations-top-bar"
+              style="display: flex; justify-content: space-between; align-items: center; background: #141923; border: 1px solid var(--ha-border); border-radius: 10px; padding: 12px 16px; margin-bottom: 12px;">
               <div class="automations-top-info">
-                <div class="automations-top-title" style="font-size: 0.95rem; font-weight: 700; color: #f8fafc;">⚡ Visual Logic Block Automations</div>
-                <div class="automations-top-desc" style="font-size: 0.775rem; color: var(--ha-text-secondary); margin-top: 2px;">Drag blocks from the category toolbox (Triggers, Logic, Loops, Properties, Webhooks, Delays, Toasts) to build rules.</div>
+                <div class="automations-top-title" style="font-size: 0.95rem; font-weight: 700; color: #f8fafc;">⚡
+                  Visual Logic Block Automations</div>
+                <div class="automations-top-desc"
+                  style="font-size: 0.775rem; color: var(--ha-text-secondary); margin-top: 2px;">Drag blocks from the
+                  category toolbox (Triggers, Logic, Loops, Properties, Webhooks, Delays) to build rules.</div>
               </div>
               <div style="display: flex; gap: 0.5rem; align-items: center;">
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-blockly-center" title="Center View">
                   🎯 Center View
                 </button>
-                <button type="button" class="btn btn-primary btn-sm" id="btn-add-blockly-rule" title="Add New Trigger Block">
+                <button type="button" class="btn btn-primary btn-sm" id="btn-add-blockly-rule"
+                  title="Add New Trigger Block">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -2222,7 +2254,7 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/libs/sortable.min.js?v=4.8"></script>
   <script src="/js/libs/blockly/blockly.min.js"></script>
-  <script src="/js/services/dashboardBlocklyService.js?v=5.7"></script>
+  <script src="/js/services/dashboardBlocklyService.js?v=5.8"></script>
   <script src="/js/api.js?v=5.4"></script>
   <script src="/js/socket.js?v=5.4"></script>
   <script src="/js/utils/helpers.js?v=5.4"></script>
@@ -2230,7 +2262,7 @@
   <script src="/js/utils/dragDrop.js?v=5.4"></script>
   <script src="/js/views/authView.js?v=5.4"></script>
   <script src="/js/views/updateView.js?v=5.4"></script>
-  <script src="/js/views/dashboardView.js?v=5.4"></script>
+  <script src="/js/views/dashboardView.js?v=5.8"></script>
   <script src="/js/views/sermonSenderView.js?v=4.7"></script>
   <script src="/js/views/checklistsView.js?v=4.7"></script>
   <script src="/js/views/templatesView.js?v=4.7"></script>
