@@ -92,6 +92,12 @@ const helpers = {
     }
   },
 
+  closeAllModals() {
+    document.querySelectorAll('.modal-backdrop.active, .modal.active').forEach(modal => {
+      modal.classList.remove('active');
+    });
+  },
+
   initModalCloseHandlers() {
     document.querySelectorAll('[data-close-modal]').forEach(btn => {
       btn.addEventListener('click', (e) => {

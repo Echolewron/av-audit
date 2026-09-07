@@ -93,6 +93,11 @@ const sessionManager = {
       } else if (e.key === 'av_audit_session_logout') {
         if (this.isActive) {
           this.stop();
+          if (window.helpers && typeof window.helpers.closeAllModals === 'function') {
+            window.helpers.closeAllModals();
+          } else {
+            document.querySelectorAll('.modal-backdrop.active, .modal.active').forEach(m => m.classList.remove('active'));
+          }
           if (window.authView) {
             window.authView.currentUser = null;
             window.authView.showAuthPage();
@@ -317,6 +322,11 @@ const sessionManager = {
 
   async handleTimeoutExpiry(broadcast = true) {
     this.stop();
+    if (window.helpers && typeof window.helpers.closeAllModals === 'function') {
+      window.helpers.closeAllModals();
+    } else {
+      document.querySelectorAll('.modal-backdrop.active, .modal.active').forEach(m => m.classList.remove('active'));
+    }
     if (broadcast) {
       try {
         localStorage.setItem('av_audit_session_logout', String(Date.now()));

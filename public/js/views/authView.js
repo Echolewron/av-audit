@@ -349,6 +349,11 @@ const authView = {
     if (window.sessionManager) {
       window.sessionManager.stop();
     }
+    if (window.helpers && typeof window.helpers.closeAllModals === 'function') {
+      window.helpers.closeAllModals();
+    } else {
+      document.querySelectorAll('.modal-backdrop.active, .modal.active').forEach(m => m.classList.remove('active'));
+    }
 
     const authPage = document.getElementById('auth-page');
     const appContainer = document.getElementById('app-container');
