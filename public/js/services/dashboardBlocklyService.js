@@ -466,12 +466,14 @@ const dashboardBlocklyService = {
     // Populate with existing rules
     this.importJsonToWorkspace(automations);
 
-    // Re-layout and trigger resize on flyout
-    setTimeout(() => {
-      if (this.workspace) {
-        Blockly.svgResize(this.workspace);
-      }
-    }, 50);
+    // Re-layout and trigger resize on flyout across animation frames
+    [10, 60, 180].forEach(delay => {
+      setTimeout(() => {
+        if (this.workspace && typeof Blockly !== 'undefined' && Blockly.svgResize) {
+          Blockly.svgResize(this.workspace);
+        }
+      }, delay);
+    });
 
     return this.workspace;
   },

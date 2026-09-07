@@ -3171,19 +3171,18 @@ body.editing-mode .add-section-container {
    GOOGLE BLOCKLY SLEEK MODERN REDESIGN & FULL-WIDTH WORKSPACE
    ========================================================================== */
 
-/* Full-width Modal Modifier for Automation Tab */
+/* Full-width Modal Modifier for Automation Tab (Responsive Height, No Overflow) */
 .modal-dialog-lovelace.modal-dialog-wide {
-  max-width: 1120px !important;
+  max-width: 1240px !important;
   width: 95vw !important;
+  max-height: 90vh !important;
   transition: max-width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .lovelace-modal-body-split.modal-automation-fullwidth {
   grid-template-columns: 1fr !important;
-  padding: 20px 24px !important;
-  flex: 1 1 auto !important;
-  min-height: 0 !important;
-  overflow-y: auto !important;
+  padding: 16px 20px !important;
+  overflow-y: hidden !important;
 }
 
 .lovelace-modal-body-split.modal-automation-fullwidth .card-config-preview-pane {
@@ -3192,6 +3191,61 @@ body.editing-mode .add-section-container {
 
 .lovelace-modal-body-split.modal-automation-fullwidth .card-config-form-container {
   width: 100% !important;
+}
+
+#tab-pane-automation.active {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.automations-top-bar {
+  flex-shrink: 0 !important;
+  margin-bottom: 0 !important;
+  padding: 8px 14px !important;
+}
+
+.blockly-workspace-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  height: 480px !important;
+  min-height: 420px !important;
+  max-height: calc(88vh - 250px) !important;
+  border-radius: 8px !important;
+  overflow: hidden !important;
+  border: 1px solid var(--ha-border) !important;
+  background: #0b0f17 !important;
+  margin-bottom: 0 !important;
+}
+
+#blockly-automation-container {
+  width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+
+.pipeline-variables-guide {
+  flex: 0 0 auto !important;
+  background: #141923;
+  border: 1px solid var(--ha-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+}
+
+.pipeline-variables-guide .guide-cards-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.pipeline-variables-guide .guide-card {
+  background: #0c1017;
+  border: 1px solid var(--ha-border);
+  border-radius: 6px;
+  padding: 8px 10px;
 }
 
 /* Remove 3D Plastic Specular Glare / Cartoon Scratch Effect from Blocks */
@@ -3203,6 +3257,10 @@ body.editing-mode .add-section-container {
 
 .blocklyPathDark {
   display: none !important;
+  stroke: none !important;
+  fill: none !important;
+}
+
 /* Modern Dark Blockly Canvas & Blocks */
 .blocklyMainBackground {
   fill: #0b0f17 !important;
