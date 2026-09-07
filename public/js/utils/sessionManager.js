@@ -1,16 +1,25 @@
 // Session Inactivity & Auto-Logout Manager
-// Floating "Are you still there?" warning banner, 10-min M:SS countdown, right-to-left progress bar, and 2-hour cookie renewal
+// Floating "Are you still there?" warning banner, M:SS countdown, progress bar, multi-tab sync, and session renewal
 
 const sessionManager = {
-  // Inactivity threshold: 2 hours (minus 10 minutes warning period)
-  INACTIVITY_LIMIT_MS: (2 * 60 * 60 * 1000) - (10 * 60 * 1000), // 1h 50m of silence triggers 10m countdown
-  COUNTDOWN_DURATION_SEC: 10 * 60, // 10 minutes = 600 seconds
+  // Defaults: 60 min (1 hour) total inactivity before logout, 5 min warning countdown
+  SESSION_DURATION_MS: 60 * 60 * 1000,
+  INACTIVITY_WARNING_MS: 5 * 60 * 1000,
+  INACTIVITY_LIMIT_MS: (60 * 60 * 1000) - (5 * 60 * 1000), // 55m silence -> 5m countdown
+  COUNTDOWN_DURATION_SEC: 5 * 60, // 300 seconds
+  sessionDurationMinutes: 60,
+  inactivityWarningMinutes: 5,
 
   inactivityTimer: null,
   countdownInterval: null,
-  remainingSeconds: 600,
+  heartbeatInterval: null,
+  remainingSeconds: 300,
   isActive: false,
   isWarningActive: false,
+  lastActivityTimestamp: Date.now(),
+  lastActivityThrottled: 0,
+  configPromise: null,
+  eventsBound: false,
 
   async init() {
     this.bindEvents();
@@ -18,24 +27,91 @@ const sessionManager = {
   },
 
   async loadConfig() {
-    try {
-      if (window.api && window.api.auth && typeof window.api.auth.getConfig === 'function') {
-        const cfg = await api.auth.getConfig();
-        if (cfg) {
-          const warnMs = cfg.inactivityWarningMs || (10 * 60 * 1000);
-          const totalMs = cfg.sessionDurationMs || (2 * 60 * 60 * 1000);
-          this.INACTIVITY_LIMIT_MS = Math.max(1000, totalMs - warnMs);
-          this.COUNTDOWN_DURATION_SEC = Math.round(warnMs / 1000);
+    if (!this.configPromise) {
+      this.configPromise = (async () => {
+        try {
+          if (window.api && window.api.auth && typeof window.api.auth.getConfig === 'function') {
+            const cfg = await api.auth.getConfig();
+            if (cfg) {
+              const totalMs = cfg.sessionDurationMs || (60 * 60 * 1000);
+              const warnMs = cfg.inactivityWarningMs !== undefined ? cfg.inactivityWarningMs : (5 * 60 * 1000);
+
+              this.SESSION_DURATION_MS = totalMs;
+              this.INACTIVITY_WARNING_MS = warnMs;
+              this.sessionDurationMinutes = cfg.sessionDurationMinutes || Math.round(totalMs / 60000);
+              this.inactivityWarningMinutes = cfg.inactivityWarningMinutes !== undefined ? cfg.inactivityWarningMinutes : Math.round(warnMs / 60000);
+
+              this.COUNTDOWN_DURATION_SEC = Math.max(1, Math.round(warnMs / 1000));
+              this.INACTIVITY_LIMIT_MS = Math.max(1000, totalMs - warnMs);
+
+              // Update extend button tooltip if present
+              const btnExtend = document.getElementById('btn-extend-session');
+              if (btnExtend) {
+                const durationLabel = this.sessionDurationMinutes >= 60 
+                  ? `${(this.sessionDurationMinutes / 60).toFixed(this.sessionDurationMinutes % 60 === 0 ? 0 : 1)} hour${this.sessionDurationMinutes === 60 ? '' : 's'}`
+                  : `${this.sessionDurationMinutes} minute${this.sessionDurationMinutes === 1 ? '' : 's'}`;
+                btnExtend.title = `Extend session by ${durationLabel}`;
+              }
+
+              // If currently active and not showing warning, re-arm inactivity timer with new configured limits
+              if (this.isActive && !this.isWarningActive) {
+                this.checkInactivityState();
+              }
+            }
+          }
+        } catch (err) {
+          console.warn('[sessionManager] Failed to load client config:', err);
         }
-      }
-    } catch (_) {}
+      })();
+    }
+    return this.configPromise;
   },
 
   bindEvents() {
-    // Activity listeners to reset idle clock
-    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    if (this.eventsBound) return;
+    this.eventsBound = true;
+
+    // Activity listeners to reset idle clock (throttled to avoid CPU churn)
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart', 'pointerdown'];
     activityEvents.forEach(eventType => {
       window.addEventListener(eventType, () => this.handleUserActivity(), { passive: true });
+    });
+
+    // Cross-tab synchronization via localStorage storage event
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'av_audit_last_active' && e.newValue) {
+        const remoteTime = Number(e.newValue);
+        if (remoteTime > this.lastActivityTimestamp) {
+          this.lastActivityTimestamp = remoteTime;
+          if (this.isActive) {
+            if (this.isWarningActive) {
+              this.hideWarningBanner(true);
+            }
+            this.resetInactivityTimer();
+          }
+        }
+      } else if (e.key === 'av_audit_session_logout') {
+        if (this.isActive) {
+          this.stop();
+          if (window.authView) {
+            window.authView.currentUser = null;
+            window.authView.showAuthPage();
+          }
+        }
+      }
+    });
+
+    // Handle tab switching / laptop sleep wake-up
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && this.isActive) {
+        this.checkInactivityState();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      if (this.isActive) {
+        this.checkInactivityState();
+      }
     });
 
     // "I'm Still Here" Extend Session Button
@@ -49,8 +125,23 @@ const sessionManager = {
     this.stop();
     this.isActive = true;
     this.isWarningActive = false;
+    this.lastActivityTimestamp = Date.now();
+    try {
+      localStorage.setItem('av_audit_last_active', String(this.lastActivityTimestamp));
+    } catch (_) {}
+
     this.hideWarningBanner(false);
     this.resetInactivityTimer();
+
+    // Periodic heartbeat check (every 15 seconds) to catch tab suspension / sleep wakeups
+    this.heartbeatInterval = setInterval(() => {
+      if (this.isActive) {
+        this.checkInactivityState();
+      }
+    }, 15000);
+
+    // Ensure latest config is loaded
+    this.loadConfig();
   },
 
   stop() {
@@ -58,26 +149,76 @@ const sessionManager = {
     this.isWarningActive = false;
     if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
     if (this.countdownInterval) clearInterval(this.countdownInterval);
+    if (this.heartbeatInterval) clearInterval(this.heartbeatInterval);
     this.inactivityTimer = null;
     this.countdownInterval = null;
+    this.heartbeatInterval = null;
     this.hideWarningBanner(false);
   },
 
   handleUserActivity() {
     if (!this.isActive) return;
-    // If the warning card is currently visible, user activity alone does not dismiss it — they must explicitly click "I'm Still Here"
+
+    const now = Date.now();
+    // Throttle user activity handling to at most once per 500ms
+    if (now - this.lastActivityThrottled < 500) return;
+    this.lastActivityThrottled = now;
+
+    // If warning banner is currently visible, user activity alone does not dismiss it — they must explicitly click "I'm Still Here"
     if (!this.isWarningActive) {
+      this.lastActivityTimestamp = now;
+      try {
+        localStorage.setItem('av_audit_last_active', String(now));
+      } catch (_) {}
+      this.resetInactivityTimer();
+    }
+  },
+
+  checkInactivityState() {
+    if (!this.isActive) return;
+
+    // Read latest timestamp from storage if present
+    try {
+      const stored = localStorage.getItem('av_audit_last_active');
+      if (stored) {
+        const storedNum = Number(stored);
+        if (storedNum > this.lastActivityTimestamp) {
+          this.lastActivityTimestamp = storedNum;
+        }
+      }
+    } catch (_) {}
+
+    const now = Date.now();
+    const elapsed = now - this.lastActivityTimestamp;
+
+    if (elapsed >= this.SESSION_DURATION_MS) {
+      // Session has completely expired
+      this.handleTimeoutExpiry();
+    } else if (elapsed >= this.INACTIVITY_LIMIT_MS) {
+      // In warning period
+      const remainingSec = Math.max(1, Math.round((this.SESSION_DURATION_MS - elapsed) / 1000));
+      if (!this.isWarningActive) {
+        this.showWarningBanner(remainingSec);
+      }
+    } else {
+      // Normal active state
+      if (this.isWarningActive) {
+        this.hideWarningBanner(true);
+      }
       this.resetInactivityTimer();
     }
   },
 
   resetInactivityTimer() {
     if (this.inactivityTimer) clearTimeout(this.inactivityTimer);
-    if (!this.isActive) return;
+    if (!this.isActive || this.isWarningActive) return;
+
+    const elapsed = Date.now() - this.lastActivityTimestamp;
+    const timeUntilWarning = Math.max(1000, this.INACTIVITY_LIMIT_MS - elapsed);
 
     this.inactivityTimer = setTimeout(() => {
-      this.showWarningBanner();
-    }, this.INACTIVITY_LIMIT_MS);
+      this.checkInactivityState();
+    }, timeUntilWarning);
   },
 
   showWarningBanner(durationSec = this.COUNTDOWN_DURATION_SEC) {
@@ -145,7 +286,8 @@ const sessionManager = {
     // Decreasing progress bar right-to-left: 100% at start -> 0% at expiry
     const progressBar = document.getElementById('inactivity-btn-progress-bar');
     if (progressBar) {
-      const percentage = Math.max(0, Math.min(100, (totalSec / this.COUNTDOWN_DURATION_SEC) * 100));
+      const maxSec = this.COUNTDOWN_DURATION_SEC > 0 ? this.COUNTDOWN_DURATION_SEC : 300;
+      const percentage = Math.max(0, Math.min(100, (totalSec / maxSec) * 100));
       progressBar.style.width = `${percentage}%`;
     }
   },
@@ -153,18 +295,33 @@ const sessionManager = {
   async extendSession() {
     try {
       await api.auth.extendSession();
-      helpers.showToast('Your session has been extended for 2 more hours.', 'success');
+      
+      const durationLabel = this.sessionDurationMinutes >= 60 
+        ? `${(this.sessionDurationMinutes / 60).toFixed(this.sessionDurationMinutes % 60 === 0 ? 0 : 1)} hour${this.sessionDurationMinutes === 60 ? '' : 's'}`
+        : `${this.sessionDurationMinutes} minutes`;
+      helpers.showToast(`Your session has been extended for ${durationLabel}.`, 'success');
+
+      this.lastActivityTimestamp = Date.now();
+      try {
+        localStorage.setItem('av_audit_last_active', String(this.lastActivityTimestamp));
+      } catch (_) {}
+
       this.hideWarningBanner(true);
       this.resetInactivityTimer();
     } catch (err) {
-      console.error('Failed to extend session:', err);
+      console.error('[sessionManager] Failed to extend session:', err);
       // If extension fails due to session expiry, log out gracefully
       this.handleTimeoutExpiry();
     }
   },
 
-  async handleTimeoutExpiry() {
+  async handleTimeoutExpiry(broadcast = true) {
     this.stop();
+    if (broadcast) {
+      try {
+        localStorage.setItem('av_audit_session_logout', String(Date.now()));
+      } catch (_) {}
+    }
     helpers.showToast('Your session expired due to inactivity. Please sign in again.', 'warning');
     try {
       await api.auth.logout();
@@ -176,7 +333,7 @@ const sessionManager = {
   },
 
   // Manual Trigger helper for Playwright & testing
-  triggerWarningNowForTesting(countdownSeconds = 600) {
+  triggerWarningNowForTesting(countdownSeconds = this.COUNTDOWN_DURATION_SEC) {
     this.isActive = true;
     this.showWarningBanner(countdownSeconds);
   }

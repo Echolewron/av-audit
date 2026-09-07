@@ -65,6 +65,12 @@ function authMiddleware(req, res, next) {
 
   // Slide expiration window
   db.sessions.create(user.id, token, SESSION_DURATION_MS);
+  res.cookie(SESSION_COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: SESSION_DURATION_MS
+  });
 
   req.user = {
     id: user.id,

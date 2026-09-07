@@ -23,12 +23,21 @@ const SESSION_SECRET = process.env.SESSION_SECRET || 'av_audit_secure_session_se
 const TIMEZONE = serverConfig.timezone || 'America/Los_Angeles';
 const SESSION_COOKIE_NAME = 'av_audit_session';
 
-// Session duration in ms
-const sessionDurationHours = parseFloat(authConfig.sessionDurationHours) || 2;
-const SESSION_DURATION_MS = sessionDurationHours * 60 * 60 * 1000;
+// Session duration (in minutes / ms)
+const rawSessionMinutes = authConfig.sessionDurationMinutes !== undefined 
+  ? parseFloat(authConfig.sessionDurationMinutes)
+  : (authConfig.autoLogoutMinutes !== undefined 
+      ? parseFloat(authConfig.autoLogoutMinutes) 
+      : (authConfig.sessionDurationHours !== undefined ? parseFloat(authConfig.sessionDurationHours) * 60 : 60));
+const sessionDurationMinutes = (!isNaN(rawSessionMinutes) && rawSessionMinutes > 0) ? rawSessionMinutes : 60;
+const sessionDurationHours = sessionDurationMinutes / 60;
+const SESSION_DURATION_MS = sessionDurationMinutes * 60 * 1000;
 
-// Inactivity warning duration (how long "Are you still there" countdown appears)
-const inactivityWarningMinutes = parseFloat(authConfig.inactivityWarningMinutes) || 10;
+// Inactivity warning duration in minutes (how long "Are you still there" countdown appears)
+const rawWarningMinutes = authConfig.inactivityWarningMinutes !== undefined
+  ? parseFloat(authConfig.inactivityWarningMinutes)
+  : (authConfig.warningDurationMinutes !== undefined ? parseFloat(authConfig.warningDurationMinutes) : 5);
+const inactivityWarningMinutes = (!isNaN(rawWarningMinutes) && rawWarningMinutes >= 0) ? rawWarningMinutes : 5;
 const INACTIVITY_WARNING_MS = inactivityWarningMinutes * 60 * 1000;
 
 // Default admin credentials
@@ -59,6 +68,7 @@ module.exports = {
   SESSION_COOKIE_NAME,
   SESSION_DURATION_MS,
   INACTIVITY_WARNING_MS,
+  sessionDurationMinutes,
   sessionDurationHours,
   inactivityWarningMinutes,
   DEFAULT_ADMIN_USERNAME,

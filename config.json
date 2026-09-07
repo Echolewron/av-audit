@@ -7,8 +7,8 @@
   "auth": {
     "defaultAdminUsername": "admin",
     "defaultAdminPassword": "admin123",
-    "sessionDurationHours": 2,
-    "inactivityWarningMinutes": 10
+    "sessionDurationMinutes": 2,
+    "inactivityWarningMinutes": 1
   },
   "retention": {
     "defaultLogRetentionDays": 30,

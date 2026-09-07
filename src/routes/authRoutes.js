@@ -28,9 +28,10 @@ function getAppVersion() {
 
 // Public Client Config (Session timing & countdown durations)
 router.get('/client-config', (req, res) => {
-  const { sessionDurationHours, inactivityWarningMinutes, SESSION_DURATION_MS, INACTIVITY_WARNING_MS } = require('../config/config');
+  const { sessionDurationMinutes, sessionDurationHours, inactivityWarningMinutes, SESSION_DURATION_MS, INACTIVITY_WARNING_MS } = require('../config/config');
   res.json({
     version: getAppVersion(),
+    sessionDurationMinutes,
     sessionDurationHours,
     inactivityWarningMinutes,
     sessionDurationMs: SESSION_DURATION_MS,
@@ -128,7 +129,7 @@ router.post('/extend-session', authMiddleware, (req, res) => {
 
     res.json({
       success: true,
-      message: 'Session extended by 2 hours successfully',
+      message: 'Session extended successfully',
       expires_at: extended.expires_at
     });
   } catch (err) {
