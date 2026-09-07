@@ -21,39 +21,39 @@ const dashboardBlocklyService = {
         super();
         this.GRID_UNIT = 4;
         
-        // Thicker, spacious blocks with modern rounded corners
+        // Sleek modern rounded blocks without excess bulk
         this.CORNER_RADIUS = 8;
-        this.NOTCH_WIDTH = 22;
-        this.NOTCH_HEIGHT = 6;
-        this.NOTCH_OFFSET_LEFT = 18;
+        this.NOTCH_WIDTH = 20;
+        this.NOTCH_HEIGHT = 5;
+        this.NOTCH_OFFSET_LEFT = 16;
 
-        // Spacious Statement Padding & Indents
-        this.STATEMENT_INPUT_PADDING_LEFT = 24;
-        this.STATEMENT_BOTTOM_SPACER = 8;
-        this.BETWEEN_STATEMENT_PADDING_Y = 8;
+        // Clean Statement Padding & Indents
+        this.STATEMENT_INPUT_PADDING_LEFT = 20;
+        this.STATEMENT_BOTTOM_SPACER = 4;
+        this.BETWEEN_STATEMENT_PADDING_Y = 4;
 
         // Modern Input & Text Field Geometry
-        this.FIELD_TEXT_FONTSIZE = 12;
+        this.FIELD_TEXT_FONTSIZE = 11.5;
         this.FIELD_TEXT_FONTWEIGHT = '600';
         this.FIELD_TEXT_FONTFAMILY = "'Inter', -apple-system, BlinkMacSystemFont, sans-serif";
-        this.FIELD_TEXT_HEIGHT = 24;
-        this.FIELD_BORDER_RECT_RADIUS = 6;
-        this.FIELD_BORDER_RECT_HEIGHT = 30;
-        this.FIELD_BORDER_RECT_X_PADDING = 10;
-        this.FIELD_BORDER_RECT_Y_PADDING = 4;
-        this.FIELD_DROPDOWN_BORDER_RECT_HEIGHT = 30;
+        this.FIELD_TEXT_HEIGHT = 20;
+        this.FIELD_BORDER_RECT_RADIUS = 5;
+        this.FIELD_BORDER_RECT_HEIGHT = 26;
+        this.FIELD_BORDER_RECT_X_PADDING = 8;
+        this.FIELD_BORDER_RECT_Y_PADDING = 3;
+        this.FIELD_DROPDOWN_BORDER_RECT_HEIGHT = 26;
 
-        // Enhanced Block Thickness / Heights
-        this.DUMMY_INPUT_MIN_HEIGHT = 40;
-        this.MIN_BLOCK_HEIGHT = 42;
-        this.TOP_ROW_MIN_HEIGHT = 6;
-        this.BOTTOM_ROW_MIN_HEIGHT = 6;
-        this.EMPTY_STATEMENT_INPUT_HEIGHT = 36;
-        this.EMPTY_INLINE_INPUT_HEIGHT = 32;
+        // Compact Block Thickness / Heights (Eliminates excessive empty gaps)
+        this.DUMMY_INPUT_MIN_HEIGHT = 26;
+        this.MIN_BLOCK_HEIGHT = 30;
+        this.TOP_ROW_MIN_HEIGHT = 4;
+        this.BOTTOM_ROW_MIN_HEIGHT = 4;
+        this.EMPTY_STATEMENT_INPUT_HEIGHT = 28;
+        this.EMPTY_INLINE_INPUT_HEIGHT = 26;
 
         // Start Hat for Root Triggers
-        this.START_HAT_HEIGHT = 16;
-        this.START_HAT_WIDTH = 90;
+        this.START_HAT_HEIGHT = 12;
+        this.START_HAT_WIDTH = 76;
       }
 
       /**
@@ -158,7 +158,7 @@ const dashboardBlocklyService = {
         flyoutForegroundColour: '#f1f5f9',
         flyoutOpacity: 0.98,
         scrollbarColour: '#243044',
-        scrollbarOpacity: 0.65,
+        scrollbarOpacity: 0.8,
         insertionMarkerColour: '#38bdf8',
         insertionMarkerOpacity: 0.85,
         markerColour: '#38bdf8',
@@ -200,17 +200,29 @@ const dashboardBlocklyService = {
             ['onChange (On Value Change)', 'onChange'],
             ['onInfo (/info Subscription POST)', 'onInfo'],
             ['onPolling (HTTP Polling GET)', 'onPolling']
-          ]), 'TRIGGER_TYPE');
+          ], (newValue) => {
+            const infoRow = this.getInput('INFO_ROW');
+            const pollRow = this.getInput('POLL_ROW');
+            if (infoRow) infoRow.setVisible(newValue === 'onInfo');
+            if (pollRow) pollRow.setVisible(newValue === 'onPolling');
+            if (this.rendered) {
+              setTimeout(() => { if (this.rendered) this.render(); }, 1);
+            }
+          }), 'TRIGGER_TYPE');
 
-        this.appendDummyInput('INFO_ROW')
+        const infoRow = this.appendDummyInput('INFO_ROW')
           .appendField('Subscribed /info Key:')
           .appendField(new Blockly.FieldTextInput('tablets/stage_left'), 'INFO_KEY');
 
-        this.appendDummyInput('POLL_ROW')
+        const pollRow = this.appendDummyInput('POLL_ROW')
           .appendField('Poll URL:')
           .appendField(new Blockly.FieldTextInput('https://api.example.com/status'), 'POLL_URL')
           .appendField('Interval (sec):')
           .appendField(new Blockly.FieldNumber(1.0, 0.1, 3600, 0.1), 'POLL_INTERVAL');
+
+        // Initially hide dynamic rows for default 'onTap'
+        infoRow.setVisible(false);
+        pollRow.setVisible(false);
 
         this.appendStatementInput('ACTIONS')
           .setCheck(null)
@@ -224,11 +236,24 @@ const dashboardBlocklyService = {
         this.setOnChange((changeEvent) => {
           if (!this.workspace || this.workspace.isDragging()) return;
           const trigType = this.getFieldValue('TRIGGER_TYPE');
-          const infoRow = this.getInput('INFO_ROW');
-          const pollRow = this.getInput('POLL_ROW');
+          const iRow = this.getInput('INFO_ROW');
+          const pRow = this.getInput('POLL_ROW');
 
-          if (infoRow) infoRow.setVisible(trigType === 'onInfo');
-          if (pollRow) pollRow.setVisible(trigType === 'onPolling');
+          const showInfo = trigType === 'onInfo';
+          const showPoll = trigType === 'onPolling';
+
+          let changed = false;
+          if (iRow && iRow.isVisible() !== showInfo) {
+            iRow.setVisible(showInfo);
+            changed = true;
+          }
+          if (pRow && pRow.isVisible() !== showPoll) {
+            pRow.setVisible(showPoll);
+            changed = true;
+          }
+          if (changed && this.rendered) {
+            this.render();
+          }
         });
       }
     };
@@ -510,6 +535,11 @@ const dashboardBlocklyService = {
       const trigger = macro.trigger || { type: 'onTap' };
       const trigType = trigger.type || 'onTap';
       ruleBlock.setFieldValue(trigType, 'TRIGGER_TYPE');
+
+      const infoRow = ruleBlock.getInput('INFO_ROW');
+      const pollRow = ruleBlock.getInput('POLL_ROW');
+      if (infoRow) infoRow.setVisible(trigType === 'onInfo');
+      if (pollRow) pollRow.setVisible(trigType === 'onPolling');
 
       if (trigType === 'onInfo' && trigger.infoKey) {
         ruleBlock.setFieldValue(trigger.infoKey, 'INFO_KEY');
