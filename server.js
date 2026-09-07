@@ -49,6 +49,8 @@ app.use(sanitizeMiddleware);
 app.use('/info', infoRoutes);
 app.use('/api/info', infoRoutes);
 
+app.use('/demo', express.static(path.join(__dirname, 'demo')));
+
 // Static files with smart ETag validation (HTML passes through dynamic prepareHtml)
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: true,

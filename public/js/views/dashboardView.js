@@ -1302,17 +1302,7 @@ const dashboardView = {
     }
 
     let cardControlsHtml = '';
-
-    // 1. Toggle Switch
-    if (type === 'toggle') {
-      cardControlsHtml = `
-        <div class="ha-toggle-switch ${p.isStateOn ? 'checked' : ''}" data-card-id="${card.id}" onclick="event.stopPropagation()">
-          <span class="ha-toggle-slider" style="${p.isStateOn ? `background-color: ${accentColor}; box-shadow: 0 0 8px ${accentColor};` : ''}"></span>
-        </div>
-      `;
-    }
-    // 2. Circular Progress Gauge
-    else if (type === 'gauge') {
+    if (type === 'gauge') {
       const radius = 17;
       const circumference = 2 * Math.PI * radius;
       const offset = circumference - (p.valPct / 100) * circumference;
@@ -1341,7 +1331,7 @@ const dashboardView = {
     let inner = `
       ${editOverlayHtml}
       <div class="tile-main-row">
-        <div class="tile-icon-circle" style="background: ${this.getColorWithAlpha(accentColor, 0.13)}; color: ${accentColor}; border: 1px solid ${this.getColorWithAlpha(accentColor, 0.33)};">
+        <div class="tile-icon-circle" style="background: ${this.getColorWithAlpha(accentColor, 0.12)}; color: ${accentColor}; border: 1px solid ${this.getColorWithAlpha(accentColor, 0.3)};">
           ${p.icon}
         </div>
         <div class="tile-info">
@@ -1393,10 +1383,11 @@ const dashboardView = {
     }
 
     const alertClass = type === 'alert' ? (p.alert_on ? 'ha-card-alert ha-card-alert-active' : 'ha-card-alert ha-card-alert-inactive') : '';
+    const activeClass = (type === 'toggle' && p.isStateOn) ? 'state-active card-active-on' : '';
 
     return `
-      <div class="ha-card span-col-${cols} span-row-${rows} ${disabledClass} ${alertClass}"
-        style="grid-column: span ${cols} !important; grid-row: span ${rows} !important;"
+      <div class="ha-card span-col-${cols} span-row-${rows} ${disabledClass} ${alertClass} ${activeClass}"
+        style="grid-column: span ${cols} !important; grid-row: span ${rows} !important; --card-accent: ${accentColor};"
         data-card-id="${card.id}"
         data-section-id="${sectionId}"
         data-cols="${cols}"
@@ -2092,44 +2083,36 @@ const dashboardView = {
     // If disabled, skip interactive control handlers
     if (!p.enabled) return;
 
-    // 1. Button / Tile Tap Action
-    cardEl.addEventListener('click', (e) => {
+    // 1. Button / Push-Toggle Tile Action
+    cardEl.addEventListener('click', async (e) => {
       if (e.target.closest('.card-edit-overlay') || this.isEditMode || !p.enabled) return;
-      // If clicking toggle switch, fader track, or stepper buttons, let their dedicated handlers process
-      if (e.target.closest('.ha-toggle-switch') || e.target.closest('.tile-slider-track') || e.target.closest('.step-btn')) return;
-      this.executeTrigger(card, 'onTap', { widget: p });
-    });
+      if (e.target.closest('.tile-slider-track') || e.target.closest('.step-btn')) return;
 
-    // 2. Toggle Switch Action
-    if (p.type === 'toggle') {
-      const toggleSwitch = cardEl.querySelector('.ha-toggle-switch');
-      if (toggleSwitch) {
-        toggleSwitch.addEventListener('click', async (e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          if (this.isEditMode || !p.enabled) return;
+      if (p.type === 'toggle') {
+        const isCurrentlyOn = card.state === true || String(card.state).toLowerCase() === 'on' || String(card.state).toLowerCase() === 'true';
+        const willBeOn = !isCurrentlyOn;
+        const triggerName = willBeOn ? 'onToggleOn' : 'onToggleOff';
 
-          const isCurrentlyOn = card.state === true || String(card.state).toLowerCase() === 'on' || String(card.state).toLowerCase() === 'true';
-          const willBeOn = !isCurrentlyOn;
-          const triggerName = willBeOn ? 'onToggleOn' : 'onToggleOff';
+        // 1. Check confirmation prompt synchronously if configured
+        const confirmed = this.checkConfirmationPrompt(card, triggerName, { state: willBeOn ? 'on' : 'off' });
+        if (!confirmed) return;
 
-          // 1. Check confirmation prompt synchronously if configured
-          const confirmed = this.checkConfirmationPrompt(card, triggerName, { state: willBeOn ? 'on' : 'off' });
-          if (!confirmed) return;
+        // 2. Optimistic UI update locally immediately (0ms delay)
+        card.state = willBeOn ? 'on' : 'off';
+        this.updateCardElementInDom(card);
 
-          // 2. Optimistic UI update locally immediately (0ms delay)
-          card.state = willBeOn ? 'on' : 'off';
+        // 3. Dispatch to server in background (revert only if server rejects or fails)
+        this.executeTrigger(card, triggerName, { state: card.state }, true).catch(err => {
+          console.warn('[Optimistic UI] Toggle trigger error, reverting:', err);
+          card.state = isCurrentlyOn ? 'on' : 'off';
           this.updateCardElementInDom(card);
-
-          // 3. Dispatch to server in background (revert only if server rejects or fails)
-          this.executeTrigger(card, triggerName, { state: card.state }, true).catch(err => {
-            console.warn('[Optimistic UI] Toggle trigger error, reverting:', err);
-            card.state = isCurrentlyOn ? 'on' : 'off';
-            this.updateCardElementInDom(card);
-          });
         });
+      } else {
+        cardEl.classList.add('widget-optimistic-tap');
+        setTimeout(() => cardEl.classList.remove('widget-optimistic-tap'), 250);
+        this.executeTrigger(card, 'onTap', { widget: p });
       }
-    }
+    });
 
     // 3. Slider / Fader Action Track
     if (p.type === 'slider') {
@@ -2339,6 +2322,44 @@ const dashboardView = {
     document.querySelectorAll('.lovelace-modal-body-split .lovelace-tab-pane').forEach(p => {
       p.classList.toggle('active', p.id === `tab-pane-${tab}`);
     });
+
+    if (tab === 'automation') {
+      this.initBlocklyWorkspace();
+      if (window.dashboardBlocklyService) {
+        setTimeout(() => {
+          dashboardBlocklyService.resize();
+        }, 50);
+      }
+    }
+  },
+
+  initBlocklyWorkspace() {
+    const container = document.getElementById('blockly-automation-container');
+    if (!container || typeof Blockly === 'undefined' || !window.dashboardBlocklyService) return;
+
+    const cardType = this.activeIsBadge ? 'badge' : this.normalizeCardType(this.activeCardConfig?.type);
+    const schema = this.cardSchemas[cardType] || this.cardSchemas.button;
+    const availableProperties = schema.properties || ['label', 'subtitle', 'icon', 'color', 'state', 'value', 'enabled', 'alert_on'];
+
+    dashboardBlocklyService.injectWorkspace(
+      container,
+      this.activeCardConfig?.automations || [],
+      availableProperties
+    );
+
+    if (dashboardBlocklyService.workspace) {
+      dashboardBlocklyService.workspace.addChangeListener((e) => {
+        if (e.isUiEvent) return;
+        const rules = dashboardBlocklyService.exportRulesToJson();
+        if (this.activeCardConfig) {
+          this.activeCardConfig.automations = rules;
+          this.updateYamlCodeEditor();
+        }
+      });
+      setTimeout(() => {
+        dashboardBlocklyService.resize();
+      }, 60);
+    }
   },
 
   normalizeAutomations(rawAutomations) {
@@ -2557,6 +2578,27 @@ const dashboardView = {
         this.handleSaveCardConfig();
       });
     }
+
+    // Blockly Controls
+    const btnBlocklyCenter = document.getElementById('btn-blockly-center');
+    if (btnBlocklyCenter) {
+      btnBlocklyCenter.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.dashboardBlocklyService) {
+          dashboardBlocklyService.centerWorkspace();
+        }
+      });
+    }
+
+    const btnAddBlocklyRule = document.getElementById('btn-add-blockly-rule');
+    if (btnAddBlocklyRule) {
+      btnAddBlocklyRule.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (window.dashboardBlocklyService) {
+          dashboardBlocklyService.addNewRuleBlock();
+        }
+      });
+    }
   },
 
   syncFormToDraft() {
@@ -2738,6 +2780,209 @@ const dashboardView = {
       onPolling: 'onPolling (HTTP Polling GET)'
     };
 
+    // Helper to render action blocks (including nested IF/ELSE and REPEAT flow cards)
+    const renderActionBlockHtml = (step, stepIdx, parentPath, macroIdx) => {
+      const type = step.type || step.action || 'set_property';
+      const blockId = step.id || `blk_${macroIdx}_${stepIdx}`;
+      step.id = blockId;
+
+      // 1. IF / ELSE FLOW CARD
+      if (type === 'if-else' || type === 'if' || type === 'condition_block') {
+        const condVal = step.condition || step.expression || step.expr || 'data.value !== undefined';
+        const thenList = Array.isArray(step.thenBlocks) ? step.thenBlocks : (Array.isArray(step.then) ? step.then : []);
+        const elseList = Array.isArray(step.elseBlocks) ? step.elseBlocks : (Array.isArray(step.else) ? step.else : []);
+        step.thenBlocks = thenList;
+        step.elseBlocks = elseList;
+
+        const thenPath = `${parentPath}.then.${blockId}`;
+        const elsePath = `${parentPath}.else.${blockId}`;
+
+        const thenHtml = thenList.map((ts, ti) => renderActionBlockHtml(ts, ti, thenPath, macroIdx)).join('');
+        const elseHtml = elseList.map((es, ei) => renderActionBlockHtml(es, ei, elsePath, macroIdx)).join('');
+
+        return `
+          <div class="flow-container-card" data-macro-idx="${macroIdx}" data-block-id="${blockId}" data-parent-path="${parentPath}" data-step-idx="${stepIdx}">
+            <div class="flow-header-bar">
+              <span class="block-drag-handle">⋮⋮</span>
+              <span class="block-type-pill" style="background: #a855f7;">🔀 IF</span>
+              <input type="text" class="block-input-cond" data-macro-idx="${macroIdx}" data-block-id="${blockId}" value="${helpers.escapeHtml(condVal)}" placeholder="e.g. data.battery < 20 or widget.state == 'on'" style="flex: 1;">
+              <button type="button" class="pipeline-step-btn btn-remove-block" data-macro-idx="${macroIdx}" data-parent-path="${parentPath}" data-step-idx="${stepIdx}" title="Remove Condition Block">✕</button>
+            </div>
+            
+            <div class="flow-branch flow-branch-then">
+              <div class="flow-branch-header">
+                <span class="flow-branch-label">▶ THEN (Actions if true)</span>
+              </div>
+              <div class="nested-drop-zone slot-then ${thenList.length === 0 ? 'empty-zone' : ''}" data-macro-idx="${macroIdx}" data-slot-path="${thenPath}">
+                ${thenHtml}
+              </div>
+              <div class="branch-actions-toolbar">
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="set_property">+ Property</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="webhook">+ Webhook</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="delay">+ Delay</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="toast">+ Toast</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${thenPath}" data-action-type="if-else">+ Nested If</button>
+              </div>
+            </div>
+
+            <div class="flow-branch flow-branch-else">
+              <div class="flow-branch-header">
+                <span class="flow-branch-label">▷ ELSE (Actions if false)</span>
+              </div>
+              <div class="nested-drop-zone slot-else ${elseList.length === 0 ? 'empty-zone' : ''}" data-macro-idx="${macroIdx}" data-slot-path="${elsePath}">
+                ${elseHtml}
+              </div>
+              <div class="branch-actions-toolbar">
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="set_property">+ Property</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="webhook">+ Webhook</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="delay">+ Delay</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${elsePath}" data-action-type="toast">+ Toast</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 2. REPEAT FLOW CARD
+      if (type === 'repeat' || type === 'loop') {
+        const count = step.count !== undefined ? step.count : (step.times !== undefined ? step.times : 2);
+        const bodyList = Array.isArray(step.bodyBlocks) ? step.bodyBlocks : (Array.isArray(step.body) ? step.body : (Array.isArray(step.actions) ? step.actions : []));
+        step.bodyBlocks = bodyList;
+
+        const bodyPath = `${parentPath}.body.${blockId}`;
+        const bodyHtml = bodyList.map((bs, bi) => renderActionBlockHtml(bs, bi, bodyPath, macroIdx)).join('');
+
+        return `
+          <div class="flow-container-card" data-macro-idx="${macroIdx}" data-block-id="${blockId}" data-parent-path="${parentPath}" data-step-idx="${stepIdx}">
+            <div class="flow-header-bar">
+              <span class="block-drag-handle">⋮⋮</span>
+              <span class="block-type-pill" style="background: #f59e0b;">🔁 REPEAT</span>
+              <span style="font-size: 0.8rem; color: var(--ha-text-secondary); font-weight: 600;">Loop</span>
+              <input type="number" class="block-input-count" data-macro-idx="${macroIdx}" data-block-id="${blockId}" value="${count}" min="1" max="50" style="width: 60px;">
+              <span style="font-size: 0.8rem; color: var(--ha-text-secondary); font-weight: 600;">times</span>
+              <button type="button" class="pipeline-step-btn btn-remove-block" data-macro-idx="${macroIdx}" data-parent-path="${parentPath}" data-step-idx="${stepIdx}" title="Remove Repeat Loop">✕</button>
+            </div>
+            
+            <div class="flow-branch flow-branch-body">
+              <div class="flow-branch-header">
+                <span class="flow-branch-label">🔄 LOOP BODY ACTIONS</span>
+              </div>
+              <div class="nested-drop-zone slot-body ${bodyList.length === 0 ? 'empty-zone' : ''}" data-macro-idx="${macroIdx}" data-slot-path="${bodyPath}">
+                ${bodyHtml}
+              </div>
+              <div class="branch-actions-toolbar">
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="set_property">+ Property</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="webhook">+ Webhook</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="delay">+ Delay</button>
+                <button type="button" class="btn-branch-add-action" data-macro-idx="${macroIdx}" data-target-path="${bodyPath}" data-action-type="toast">+ Toast</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // 3. REGULAR ACTION BLOCKS (Webhook, Set Property, Delay, Toast, Confirm)
+      let blockColor = '#38bdf8';
+      let iconEmoji = '⚡';
+      let pillName = type;
+      let fieldsHtml = '';
+
+      if (type === 'set_property' || type === 'set-prop') {
+        blockColor = '#10b981';
+        iconEmoji = '🏷️';
+        pillName = 'Set Property';
+        const currentProp = step.property || step.prop || step.key || availableProperties[0] || 'label';
+        const isColorProp = currentProp === 'color';
+        let rawVal = step.value !== undefined ? String(step.value) : '';
+        let hexColor = '#38bdf8';
+        if (rawVal.includes('#')) {
+          const match = rawVal.match(/#[0-9A-Fa-f]{6}/);
+          if (match) hexColor = match[0];
+        }
+
+        const propOptions = availableProperties.map(p => `<option value="${p}" ${currentProp === p ? 'selected' : ''}>${p}</option>`).join('');
+        fieldsHtml = `
+          <div class="block-fields-row">
+            <select class="form-control form-select block-step-prop-select" data-macro-idx="${macroIdx}" data-block-id="${blockId}" style="width: 115px; font-size: 0.8rem;">
+              ${propOptions}
+            </select>
+            <span style="font-size: 0.8rem; color: var(--ha-text-secondary); font-weight: 700;">=</span>
+            <div style="display: flex; gap: 0.4rem; align-items: center; flex: 1; min-width: 140px;">
+              ${isColorProp ? `<input type="color" class="block-step-color-picker" data-macro-idx="${macroIdx}" data-block-id="${blockId}" value="${hexColor}" title="Pick color" style="width: 32px; height: 30px; padding: 1px; border: 1px solid var(--ha-border); border-radius: 4px; background: transparent; cursor: pointer;">` : ''}
+              <input type="text" class="form-control block-step-prop-value" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder='e.g. ${isColorProp ? '#00ff00' : '${widget.value}'}' value="${helpers.escapeHtml(rawVal)}" style="flex: 1; font-size: 0.8rem; font-family: var(--font-mono);">
+            </div>
+          </div>
+        `;
+      } else if (type === 'webhook') {
+        blockColor = '#0284c7';
+        iconEmoji = '🌐';
+        pillName = 'Webhook';
+        fieldsHtml = `
+          <div class="block-fields-row">
+            <select class="form-control form-select block-step-webhook-method" data-macro-idx="${macroIdx}" data-block-id="${blockId}" style="width: 85px; font-size: 0.8rem; font-family: var(--font-mono);">
+              <option value="GET" ${(step.method || 'GET') === 'GET' ? 'selected' : ''}>GET</option>
+              <option value="POST" ${step.method === 'POST' ? 'selected' : ''}>POST</option>
+              <option value="PUT" ${step.method === 'PUT' ? 'selected' : ''}>PUT</option>
+              <option value="DELETE" ${step.method === 'DELETE' ? 'selected' : ''}>DELETE</option>
+            </select>
+            <input type="text" class="form-control block-step-webhook-url" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder="https://api.example.com/status" value="${helpers.escapeHtml(step.url || '')}" style="flex: 1; min-width: 180px; font-size: 0.8rem; font-family: var(--font-mono);">
+          </div>
+          <div class="block-webhook-body-area">
+            <textarea class="block-step-webhook-body" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder='Optional Request Body JSON / Template (e.g. {"level": "\${widget.value}", "state": "\${widget.state}"})'>${helpers.escapeHtml(step.body || step.payload || '')}</textarea>
+          </div>
+        `;
+      } else if (type === 'toast' || type === 'notification') {
+        blockColor = '#ec4899';
+        iconEmoji = '💬';
+        pillName = 'Toast Notification';
+        fieldsHtml = `
+          <div class="block-fields-row">
+            <input type="text" class="form-control block-step-toast-msg" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder="Notification message to display..." value="${helpers.escapeHtml(step.message || step.msg || '')}" style="flex: 1; font-size: 0.8rem;">
+          </div>
+        `;
+      } else if (type === 'delay') {
+        blockColor = '#64748b';
+        iconEmoji = '⏱️';
+        pillName = 'Delay';
+        fieldsHtml = `
+          <div class="block-fields-row">
+            <span style="font-size: 0.775rem; color: var(--ha-text-secondary); font-weight: 600;">Wait</span>
+            <input type="number" class="form-control block-step-delay-sec" data-macro-idx="${macroIdx}" data-block-id="${blockId}" value="${step.seconds !== undefined ? step.seconds : 0.5}" step="0.1" min="0.1" style="width: 80px; font-size: 0.8rem; font-family: var(--font-mono);">
+            <span style="font-size: 0.775rem; color: var(--ha-text-secondary); font-weight: 600;">Seconds</span>
+          </div>
+        `;
+      } else if (type === 'condition') {
+        blockColor = '#c084fc';
+        iconEmoji = '🔀';
+        pillName = 'Condition (Guard)';
+        fieldsHtml = `
+          <div class="block-fields-row">
+            <input type="text" class="form-control block-step-condition-expr" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder="e.g. data.battery < 20 || widget.value >= 100" value="${helpers.escapeHtml(step.expression || step.expr || '')}" style="flex: 1; font-size: 0.8rem; font-family: var(--font-mono); color: #c084fc;">
+          </div>
+        `;
+      } else if (type === 'confirmation' || type === 'confirm') {
+        blockColor = '#fbbf24';
+        iconEmoji = '⚠️';
+        pillName = 'Confirm Dialog';
+        fieldsHtml = `
+          <div class="block-fields-row">
+            <input type="text" class="form-control block-step-confirm-msg" data-macro-idx="${macroIdx}" data-block-id="${blockId}" placeholder='e.g. Are you sure you want to proceed?' value="${helpers.escapeHtml(step.message || step.msg || '')}" style="flex: 1; font-size: 0.8rem; font-family: var(--font-mono); color: #fbbf24;">
+          </div>
+        `;
+      }
+
+      return `
+        <div class="action-block-card" data-macro-idx="${macroIdx}" data-block-id="${blockId}" data-parent-path="${parentPath}" data-step-idx="${stepIdx}" style="--b-color: ${blockColor};">
+          <div class="block-header-row">
+            <span class="block-drag-handle">⋮⋮</span>
+            <span class="block-type-pill" style="background: ${blockColor};">${iconEmoji} ${pillName}</span>
+            <div style="flex: 1; min-width: 0;">${fieldsHtml}</div>
+            <button type="button" class="pipeline-step-btn btn-remove-block" data-macro-idx="${macroIdx}" data-parent-path="${parentPath}" data-step-idx="${stepIdx}" title="Remove Action">✕</button>
+          </div>
+        </div>
+      `;
+    };
+
     container.innerHTML = automations.map((macro, macroIdx) => {
       const isExpanded = macro.isExpanded !== false;
       const isEnabled = macro.enabled !== false;
@@ -2769,99 +3014,8 @@ const dashboardView = {
         `;
       }
 
-      // Render Steps List HTML
-      let stepsListHtml = '';
-      if (actions.length === 0) {
-        stepsListHtml = `<div class="macro-steps-empty">No action steps in this automation. Use buttons below to add steps.</div>`;
-      } else {
-        stepsListHtml = actions.map((step, stepIdx) => {
-          const type = step.type || step.action || 'set_property';
-          let stepFieldsHtml = '';
-
-          if (type === 'delay') {
-            stepFieldsHtml = `
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;">Wait Seconds (Decimals allowed, e.g. 0.5)</label>
-                <input type="number" class="form-control macro-step-delay-sec" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" value="${step.seconds !== undefined ? step.seconds : 0.5}" step="0.1" min="0.1" style="width: 130px; font-size: 0.825rem;">
-              </div>
-            `;
-          } else if (type === 'set_property') {
-            const currentProp = step.property || step.key || availableProperties[0] || 'label';
-            const isColorProp = currentProp === 'color';
-            let rawVal = step.value !== undefined ? String(step.value) : '';
-            let hexColor = '#38bdf8';
-            if (rawVal.includes('#')) {
-              const match = rawVal.match(/#[0-9A-Fa-f]{6}/);
-              if (match) hexColor = match[0];
-            }
-
-            const propOptions = availableProperties.map(p => `<option value="${p}" ${currentProp === p ? 'selected' : ''}>${p}</option>`).join('');
-            stepFieldsHtml = `
-              <div class="step-prop-row">
-                <div class="step-prop-col">
-                  <label class="form-label" style="font-size: 0.75rem;">Target Property</label>
-                  <select class="form-control form-select macro-step-prop-select" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" style="font-size: 0.825rem;">
-                    ${propOptions}
-                  </select>
-                </div>
-                <div class="step-value-col">
-                  <label class="form-label" style="font-size: 0.75rem;">New Value Expression (Supports JS string formatting)</label>
-                  <div style="display: flex; gap: 0.4rem; align-items: center;">
-                    ${isColorProp ? `<input type="color" class="macro-step-color-picker" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" value="${hexColor}" title="Choose color" style="width: 34px; height: 32px; padding: 1px; border: 1px solid var(--ha-border); border-radius: 4px; background: transparent; cursor: pointer;">` : ''}
-                    <input type="text" class="form-control macro-step-prop-value" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" placeholder='e.g. ${isColorProp ? '"#00ff00"' : `\${widget.value} + "%"`}' value="${helpers.escapeHtml(rawVal)}" style="flex: 1; font-size: 0.825rem; font-family: var(--font-mono);">
-                  </div>
-                </div>
-              </div>
-            `;
-          } else if (type === 'webhook') {
-            stepFieldsHtml = `
-              <div class="form-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.4rem;">
-                <select class="form-control form-select macro-step-webhook-method" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" style="width: 90px; font-size: 0.825rem;">
-                  <option value="GET" ${(step.method || 'GET') === 'GET' ? 'selected' : ''}>GET</option>
-                  <option value="POST" ${step.method === 'POST' ? 'selected' : ''}>POST</option>
-                  <option value="PUT" ${step.method === 'PUT' ? 'selected' : ''}>PUT</option>
-                  <option value="DELETE" ${step.method === 'DELETE' ? 'selected' : ''}>DELETE</option>
-                </select>
-                <input type="text" class="form-control macro-step-webhook-url" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" placeholder="https://api.example.com/status" value="${helpers.escapeHtml(step.url || '')}" style="flex: 1; font-size: 0.825rem; font-family: var(--font-mono);">
-              </div>
-              <div class="form-group" style="margin-bottom: 0;">
-                <input type="text" class="form-control macro-step-webhook-body" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" placeholder='Optional Body JSON (e.g. {"level": "\${widget.value}"})' value="${helpers.escapeHtml(step.body || step.payload || '')}" style="font-size: 0.825rem; font-family: var(--font-mono);">
-              </div>
-            `;
-          } else if (type === 'condition') {
-            stepFieldsHtml = `
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;">If Condition Expression <span style="color: #c084fc;">(Halts this automation if FALSE)</span></label>
-                <input type="text" class="form-control macro-step-condition-expr" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" placeholder="e.g. data.battery < 20 || widget.value >= 100" value="${helpers.escapeHtml(step.expression || step.expr || '')}" style="font-size: 0.825rem; font-family: var(--font-mono); color: #c084fc;">
-              </div>
-            `;
-          } else if (type === 'confirmation' || type === 'confirm') {
-            stepFieldsHtml = `
-              <div class="form-group" style="margin-bottom: 0;">
-                <label class="form-label" style="font-size: 0.75rem;">Confirmation Prompt Message <span style="color: #fbbf24;">(Native browser popup; halts if Cancelled)</span></label>
-                <input type="text" class="form-control macro-step-confirm-msg" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" placeholder='e.g. Are you sure you want to proceed?' value="${helpers.escapeHtml(step.message || step.msg || '')}" style="font-size: 0.825rem; font-family: var(--font-mono); color: #fbbf24;">
-              </div>
-            `;
-          }
-
-          return `
-            <div class="pipeline-step-item" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}">
-              <div class="pipeline-step-header">
-                <div class="pipeline-step-left">
-                  <span class="pipeline-drag-handle" title="Drag to reorder">⋮⋮</span>
-                  <span class="pipeline-step-type-badge badge-${type}">${type.replace('_', ' ')}</span>
-                </div>
-                <div class="pipeline-step-actions">
-                  <button type="button" class="pipeline-step-btn btn-remove-macro-step" data-macro-idx="${macroIdx}" data-step-idx="${stepIdx}" title="Remove Step">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                  </button>
-                </div>
-              </div>
-              ${stepFieldsHtml}
-            </div>
-          `;
-        }).join('');
-      }
+      // Render Actions List Tree
+      const stepsListHtml = actions.map((step, stepIdx) => renderActionBlockHtml(step, stepIdx, 'root', macroIdx)).join('');
 
       return `
         <div class="macro-rule-card ${isExpanded ? 'is-expanded' : ''} ${isEnabled ? '' : 'is-disabled'}" data-macro-idx="${macroIdx}">
@@ -2878,7 +3032,7 @@ const dashboardView = {
                 </div>
                 <div class="macro-rule-badges-row">
                   <span class="macro-trigger-badge badge-${triggerType}">${triggerType}</span>
-                  <span class="macro-actions-count">${actions.length} step${actions.length === 1 ? '' : 's'}</span>
+                  <span class="macro-actions-count">${actions.length} action${actions.length === 1 ? '' : 's'}</span>
                 </div>
               </div>
             </div>
@@ -2921,31 +3075,37 @@ const dashboardView = {
               </div>
             </div>
 
-            <!-- ACTIONS SECTION -->
+            <!-- ACTIONS SECTION WITH VISUAL BLOCKS -->
             <div class="macro-block-section">
               <div class="macro-block-title">⚙️ Actions (Executed Sequentially)</div>
-              <div class="pipeline-steps-list macro-steps-list" data-macro-idx="${macroIdx}">
+              <div class="nested-drop-zone macro-steps-list ${actions.length === 0 ? 'empty-zone' : ''}" data-macro-idx="${macroIdx}" data-slot-path="root">
                 ${stepsListHtml}
               </div>
 
-              <!-- ADD STEP TOOLBAR -->
+              <!-- ADD ACTION TOOLBAR -->
               <div class="macro-actions-toolbar">
-                <span class="macro-actions-toolbar-label">Add Step:</span>
+                <span class="macro-actions-toolbar-label">+ Add Action:</span>
                 <div class="macro-actions-buttons-grid">
                   <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="set_property">
                     <span class="step-btn-emoji">🏷️</span> Set Property
                   </button>
-                  <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="confirmation">
-                    <span class="step-btn-emoji">⚠️</span> Confirmation
-                  </button>
                   <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="webhook">
                     <span class="step-btn-emoji">🌐</span> Webhook
+                  </button>
+                  <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="if-else">
+                    <span class="step-btn-emoji">🔀</span> If / Else
+                  </button>
+                  <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="repeat">
+                    <span class="step-btn-emoji">🔁</span> Repeat Loop
+                  </button>
+                  <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="toast">
+                    <span class="step-btn-emoji">💬</span> Toast Notify
                   </button>
                   <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="delay">
                     <span class="step-btn-emoji">⏱️</span> Delay
                   </button>
-                  <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="condition">
-                    <span class="step-btn-emoji">🔀</span> Condition
+                  <button type="button" class="macro-add-step-btn btn-add-step" data-macro-idx="${macroIdx}" data-step-type="confirmation">
+                    <span class="step-btn-emoji">⚠️</span> Confirm
                   </button>
                 </div>
               </div>
@@ -2955,15 +3115,65 @@ const dashboardView = {
       `;
     }).join('');
 
-    // Attach Event Listeners
+    // Attach Event Listeners and Sortables
     this.bindAutomationsListEvents(container);
+  },
+
+  findBlockNodeById(actions, blockId) {
+    if (!Array.isArray(actions)) return null;
+    for (const item of actions) {
+      if (item && item.id === blockId) return item;
+      if (item && Array.isArray(item.thenBlocks)) {
+        const found = this.findBlockNodeById(item.thenBlocks, blockId);
+        if (found) return found;
+      }
+      if (item && Array.isArray(item.elseBlocks)) {
+        const found = this.findBlockNodeById(item.elseBlocks, blockId);
+        if (found) return found;
+      }
+      if (item && Array.isArray(item.bodyBlocks)) {
+        const found = this.findBlockNodeById(item.bodyBlocks, blockId);
+        if (found) return found;
+      }
+    }
+    return null;
+  },
+
+  deleteBlockByPath(macroIdx, parentPath, stepIdx) {
+    if (!this.activeCardConfig || !Array.isArray(this.activeCardConfig.automations)) return;
+    const macro = this.activeCardConfig.automations[macroIdx];
+    if (!macro) return;
+
+    if (parentPath === 'root') {
+      if (Array.isArray(macro.actions)) {
+        macro.actions.splice(stepIdx, 1);
+      }
+    } else {
+      const parts = parentPath.split('.');
+      let currentList = macro.actions;
+      for (let i = 1; i < parts.length; i += 2) {
+        const slotType = parts[i];
+        const targetId = parts[i + 1];
+        const parent = this.findBlockNodeById(currentList, targetId);
+        if (parent) {
+          if (slotType === 'then') currentList = parent.thenBlocks = parent.thenBlocks || [];
+          else if (slotType === 'else') currentList = parent.elseBlocks = parent.elseBlocks || [];
+          else if (slotType === 'body') currentList = parent.bodyBlocks = parent.bodyBlocks || [];
+        }
+      }
+      if (Array.isArray(currentList)) {
+        currentList.splice(stepIdx, 1);
+      }
+    }
+    this.renderAutomationsList();
+    this.updateYamlCodeEditor();
   },
 
   bindAutomationsListEvents(container) {
     if (!container || !this.activeCardConfig) return;
     const automations = this.activeCardConfig.automations;
 
-    // Header Expand / Collapse toggle (except when clicking input, checkbox or buttons)
+    // Header Expand / Collapse toggle
     container.querySelectorAll('.macro-rule-header').forEach(header => {
       header.addEventListener('click', (e) => {
         if (e.target.closest('.macro-name-input') || e.target.closest('.custom-checkbox-wrapper') || e.target.closest('.macro-toggle-wrapper') || e.target.closest('.macro-icon-btn')) {
@@ -3067,50 +3277,86 @@ const dashboardView = {
       });
     });
 
-    // Add Step toolbar buttons
+    // Add Step toolbar buttons (Root level)
     container.querySelectorAll('.btn-add-step').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
         const macroIdx = Number(btn.dataset.macroIdx);
         const stepType = btn.dataset.stepType;
-        this.addActionStepToMacro(macroIdx, stepType);
+        this.addActionStepToMacro(macroIdx, stepType, 'root');
       });
     });
 
-    // Remove Step button
-    container.querySelectorAll('.btn-remove-macro-step').forEach(btn => {
+    // Add Step buttons inside nested branches (Then, Else, Body)
+    container.querySelectorAll('.btn-branch-add-action').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         const macroIdx = Number(btn.dataset.macroIdx);
-        const stepIdx = Number(btn.dataset.stepIdx);
-        if (automations[macroIdx] && Array.isArray(automations[macroIdx].actions)) {
-          automations[macroIdx].actions.splice(stepIdx, 1);
-          this.renderAutomationsList();
-          this.updateYamlCodeEditor();
-        }
+        const targetPath = btn.dataset.targetPath;
+        const actionType = btn.dataset.actionType;
+        this.addActionStepToMacro(macroIdx, actionType, targetPath);
       });
     });
 
-    // Step input change handlers
-    container.querySelectorAll('.macro-step-delay-sec').forEach(input => {
+    // Remove Block button
+    container.querySelectorAll('.btn-remove-block').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const macroIdx = Number(btn.dataset.macroIdx);
+        const parentPath = btn.dataset.parentPath || 'root';
+        const stepIdx = Number(btn.dataset.stepIdx);
+        this.deleteBlockByPath(macroIdx, parentPath, stepIdx);
+      });
+    });
+
+    // Block Input Event Listeners
+    container.querySelectorAll('.block-input-cond').forEach(input => {
       input.addEventListener('input', (e) => {
         const macroIdx = Number(input.dataset.macroIdx);
-        const stepIdx = Number(input.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].seconds = parseFloat(e.target.value) || 0.5;
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.condition = e.target.value;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    container.querySelectorAll('.macro-step-prop-select').forEach(sel => {
+    container.querySelectorAll('.block-input-count').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const macroIdx = Number(input.dataset.macroIdx);
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.count = parseInt(e.target.value, 10) || 1;
+          this.updateYamlCodeEditor();
+        }
+      });
+    });
+
+    container.querySelectorAll('.block-step-delay-sec').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const macroIdx = Number(input.dataset.macroIdx);
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.seconds = parseFloat(e.target.value) || 0.5;
+          this.updateYamlCodeEditor();
+        }
+      });
+    });
+
+    container.querySelectorAll('.block-step-prop-select').forEach(sel => {
       sel.addEventListener('change', (e) => {
         const macroIdx = Number(sel.dataset.macroIdx);
-        const stepIdx = Number(sel.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].property = e.target.value;
-          if (e.target.value === 'color' && (!automations[macroIdx].actions[stepIdx].value || automations[macroIdx].actions[stepIdx].value === '""')) {
-            automations[macroIdx].actions[stepIdx].value = '"#38bdf8"';
+        const blockId = sel.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.property = e.target.value;
+          if (e.target.value === 'color' && (!block.value || block.value === '""')) {
+            block.value = '"#38bdf8"';
           }
           this.renderAutomationsList();
           this.updateYamlCodeEditor();
@@ -3118,89 +3364,127 @@ const dashboardView = {
       });
     });
 
-    container.querySelectorAll('.macro-step-color-picker').forEach(picker => {
+    container.querySelectorAll('.block-step-color-picker').forEach(picker => {
       picker.addEventListener('input', (e) => {
         const macroIdx = Number(picker.dataset.macroIdx);
-        const stepIdx = Number(picker.dataset.stepIdx);
+        const blockId = picker.dataset.blockId;
         const hexVal = e.target.value;
         const formattedVal = `"${hexVal}"`;
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].value = formattedVal;
-          const valInput = container.querySelector(`.macro-step-prop-value[data-macro-idx="${macroIdx}"][data-step-idx="${stepIdx}"]`);
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.value = formattedVal;
+          const valInput = container.querySelector(`.block-step-prop-value[data-block-id="${blockId}"]`);
           if (valInput) valInput.value = formattedVal;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    container.querySelectorAll('.macro-step-prop-value').forEach(input => {
+    container.querySelectorAll('.block-step-prop-value').forEach(input => {
       input.addEventListener('input', (e) => {
         const macroIdx = Number(input.dataset.macroIdx);
-        const stepIdx = Number(input.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].value = e.target.value;
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.value = e.target.value;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    container.querySelectorAll('.macro-step-webhook-method').forEach(sel => {
+    container.querySelectorAll('.block-step-webhook-method').forEach(sel => {
       sel.addEventListener('change', (e) => {
         const macroIdx = Number(sel.dataset.macroIdx);
-        const stepIdx = Number(sel.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].method = e.target.value;
+        const blockId = sel.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.method = e.target.value;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    container.querySelectorAll('.macro-step-webhook-url').forEach(input => {
+    container.querySelectorAll('.block-step-webhook-url').forEach(input => {
       input.addEventListener('input', (e) => {
         const macroIdx = Number(input.dataset.macroIdx);
-        const stepIdx = Number(input.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].url = e.target.value;
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.url = e.target.value;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    container.querySelectorAll('.macro-step-webhook-body').forEach(input => {
+    container.querySelectorAll('.block-step-webhook-body').forEach(input => {
       input.addEventListener('input', (e) => {
         const macroIdx = Number(input.dataset.macroIdx);
-        const stepIdx = Number(input.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].body = e.target.value;
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.body = e.target.value;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    container.querySelectorAll('.macro-step-condition-expr').forEach(input => {
+    container.querySelectorAll('.block-step-toast-msg').forEach(input => {
       input.addEventListener('input', (e) => {
         const macroIdx = Number(input.dataset.macroIdx);
-        const stepIdx = Number(input.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].expression = e.target.value;
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.message = e.target.value;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    container.querySelectorAll('.macro-step-confirm-msg').forEach(input => {
+    container.querySelectorAll('.block-step-condition-expr').forEach(input => {
       input.addEventListener('input', (e) => {
         const macroIdx = Number(input.dataset.macroIdx);
-        const stepIdx = Number(input.dataset.stepIdx);
-        if (automations[macroIdx]?.actions?.[stepIdx]) {
-          automations[macroIdx].actions[stepIdx].message = e.target.value;
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.expression = e.target.value;
           this.updateYamlCodeEditor();
         }
       });
     });
 
-    // Initialize Sortable for each macro's steps
+    container.querySelectorAll('.block-step-confirm-msg').forEach(input => {
+      input.addEventListener('input', (e) => {
+        const macroIdx = Number(input.dataset.macroIdx);
+        const blockId = input.dataset.blockId;
+        const block = this.findBlockNodeById(automations[macroIdx]?.actions, blockId);
+        if (block) {
+          block.message = e.target.value;
+          this.updateYamlCodeEditor();
+        }
+      });
+    });
+
+    // Initialize Sortable for all nested drop-zones
     this.initMacroStepsSortables(container);
+  },
+
+  getAllBlocksMap(actions, map = new Map()) {
+    if (!Array.isArray(actions)) return map;
+    for (const item of actions) {
+      if (item && item.id) {
+        map.set(item.id, { ...item });
+      }
+      if (item && Array.isArray(item.thenBlocks)) {
+        this.getAllBlocksMap(item.thenBlocks, map);
+      }
+      if (item && Array.isArray(item.elseBlocks)) {
+        this.getAllBlocksMap(item.elseBlocks, map);
+      }
+      if (item && Array.isArray(item.bodyBlocks)) {
+        this.getAllBlocksMap(item.bodyBlocks, map);
+      }
+    }
+    return map;
   },
 
   initMacroStepsSortables(container) {
@@ -3212,80 +3496,124 @@ const dashboardView = {
     });
     this.macroSortableInstances = [];
 
-    container.querySelectorAll('.macro-steps-list').forEach(listEl => {
-      const macroIdx = Number(listEl.dataset.macroIdx);
-      const inst = new Sortable(listEl, {
-        handle: '.pipeline-drag-handle',
-        animation: 150,
-        ghostClass: 'sortable-ghost',
-        chosenClass: 'sortable-chosen',
-        onEnd: (evt) => {
-          if (evt.oldIndex === evt.newIndex) return;
-          const acts = this.activeCardConfig?.automations?.[macroIdx]?.actions;
-          if (acts && acts.length > 0) {
-            const movedItem = acts.splice(evt.oldIndex, 1)[0];
-            acts.splice(evt.newIndex, 0, movedItem);
-            this.renderAutomationsList();
-            this.updateYamlCodeEditor();
+    const modalBody = document.querySelector('#modal-card-config .modal-body');
+
+    container.querySelectorAll('.nested-drop-zone').forEach(dropZone => {
+      const inst = new Sortable(dropZone, {
+        group: {
+          name: 'automation-blocks',
+          pull: true,
+          put: true
+        },
+        handle: '.block-drag-handle',
+        draggable: '.action-block-card, .flow-container-card',
+        animation: 180,
+        easing: 'cubic-bezier(0.2, 0, 0, 1)',
+        ghostClass: 'block-sortable-ghost',
+        chosenClass: 'block-sortable-chosen',
+        dragClass: 'block-sortable-drag',
+        fallbackOnBody: true,
+        swapThreshold: 0.65,
+        invertSwap: true,
+        invertedSwapThreshold: 0.65,
+        emptyInsertThreshold: 35,
+        scroll: true,
+        scrollSensitivity: 90,
+        scrollSpeed: 20,
+        bubbleScroll: true,
+        onMove: (evt) => {
+          if (modalBody && evt.originalEvent) {
+            const rect = modalBody.getBoundingClientRect();
+            const y = evt.originalEvent.clientY || (evt.originalEvent.touches && evt.originalEvent.touches[0]?.clientY);
+            if (y !== undefined) {
+              if (y < rect.top + 70) {
+                modalBody.scrollTop -= 12;
+              } else if (y > rect.bottom - 70) {
+                modalBody.scrollTop += 12;
+              }
+            }
           }
+        },
+        onEnd: (evt) => {
+          if (evt.oldIndex === evt.newIndex && evt.from === evt.to) return;
+          this.syncBlockTreeFromDom(container);
+          this.renderAutomationsList();
+          this.updateYamlCodeEditor();
         }
       });
       this.macroSortableInstances.push(inst);
     });
   },
 
-  addAutomationMacro() {
-    if (!this.activeCardConfig) return;
-    if (!Array.isArray(this.activeCardConfig.automations)) {
-      this.activeCardConfig.automations = [];
-    }
-
-    const cardType = this.activeIsBadge ? 'badge' : this.normalizeCardType(this.activeCardConfig.type);
-    const schema = this.cardSchemas[cardType] || this.cardSchemas.button;
-    const defaultTrigger = (schema.triggers && schema.triggers[0]) || 'onTap';
-
-    const newMacro = {
-      id: `auto_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      name: `Automation #${this.activeCardConfig.automations.length + 1}`,
-      enabled: true,
-      isExpanded: true,
-      trigger: {
-        type: defaultTrigger,
-        infoKey: '',
-        url: '',
-        interval: 1.0
-      },
-      actions: []
-    };
-
-    this.activeCardConfig.automations.push(newMacro);
-    this.renderAutomationsList();
-    this.updateYamlCodeEditor();
-  },
-
-  duplicateAutomationMacro(idx) {
+  syncBlockTreeFromDom(container) {
     if (!this.activeCardConfig || !Array.isArray(this.activeCardConfig.automations)) return;
-    const target = this.activeCardConfig.automations[idx];
-    if (!target) return;
 
-    const clone = JSON.parse(JSON.stringify(target));
-    clone.id = `auto_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
-    clone.name = `${target.name || 'Automation'} (Copy)`;
-    clone.isExpanded = true;
+    this.activeCardConfig.automations.forEach((macro, macroIdx) => {
+      const blockMap = this.getAllBlocksMap(macro.actions);
 
-    this.activeCardConfig.automations.splice(idx + 1, 0, clone);
-    this.renderAutomationsList();
-    this.updateYamlCodeEditor();
+      const extractBlocksFromSlot = (slotEl) => {
+        if (!slotEl) return [];
+        const children = Array.from(slotEl.children).filter(c => c.dataset.blockId);
+        return children.map(childEl => {
+          const blockId = childEl.dataset.blockId;
+          const block = blockMap.get(blockId) || { id: blockId, type: 'set_property' };
+
+          // Pull fresh DOM values from inputs if user modified them
+          const condInput = childEl.querySelector(`.block-input-cond[data-block-id="${blockId}"]`);
+          if (condInput) block.condition = condInput.value;
+
+          const countInput = childEl.querySelector(`.block-input-count[data-block-id="${blockId}"]`);
+          if (countInput) block.count = parseInt(countInput.value, 10) || 1;
+
+          const propSelect = childEl.querySelector(`.block-step-prop-select[data-block-id="${blockId}"]`);
+          if (propSelect) block.property = propSelect.value;
+
+          const propVal = childEl.querySelector(`.block-step-prop-value[data-block-id="${blockId}"]`);
+          if (propVal) block.value = propVal.value;
+
+          const methodSel = childEl.querySelector(`.block-step-webhook-method[data-block-id="${blockId}"]`);
+          if (methodSel) block.method = methodSel.value;
+
+          const urlInput = childEl.querySelector(`.block-step-webhook-url[data-block-id="${blockId}"]`);
+          if (urlInput) block.url = urlInput.value;
+
+          const bodyInput = childEl.querySelector(`.block-step-webhook-body[data-block-id="${blockId}"]`);
+          if (bodyInput) block.body = bodyInput.value;
+
+          const toastInput = childEl.querySelector(`.block-step-toast-msg[data-block-id="${blockId}"]`);
+          if (toastInput) block.message = toastInput.value;
+
+          const delayInput = childEl.querySelector(`.block-step-delay-sec[data-block-id="${blockId}"]`);
+          if (delayInput) block.seconds = parseFloat(delayInput.value) || 0.5;
+
+          const condExpr = childEl.querySelector(`.block-step-condition-expr[data-block-id="${blockId}"]`);
+          if (condExpr) block.expression = condExpr.value;
+
+          const confirmMsg = childEl.querySelector(`.block-step-confirm-msg[data-block-id="${blockId}"]`);
+          if (confirmMsg) block.message = confirmMsg.value;
+
+          if (block.type === 'if-else' || block.type === 'if' || block.type === 'condition_block') {
+            const thenSlot = childEl.querySelector('.slot-then');
+            const elseSlot = childEl.querySelector('.slot-else');
+            block.thenBlocks = thenSlot ? extractBlocksFromSlot(thenSlot) : [];
+            block.elseBlocks = elseSlot ? extractBlocksFromSlot(elseSlot) : [];
+          } else if (block.type === 'repeat' || block.type === 'loop') {
+            const bodySlot = childEl.querySelector('.slot-body');
+            block.bodyBlocks = bodySlot ? extractBlocksFromSlot(bodySlot) : [];
+          }
+
+          return block;
+        }).filter(Boolean);
+      };
+
+      const rootSlot = container.querySelector(`.nested-drop-zone[data-macro-idx="${macroIdx}"][data-slot-path="root"]`);
+      if (rootSlot) {
+        macro.actions = extractBlocksFromSlot(rootSlot);
+      }
+    });
   },
 
-  deleteAutomationMacro(idx) {
-    if (!this.activeCardConfig || !Array.isArray(this.activeCardConfig.automations)) return;
-    this.activeCardConfig.automations.splice(idx, 1);
-    this.renderAutomationsList();
-    this.updateYamlCodeEditor();
-  },
-
-  addActionStepToMacro(macroIdx, actionType = 'set_property') {
+  addActionStepToMacro(macroIdx, actionType = 'set_property', targetPath = 'root') {
     if (!this.activeCardConfig || !Array.isArray(this.activeCardConfig.automations)) return;
     const macro = this.activeCardConfig.automations[macroIdx];
     if (!macro) return;
@@ -3294,25 +3622,65 @@ const dashboardView = {
     const cardType = this.activeIsBadge ? 'badge' : this.normalizeCardType(this.activeCardConfig.type);
     const schema = this.cardSchemas[cardType] || this.cardSchemas.button;
     const defaultProp = (schema.properties && schema.properties[0]) || 'label';
+    const newId = `blk_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`;
 
     let newStep = null;
-    if (actionType === 'set_property') {
-      newStep = { type: 'set_property', property: defaultProp, value: '""' };
+    if (actionType === 'set_property' || actionType === 'set-prop') {
+      newStep = { id: newId, type: 'set_property', property: defaultProp, value: '""' };
     } else if (actionType === 'delay') {
-      newStep = { type: 'delay', seconds: 0.5 };
+      newStep = { id: newId, type: 'delay', seconds: 0.5 };
     } else if (actionType === 'webhook') {
-      newStep = { type: 'webhook', method: 'GET', url: 'https://api.example.com/status', body: '' };
+      newStep = { id: newId, type: 'webhook', method: 'GET', url: 'https://api.example.com/status', body: '' };
+    } else if (actionType === 'if-else' || actionType === 'if') {
+      newStep = {
+        id: newId,
+        type: 'if-else',
+        condition: 'data.value !== undefined',
+        thenBlocks: [{ id: `${newId}_t1`, type: 'set_property', property: defaultProp, value: '""' }],
+        elseBlocks: []
+      };
+    } else if (actionType === 'repeat' || actionType === 'loop') {
+      newStep = {
+        id: newId,
+        type: 'repeat',
+        count: 2,
+        bodyBlocks: [{ id: `${newId}_b1`, type: 'delay', seconds: 0.5 }]
+      };
+    } else if (actionType === 'toast' || actionType === 'notification') {
+      newStep = { id: newId, type: 'toast', message: 'Action executed successfully!' };
     } else if (actionType === 'condition') {
-      newStep = { type: 'condition', expression: 'data.battery !== undefined' };
+      newStep = { id: newId, type: 'condition', expression: 'data.battery !== undefined' };
     } else if (actionType === 'confirmation' || actionType === 'confirm') {
-      newStep = { type: 'confirmation', message: 'Are you sure you want to proceed?' };
+      newStep = { id: newId, type: 'confirmation', message: 'Are you sure you want to proceed?' };
     }
 
-    if (newStep) {
+    if (!newStep) return;
+
+    if (!targetPath || targetPath === 'root') {
       macro.actions.push(newStep);
-      this.renderAutomationsList();
-      this.updateYamlCodeEditor();
+    } else {
+      const parts = targetPath.split('.');
+      const slotType = parts[parts.length - 2];
+      const targetBlockId = parts[parts.length - 1];
+      const parentNode = this.findBlockNodeById(macro.actions, targetBlockId);
+      if (parentNode) {
+        if (slotType === 'then') {
+          if (!Array.isArray(parentNode.thenBlocks)) parentNode.thenBlocks = [];
+          parentNode.thenBlocks.push(newStep);
+        } else if (slotType === 'else') {
+          if (!Array.isArray(parentNode.elseBlocks)) parentNode.elseBlocks = [];
+          parentNode.elseBlocks.push(newStep);
+        } else if (slotType === 'body') {
+          if (!Array.isArray(parentNode.bodyBlocks)) parentNode.bodyBlocks = [];
+          parentNode.bodyBlocks.push(newStep);
+        }
+      } else {
+        macro.actions.push(newStep);
+      }
     }
+
+    this.renderAutomationsList();
+    this.updateYamlCodeEditor();
   },
 
   update12x4MatrixGrid() {
@@ -3375,6 +3743,14 @@ const dashboardView = {
   async handleSaveCardConfig() {
     const current = this.getActiveDashboard();
     if (!current || !this.activeCardConfig) return;
+
+    // Sync latest automation rules from Blockly workspace if open
+    if (window.dashboardBlocklyService && dashboardBlocklyService.workspace) {
+      const exportedRules = dashboardBlocklyService.exportRulesToJson();
+      if (Array.isArray(exportedRules)) {
+        this.activeCardConfig.automations = exportedRules;
+      }
+    }
 
     if (this.activeIsBadge) {
       if (!current.badges) current.badges = [];

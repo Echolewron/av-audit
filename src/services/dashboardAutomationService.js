@@ -230,83 +230,123 @@ class DashboardAutomationService {
       data: normalizedData
     };
 
-    for (const rule of matchingRules) {
-      const actions = Array.isArray(rule.actions) ? rule.actions : [];
+    // Recursive action execution supporting nested IF/ELSE and REPEAT loops
+    const executeActionNode = async (step, ctx) => {
+      if (!step) return true;
+      const actionType = step.type || step.action;
 
-      for (let i = 0; i < actions.length; i++) {
-        const step = actions[i];
-        const actionType = step.type || step.action;
-
-        if (actionType === 'delay') {
-          const sec = parseFloat(step.seconds !== undefined ? step.seconds : (step.ms ? step.ms / 1000 : 1)) || 0.5;
-          await new Promise(r => setTimeout(r, sec * 1000));
-        } else if (actionType === 'set_property') {
-          const prop = step.property || step.key;
-          const rawVal = step.value;
-          if (prop) {
-            let evaluatedVal = this.evalExpression(rawVal, localContext);
-            if (prop === 'color' || prop === 'accentColor') {
-              evaluatedVal = this.normalizeColorValue(evaluatedVal);
-            }
-            if (JSON.stringify(widget[prop]) !== JSON.stringify(evaluatedVal)) {
-              widget[prop] = evaluatedVal;
-              hasChanged = true;
-            }
-            localContext.widget[prop] = evaluatedVal;
-
-            // If graph card, append data
-            if (prop === 'new_data' || (prop === 'value' && widget.type === 'graph')) {
-              if (!Array.isArray(widget.data)) widget.data = [];
-              const numVal = parseFloat(evaluatedVal);
-              if (!isNaN(numVal)) {
-                widget.data.push(numVal);
-                const maxLen = Number(widget.graph_length) || 20;
-                if (widget.data.length > maxLen) {
-                  widget.data = widget.data.slice(-maxLen);
-                }
-                hasChanged = true;
-              }
-            }
-          }
-        } else if (actionType === 'webhook') {
-          const evaluatedUrl = this.evalTemplateString(step.url || '', localContext);
-          const targetUrl = resolveUrl(evaluatedUrl);
-          const evaluatedBody = this.evalTemplateString(step.body || step.payload || '', localContext);
-          const method = (step.method || 'GET').toUpperCase();
-
-          try {
-            const fetchOptions = {
-              method,
-              headers: { 'Content-Type': 'application/json' },
-              signal: AbortSignal.timeout(10000)
-            };
-            if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && evaluatedBody) {
-              fetchOptions.body = evaluatedBody;
-            }
-
-            const res = await fetch(targetUrl, fetchOptions);
-            const text = await res.text();
-            let parsed = null;
-            try { parsed = JSON.parse(text); } catch (e) { parsed = text; }
-
-            const webhookResData = this.normalizePayload(typeof parsed === 'object' ? parsed : { response: parsed });
-            localContext.data = Object.assign({}, localContext.data, webhookResData);
-          } catch (err) {
-            console.error(`[Server Automation] Webhook failed for widget ${widgetId}:`, err.message);
-          }
-        } else if (actionType === 'condition') {
-          const condExpr = step.expression || step.expr || 'true';
-          const passes = Boolean(this.evalExpression(condExpr, localContext));
-          if (!passes) {
-            // Cleanly halt this automation sequence when condition fails
-            break;
-          }
-        } else if (actionType === 'confirmation' || actionType === 'confirm') {
-          // If triggered server-side (e.g. polling or background), check if pre-confirmed or pass
-          if (step.confirmed === false) {
-            break;
+      if (actionType === 'if-else' || actionType === 'if' || actionType === 'condition_block') {
+        const condExpr = step.condition || step.expression || step.expr || 'true';
+        const passes = Boolean(this.evalExpression(condExpr, ctx));
+        const branch = passes ? (step.thenBlocks || step.then || []) : (step.elseBlocks || step.else || []);
+        
+        for (const childStep of branch) {
+          const shouldContinue = await executeActionNode(childStep, ctx);
+          if (!shouldContinue) return false;
+        }
+        return true;
+      } else if (actionType === 'repeat' || actionType === 'loop') {
+        const count = Math.min(100, Math.max(1, parseInt(step.count || step.times || 1, 10) || 1));
+        const body = step.bodyBlocks || step.body || step.actions || [];
+        for (let iter = 0; iter < count; iter++) {
+          ctx.iteration = iter + 1;
+          for (const childStep of body) {
+            const shouldContinue = await executeActionNode(childStep, ctx);
+            if (!shouldContinue) return false;
           }
         }
+        return true;
+      } else if (actionType === 'delay') {
+        const sec = parseFloat(step.seconds !== undefined ? step.seconds : (step.ms ? step.ms / 1000 : 1)) || 0.5;
+        await new Promise(r => setTimeout(r, sec * 1000));
+        return true;
+      } else if (actionType === 'set_property' || actionType === 'set-prop') {
+        const prop = step.property || step.prop || step.key;
+        const rawVal = step.value;
+        if (prop) {
+          let evaluatedVal = this.evalExpression(rawVal, ctx);
+          if (prop === 'color' || prop === 'accentColor') {
+            evaluatedVal = this.normalizeColorValue(evaluatedVal);
+          }
+          if (JSON.stringify(widget[prop]) !== JSON.stringify(evaluatedVal)) {
+            widget[prop] = evaluatedVal;
+            hasChanged = true;
+          }
+          ctx.widget[prop] = evaluatedVal;
+
+          // If graph card, append data
+          if (prop === 'new_data' || (prop === 'value' && widget.type === 'graph')) {
+            if (!Array.isArray(widget.data)) widget.data = [];
+            const numVal = parseFloat(evaluatedVal);
+            if (!isNaN(numVal)) {
+              widget.data.push(numVal);
+              const maxLen = Number(widget.graph_length) || 20;
+              if (widget.data.length > maxLen) {
+                widget.data = widget.data.slice(-maxLen);
+              }
+              hasChanged = true;
+            }
+          }
+        }
+        return true;
+      } else if (actionType === 'webhook') {
+        const evaluatedUrl = this.evalTemplateString(step.url || '', ctx);
+        const targetUrl = resolveUrl(evaluatedUrl);
+        const evaluatedBody = this.evalTemplateString(step.body || step.payload || '', ctx);
+        const method = (step.method || 'GET').toUpperCase();
+
+        try {
+          const fetchOptions = {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(10000)
+          };
+          if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(method) && evaluatedBody) {
+            fetchOptions.body = evaluatedBody;
+          }
+
+          const res = await fetch(targetUrl, fetchOptions);
+          const text = await res.text();
+          let parsed = null;
+          try { parsed = JSON.parse(text); } catch (e) { parsed = text; }
+
+          const webhookResData = this.normalizePayload(typeof parsed === 'object' ? parsed : { response: parsed });
+          ctx.data = Object.assign({}, ctx.data, webhookResData);
+        } catch (err) {
+          console.error(`[Server Automation] Webhook failed for widget ${widgetId}:`, err.message);
+        }
+        return true;
+      } else if (actionType === 'condition') {
+        const condExpr = step.expression || step.expr || 'true';
+        const passes = Boolean(this.evalExpression(condExpr, ctx));
+        if (!passes) {
+          return false; // Stop sequence
+        }
+        return true;
+      } else if (actionType === 'confirmation' || actionType === 'confirm') {
+        if (step.confirmed === false) {
+          return false;
+        }
+        return true;
+      } else if (actionType === 'toast' || actionType === 'notification') {
+        const msg = this.evalTemplateString(step.message || step.msg || '', ctx);
+        if (this.io && msg) {
+          this.io.emit('dashboard_notification', {
+            dashboardId: dashboard.id,
+            widgetId: widget.id,
+            message: msg
+          });
+        }
+        return true;
+      }
+      return true;
+    };
+
+    for (const rule of matchingRules) {
+      const actions = Array.isArray(rule.actions) ? rule.actions : [];
+      for (let i = 0; i < actions.length; i++) {
+        const shouldContinue = await executeActionNode(actions[i], localContext);
+        if (!shouldContinue) break;
       }
     }
 

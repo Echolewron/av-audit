@@ -1772,39 +1772,31 @@
             </div>
           </div>
 
-          <!-- TAB 2: ⚡ AUTOMATIONS (MACRODROID-STYLE MULTI-RULE AUTOMATIONS) -->
+          <!-- TAB 2: ⚡ AUTOMATIONS (GOOGLE BLOCKLY VISUAL LOGIC BUILDER) -->
           <div class="lovelace-tab-pane" id="tab-pane-automation">
             <div class="automations-top-bar">
               <div class="automations-top-info">
-                <div class="automations-top-title">Automations & Action Pipelines</div>
-                <div class="automations-top-desc">Create rules that trigger on user taps, toggle changes, values,
-                  <code>/info</code> channels, or polling intervals.
+                <div class="automations-top-title">Visual Logic Block Automations</div>
+                <div class="automations-top-desc">Drag blocks from the category toolbox (Triggers, Logic, Loops, Properties, Webhooks, Delays, Toasts) to build rules.
                 </div>
               </div>
-              <button type="button" class="btn btn-primary btn-sm" id="btn-add-macro-rule">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add Automation
-              </button>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-blockly-center" title="Center View">
+                  🎯 Center View
+                </button>
+                <button type="button" class="btn btn-primary btn-sm" id="btn-add-blockly-rule" title="Add New Trigger Block">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                  </svg>
+                  Add Rule Block
+                </button>
+              </div>
             </div>
 
-            <!-- List of Macro / Automation Cards -->
-            <div class="automations-list-container" id="card-automations-list">
-              <!-- Dynamically populated automation rule cards -->
-            </div>
-
-            <!-- Bottom Add Button -->
-            <div class="automations-bottom-actions" id="automations-bottom-actions"
-              style="margin-top: 10px; margin-bottom: 15px; display: flex; justify-content: center;">
-              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-macro-rule-bottom">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                </svg>
-                Add Another Automation
-              </button>
+            <!-- Blockly Canvas Container -->
+            <div class="blockly-workspace-wrapper" style="position: relative; width: 100%; height: 480px; min-height: 480px; border-radius: 8px; overflow: hidden; border: 1px solid var(--ha-border); background: #11151f; margin-bottom: 12px;">
+              <div id="blockly-automation-container" style="position: absolute; width: 100%; height: 100%;"></div>
             </div>
 
             <!-- Variable Interpolation Cheat Sheet -->
@@ -2232,6 +2224,8 @@
   <!-- Scripts -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/libs/sortable.min.js?v=3.7"></script>
+  <script src="/js/libs/blockly/blockly.min.js"></script>
+  <script src="/js/services/dashboardBlocklyService.js?v=1.0"></script>
   <script src="/js/api.js?v=4.0"></script>
   <script src="/js/socket.js?v=4.0"></script>
   <script src="/js/utils/helpers.js?v=3.9"></script>

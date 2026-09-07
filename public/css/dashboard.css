@@ -1288,21 +1288,41 @@ body.editing-mode .section-edit-tab {
 .tile-main-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  width: 100%;
 }
 
 .tile-icon-circle {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   border-radius: 50%;
-  background: #232a3b;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   flex-shrink: 0;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   color: var(--ha-text-secondary);
+}
+
+/* Home Assistant Active Tile State (smooth solid color transition without glow) */
+.ha-card.state-active,
+.ha-card.card-active-on {
+  border-color: var(--card-accent, #38bdf8) !important;
+  background: #171f2e !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.ha-card.state-active .tile-icon-circle,
+.ha-card.card-active-on .tile-icon-circle {
+  background: var(--card-accent, #38bdf8) !important;
+  color: #ffffff !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .tile-icon-circle.active-amber {
@@ -1333,75 +1353,40 @@ body.editing-mode .section-edit-tab {
 .tile-info {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  justify-content: center;
+  gap: 3px;
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .tile-name {
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   color: var(--ha-text-primary);
-  margin-bottom: 2px;
+  line-height: 1.3;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .tile-state {
-  font-size: 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
   color: var(--ha-text-secondary);
+  line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  transition: color 0.28s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* --- Control 1: Lovelace Toggle Switch --- */
-.ha-toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 44px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-.ha-toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.ha-toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  inset: 0;
-  background-color: #232a3b;
-  border: 1px solid var(--ha-border-subtle);
-  transition: .25s;
-  border-radius: 24px;
-}
-
-.ha-toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 3px;
-  bottom: 3px;
-  background-color: #94a3b8;
-  transition: .25s;
-  border-radius: 50%;
-}
-
-input:checked+.ha-toggle-slider,
-.ha-toggle-switch.checked .ha-toggle-slider {
-  background-color: var(--ha-blue-dark);
-  border-color: var(--ha-blue);
-}
-
-input:checked+.ha-toggle-slider:before,
-.ha-toggle-switch.checked .ha-toggle-slider:before {
-  transform: translateX(20px);
-  background-color: #ffffff;
+.ha-card.state-active .tile-state,
+.ha-card.card-active-on .tile-state {
+  color: var(--card-accent, #38bdf8);
+  font-weight: 600;
 }
 
 /* --- Control 2: Linear Progress Bar --- */
@@ -2720,6 +2705,263 @@ body.editing-mode .add-section-container {
   .step-value-col {
     width: 100%;
   }
+}
+
+/* ================= VISUAL AUTOMATION FLOW CARDS & NESTED BRANCH STYLES ================= */
+.automation-flow-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.action-block-card {
+  background: #151a24;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left: 4px solid var(--b-color, #38bdf8);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  position: relative;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.action-block-card:hover {
+  background: #1a212e;
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.block-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.block-drag-handle {
+  color: var(--ha-text-secondary);
+  cursor: grab;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 2px 4px;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.block-drag-handle:hover {
+  opacity: 1;
+  color: var(--ha-text-primary);
+}
+
+.block-drag-handle:active {
+  cursor: grabbing;
+}
+
+.block-type-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  color: #ffffff;
+  background: var(--b-color, #38bdf8);
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.block-fields-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  flex-wrap: wrap;
+}
+
+.block-webhook-body-area {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.block-webhook-body-area textarea {
+  width: 100%;
+  min-height: 58px;
+  background: #0d1117;
+  border: 1px solid var(--ha-border-subtle);
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-family: var(--font-mono);
+  font-size: 0.775rem;
+  padding: 6px 8px;
+  resize: vertical;
+}
+
+/* Modern Conditional & Loop Flow Cards */
+.flow-container-card {
+  background: #121620;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.flow-container-card:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.flow-header-bar {
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.825rem;
+  font-weight: 600;
+}
+
+.flow-header-bar input,
+.flow-header-bar select {
+  background: #0d1117;
+  border: 1px solid var(--ha-border-subtle);
+  color: var(--ha-text-primary);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  outline: none;
+}
+
+.flow-header-bar input:focus {
+  border-color: #38bdf8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+.flow-branch {
+  padding: 8px 10px 10px 14px;
+  position: relative;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.flow-branch + .flow-branch {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.flow-branch-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.flow-branch-label {
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.flow-branch-then .flow-branch-label {
+  color: #c084fc;
+}
+
+.flow-branch-else .flow-branch-label {
+  color: #94a3b8;
+}
+
+.nested-drop-zone {
+  min-height: 52px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 3px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 10px;
+  margin-left: 4px;
+  border-radius: 6px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.nested-drop-zone.empty-zone::before {
+  content: 'Drop actions here or click + below';
+  color: var(--ha-text-secondary);
+  font-size: 0.775rem;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border: 1.5px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+/* Branch inline action button dropdown / bar */
+.branch-actions-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  margin-left: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-branch-add-action {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px dashed rgba(255, 255, 255, 0.15);
+  color: var(--ha-text-secondary);
+  font-family: inherit;
+  font-size: 0.725rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-branch-add-action:hover {
+  background: rgba(56, 189, 248, 0.1);
+  color: #38bdf8;
+  border-color: #38bdf8;
+}
+
+/* SortableJS Ghost & Drag Classes */
+.block-sortable-ghost {
+  opacity: 0.35 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  border: 2px dashed #38bdf8 !important;
+}
+
+.block-sortable-chosen {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 0 2px #38bdf8 !important;
+}
+
+.block-sortable-drag {
+  opacity: 1 !important;
+  transform: scale(1.02) !important;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 0 2px #38bdf8 !important;
+  z-index: 99999 !important;
 }
 
 /* ================= ALERT WIDGET & FLASHING WARNING SYSTEM (DISCRETE ON/OFF) ================= */
