@@ -1960,7 +1960,7 @@
           <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
             <div class="form-group">
               <label class="form-label" for="sermon-cfg-sender-email">Sender Gmail Address</label>
-              <input type="email" id="sermon-cfg-sender-email" class="form-control" placeholder="yourchurch@gmail.com"
+              <input type="email" id="sermon-cfg-sender-email" class="form-control" placeholder="sender@gmail.com"
                 required autocomplete="off">
               <span class="form-hint">Gmail account used to send recordings</span>
             </div>
@@ -1991,8 +1991,8 @@
 
           <div class="form-group" style="margin-bottom: 1rem;">
             <label class="form-label" for="sermon-cfg-receiver-email">Recipient Email Address(es)</label>
-            <input type="text" id="sermon-cfg-receiver-email" class="form-control"
-              placeholder="pastor@church.org, media@church.org" required autocomplete="off">
+            <input type="text" id="sermon-cfg-receiver-email" class="form-control" placeholder="receiver@gmail.com"
+              required autocomplete="off">
             <span class="form-hint">Separate multiple email addresses with commas</span>
           </div>
 
@@ -2025,6 +2025,50 @@
               <span class="form-hint">Target size for Gmail attachment limit (~25MB max)</span>
             </div>
           </div>
+
+          <!-- Advanced Settings Section -->
+          <details class="sermon-advanced-section" id="sermon-advanced-details">
+            <summary>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" class="details-chevron">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+              <span>Advanced Settings</span>
+            </summary>
+
+            <div class="sermon-advanced-content">
+              <div class="form-group">
+                <label class="form-label" for="sermon-cfg-sender-name">Sender Display Name</label>
+                <input type="text" id="sermon-cfg-sender-name" class="form-control"
+                  placeholder="AV Audit Recordings Sender" autocomplete="off">
+                <span class="form-hint">Custom name shown as the sender in recipient email clients</span>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="sermon-cfg-webhook-url">Silent Webhook</label>
+                <div style="display: flex; gap: 0.5rem; align-items: stretch;">
+                  <select id="sermon-cfg-webhook-method" class="form-control form-select"
+                    style="width: 100px; font-weight: 600;">
+                    <option value="POST">POST</option>
+                    <option value="GET">GET</option>
+                  </select>
+                  <input type="url" id="sermon-cfg-webhook-url" class="form-control"
+                    placeholder="https://example.com/api/recordings-webhook" autocomplete="off" style="flex: 1;">
+                </div>
+                <span class="form-hint">HTTP endpoint triggered silently in background upon successful delivery</span>
+              </div>
+
+              <div class="form-group" id="sermon-cfg-webhook-body-group">
+                <label class="form-label" for="sermon-cfg-webhook-body">Webhook Request Body (POST)</label>
+                <textarea id="sermon-cfg-webhook-body" class="form-control" rows="3"
+                  placeholder='Optional custom payload (JSON or text). Leave blank for default delivery metadata JSON.'
+                  style="resize: vertical; font-family: var(--font-mono, monospace); font-size: 0.8rem;"></textarea>
+                <span class="form-hint">Available tokens: <code>{title}</code>, <code>{context}</code>,
+                  <code>{date}</code>, <code>{recipient}</code>, <code>{size}</code>, <code>{id}</code>,
+                  <code>{username}</code></span>
+              </div>
+            </div>
+          </details>
         </form>
       </div>
 

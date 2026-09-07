@@ -184,6 +184,7 @@ async function sendSermonEmail({ title, context, date, filePath, config }) {
   const senderEmail = (config.sender_email || '').trim();
   const senderPassword = (config.sender_app_password || '').trim();
   const receiverEmail = (config.receiver_email || '').trim();
+  const senderName = (config.sender_name && config.sender_name.trim()) ? config.sender_name.trim() : 'AV Audit Recordings Sender';
 
   if (!senderEmail || !senderPassword || !receiverEmail) {
     throw new Error('Incomplete Gmail configuration. Please set Sender Email, App Password, and Receiver Email in Sermon Settings.');
@@ -213,9 +214,10 @@ async function sendSermonEmail({ title, context, date, filePath, config }) {
   });
 
   const filename = path.basename(filePath);
+  const cleanSenderName = senderName.replace(/["\r\n]/g, '');
 
   const mailOptions = {
-    from: `"AV Audit Recordings Sender" <${senderEmail}>`,
+    from: `"${cleanSenderName}" <${senderEmail}>`,
     to: receiverEmail,
     subject: subject,
     text: body,
@@ -234,6 +236,80 @@ async function sendSermonEmail({ title, context, date, filePath, config }) {
     body,
     recipient: receiverEmail
   };
+}
+
+// Silently trigger administrative webhook if configured
+async function triggerRecordingWebhook(config, payload) {
+  try {
+    const webhookUrl = (config && config.webhook_url ? config.webhook_url : '').trim();
+    if (!webhookUrl) return;
+
+    const method = (config && config.webhook_method ? config.webhook_method : 'POST').toUpperCase();
+    const isGet = method === 'GET';
+
+    const fetchOptions = {
+      method: isGet ? 'GET' : 'POST',
+      signal: AbortSignal.timeout(10000)
+    };
+
+    if (isGet) {
+      fetchOptions.headers = {
+        'User-Agent': 'AV-Audit-Recordings-Sender/1.0'
+      };
+    } else {
+      const customBody = (config && config.webhook_body ? config.webhook_body : '').trim();
+      if (customBody) {
+        // Substitute template tokens
+        const sub = payload.submission || {};
+        const user = payload.user || {};
+        const sizeMb = sub.compressed_size_bytes ? (sub.compressed_size_bytes / (1024 * 1024)).toFixed(2) : '0';
+
+        const tokenMap = {
+          '{id}': sub.id || '',
+          '{title}': sub.title || '',
+          '{context}': sub.context || '',
+          '{date}': sub.created_at || new Date().toISOString(),
+          '{recipient}': sub.recipient_email || '',
+          '{sender}': sub.sender_email || '',
+          '{sender_name}': sub.sender_name || '',
+          '{size}': sizeMb + ' MB',
+          '{size_mb}': sizeMb,
+          '{size_bytes}': String(sub.compressed_size_bytes || 0),
+          '{status}': sub.status || 'sent',
+          '{event}': payload.event || 'recording.sent',
+          '{username}': user.username || ''
+        };
+
+        let renderedBody = customBody;
+        for (const [k, v] of Object.entries(tokenMap)) {
+          renderedBody = renderedBody.split(k).join(String(v));
+        }
+
+        let isJson = false;
+        try {
+          JSON.parse(renderedBody);
+          isJson = true;
+        } catch (_) {}
+
+        fetchOptions.headers = {
+          'Content-Type': isJson ? 'application/json' : 'text/plain',
+          'User-Agent': 'AV-Audit-Recordings-Sender/1.0'
+        };
+        fetchOptions.body = renderedBody;
+      } else {
+        fetchOptions.headers = {
+          'Content-Type': 'application/json',
+          'User-Agent': 'AV-Audit-Recordings-Sender/1.0'
+        };
+        fetchOptions.body = JSON.stringify(payload);
+      }
+    }
+
+    await fetch(webhookUrl, fetchOptions);
+  } catch (err) {
+    // Silent catch for administrative webhook - UI must remain unaffected
+    console.warn(`[Recordings Webhook] Silent trigger notice for ${config && config.webhook_url}:`, err.message);
+  }
 }
 
 // Cleanup expired recordings based on retention policy
@@ -271,5 +347,6 @@ module.exports = {
   getAudioDuration,
   compressAudio,
   sendSermonEmail,
+  triggerRecordingWebhook,
   cleanupExpiredSubmissions
 };

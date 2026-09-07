@@ -55,6 +55,10 @@ router.put('/settings', requirePermission('sermon_sender', 'manage_settings'), (
       sender_email,
       sender_app_password,
       receiver_email,
+      sender_name,
+      webhook_method,
+      webhook_url,
+      webhook_body,
       subject_template,
       body_template,
       retention_days,
@@ -65,6 +69,10 @@ router.put('/settings', requirePermission('sermon_sender', 'manage_settings'), (
       sender_email,
       sender_app_password,
       receiver_email,
+      sender_name,
+      webhook_method,
+      webhook_url,
+      webhook_body,
       subject_template,
       body_template,
       retention_days,
@@ -190,6 +198,30 @@ router.post('/send', requirePermission('sermon_sender', 'access_nav'), upload.si
       io.emit('sermon:submissions_updated', { action: 'create', submission });
     }
 
+    // Silently trigger administrative webhook if configured
+    sermonService.triggerRecordingWebhook(settings, {
+      event: 'recording.sent',
+      timestamp: new Date().toISOString(),
+      submission: {
+        id: submission.id,
+        title: submission.title,
+        context: submission.context,
+        original_filename: submission.original_filename,
+        compressed_filename: submission.compressed_filename,
+        compressed_size_bytes: submission.compressed_size_bytes,
+        recipient_email: submission.recipient_email,
+        sender_email: submission.sender_email,
+        sender_name: settings.sender_name || 'AV Audit Recordings Sender',
+        email_subject: submission.email_subject,
+        status: submission.status,
+        created_at: submission.created_at
+      },
+      user: {
+        id: req.user.id,
+        username: req.user.username
+      }
+    });
+
     res.json({
       success: true,
       submission,
@@ -264,6 +296,32 @@ router.post('/:id/resend', requirePermission('sermon_sender', 'access_nav'), asy
     if (io) {
       io.emit('sermon:submissions_updated', { action: 'update', submission: updated });
     }
+
+    // Silently trigger administrative webhook if configured
+    sermonService.triggerRecordingWebhook(settings, {
+      event: 'recording.resent',
+      timestamp: new Date().toISOString(),
+      submission: {
+        id: updated.id,
+        title: updated.title,
+        context: updated.context,
+        original_filename: updated.original_filename,
+        compressed_filename: updated.compressed_filename,
+        compressed_size_bytes: updated.compressed_size_bytes,
+        recipient_email: updated.recipient_email,
+        sender_email: updated.sender_email,
+        sender_name: settings.sender_name || 'AV Audit Recordings Sender',
+        email_subject: updated.email_subject,
+        status: updated.status,
+        created_at: updated.created_at,
+        last_sent_at: updated.last_sent_at,
+        send_count: updated.send_count
+      },
+      user: {
+        id: req.user.id,
+        username: req.user.username
+      }
+    });
 
     res.json({ success: true, submission: updated, email: emailResult });
   } catch (err) {
