@@ -3181,8 +3181,9 @@ body.editing-mode .add-section-container {
 
 .lovelace-modal-body-split.modal-automation-fullwidth {
   grid-template-columns: 1fr !important;
-  padding: 16px 20px !important;
-  overflow-y: hidden !important;
+  padding: 16px 22px !important;
+  overflow-y: auto !important;
+  max-height: calc(90vh - 120px) !important;
 }
 
 .lovelace-modal-body-split.modal-automation-fullwidth .card-config-preview-pane {
@@ -3196,14 +3197,14 @@ body.editing-mode .add-section-container {
 #tab-pane-automation.active {
   display: flex !important;
   flex-direction: column !important;
-  gap: 10px !important;
+  gap: 14px !important;
   width: 100% !important;
 }
 
 .automations-top-bar {
   flex-shrink: 0 !important;
   margin-bottom: 0 !important;
-  padding: 8px 14px !important;
+  padding: 10px 16px !important;
 }
 
 .blockly-workspace-wrapper {
@@ -3211,12 +3212,12 @@ body.editing-mode .add-section-container {
   width: 100% !important;
   height: 480px !important;
   min-height: 420px !important;
-  max-height: calc(88vh - 250px) !important;
   border-radius: 8px !important;
   overflow: hidden !important;
   border: 1px solid var(--ha-border) !important;
   background: #0b0f17 !important;
   margin-bottom: 0 !important;
+  flex-shrink: 0 !important;
 }
 
 #blockly-automation-container {
@@ -3226,26 +3227,71 @@ body.editing-mode .add-section-container {
 }
 
 .pipeline-variables-guide {
-  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
   background: #141923;
   border: 1px solid var(--ha-border);
   border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.8rem;
+  padding: 12px 16px;
+  font-size: 0.825rem;
+  margin-bottom: 8px;
+}
+
+.pipeline-variables-guide .guide-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin-bottom: 10px;
 }
 
 .pipeline-variables-guide .guide-cards-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 8px;
-  margin-top: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
 }
 
 .pipeline-variables-guide .guide-card {
   background: #0c1017;
   border: 1px solid var(--ha-border);
   border-radius: 6px;
-  padding: 8px 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pipeline-variables-guide .guide-card-title {
+  font-weight: 600;
+  color: #38bdf8;
+  font-size: 0.8rem;
+}
+
+.pipeline-variables-guide .guide-syntax {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.775rem;
+  color: #fbbf24;
+}
+
+.pipeline-variables-guide .guide-desc {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.pipeline-variables-guide .guide-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.pipeline-variables-guide .guide-examples code {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.725rem;
+  color: #cbd5e1;
 }
 
 /* Remove 3D Plastic Specular Glare / Cartoon Scratch Effect from Blocks */

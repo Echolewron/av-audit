@@ -83,6 +83,13 @@ const dashboardBlocklyService = {
     }
 
     Blockly.blockRendering.register('modern_dark', ModernRenderer);
+
+    // Keep category selection blocks at constant 1.0 scale regardless of workspace zoom
+    if (Blockly.Flyout && Blockly.Flyout.prototype) {
+      Blockly.Flyout.prototype.getFlyoutScale = function() {
+        return 1.0;
+      };
+    }
   },
 
   defineTheme() {
