@@ -58,14 +58,6 @@ class AuthService {
 
     const user = db.users.findByUsername(username.trim());
     if (!user) {
-      db.audit.log({
-        userId: 'unknown',
-        username: username.trim(),
-        actionType: 'AUTH',
-        actionName: 'LOGIN_FAILED',
-        details: { reason: 'User not found', username: username.trim() },
-        ipAddress
-      });
       const err = new Error("User doesn't exist");
       err.code = 'USER_NOT_FOUND';
       err.field = 'username';
@@ -74,14 +66,6 @@ class AuthService {
 
     const isMatch = await bcrypt.compare(password, user.password_hash);
     if (!isMatch) {
-      db.audit.log({
-        userId: user.id,
-        username: user.username,
-        actionType: 'AUTH',
-        actionName: 'LOGIN_FAILED',
-        details: { reason: 'Incorrect password' },
-        ipAddress
-      });
       const err = new Error('Incorrect password');
       err.code = 'INVALID_PASSWORD';
       err.field = 'password';
@@ -89,14 +73,6 @@ class AuthService {
     }
 
     if (user.status === 'PENDING') {
-      db.audit.log({
-        userId: user.id,
-        username: user.username,
-        actionType: 'AUTH',
-        actionName: 'LOGIN_BLOCKED_PENDING',
-        details: { status: 'PENDING' },
-        ipAddress
-      });
       const err = new Error('Your account is pending approval by an administrator.');
       err.code = 'ACCOUNT_PENDING';
       err.status = 'PENDING';
@@ -104,14 +80,6 @@ class AuthService {
     }
 
     if (user.status === 'SUSPENDED') {
-      db.audit.log({
-        userId: user.id,
-        username: user.username,
-        actionType: 'AUTH',
-        actionName: 'LOGIN_BLOCKED_SUSPENDED',
-        details: { status: 'SUSPENDED' },
-        ipAddress
-      });
       const err = new Error('Your account has been suspended. Please contact an administrator.');
       err.code = 'ACCOUNT_SUSPENDED';
       err.status = 'SUSPENDED';

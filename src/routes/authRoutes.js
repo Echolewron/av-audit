@@ -229,14 +229,6 @@ const handleThemeUpdate = (req, res) => {
       return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'User account not found.' });
     }
     const ipAddress = req.ip || req.connection.remoteAddress;
-    db.audit.log({
-      userId: req.user.id,
-      username: req.user.username,
-      actionType: 'ACCOUNT',
-      actionName: 'USER_THEME_CHANGED',
-      details: updates,
-      ipAddress
-    });
     res.json({
       success: true,
       message: 'Theme preference saved successfully.',
