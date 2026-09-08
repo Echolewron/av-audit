@@ -207,6 +207,65 @@
   font-family: var(--font-mono);
 }
 
+/* Active Checklist Status Pills (High Contrast, Crisp & Easily Readable) */
+.card-tag-status {
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0.22rem 0.65rem;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.25;
+  transition: all var(--transition-fast);
+}
+
+.card-tag-status.badge-success {
+  background: rgba(24, 237, 179, 0.16);
+  color: #18edb3;
+  border: 1px solid rgba(24, 237, 179, 0.45);
+  box-shadow: 0 1px 3px rgba(24, 237, 179, 0.12);
+}
+
+.card-tag-status.badge-info {
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow: 0 1px 3px rgba(56, 189, 248, 0.12);
+}
+
+.card-tag-status.badge-danger {
+  background: rgba(248, 113, 113, 0.16);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  box-shadow: 0 1px 3px rgba(248, 113, 113, 0.12);
+}
+
+/* White Theme: High-Contrast, Vivid, Crisp Pills */
+[data-theme="white"] .card-tag-status.badge-success {
+  background: #d1fae5;
+  color: #065f46;
+  border: 1.5px solid #059669;
+  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.18);
+  font-weight: 700;
+}
+
+[data-theme="white"] .card-tag-status.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1.5px solid #2563eb;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.18);
+  font-weight: 700;
+}
+
+[data-theme="white"] .card-tag-status.badge-danger {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1.5px solid #dc2626;
+  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.18);
+  font-weight: 700;
+}
+
 /* Subtle Disappearing Message Clock Badge (Signal-style) */
 .badge-disappearing {
   display: inline-flex;

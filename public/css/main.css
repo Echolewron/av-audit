@@ -354,33 +354,33 @@ code, pre {
 
 /* White Theme High-Contrast Badges */
 [data-theme="white"] .badge-success {
-  background: #ecfdf5;
-  color: #047857;
-  border-color: #a7f3d0;
+  background: #d1fae5;
+  color: #065f46;
+  border-color: #34d399;
 }
 
 [data-theme="white"] .badge-warning {
-  background: #fffbeb;
-  color: #b45309;
-  border-color: #fde68a;
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
 }
 
 [data-theme="white"] .badge-danger {
-  background: #fef2f2;
-  color: #b91c1c;
-  border-color: #fecaca;
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #f87171;
 }
 
 [data-theme="white"] .badge-info {
-  background: #f0f9ff;
-  color: #0369a1;
-  border-color: #bae6fd;
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #60a5fa;
 }
 
 [data-theme="white"] .badge-purple {
-  background: #f5f3ff;
-  color: #6d28d9;
-  border-color: #ddd6fe;
+  background: #ede9fe;
+  color: #5b21b6;
+  border-color: #c4b5fd;
 }
 
 .modal-backdrop {

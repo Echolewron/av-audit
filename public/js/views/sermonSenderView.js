@@ -370,6 +370,14 @@ const sermonSenderView = {
       });
     }
 
+    // Try Again Button on Failure
+    const btnTryAgain = document.getElementById('btn-sermon-try-again');
+    if (btnTryAgain) {
+      btnTryAgain.addEventListener('click', () => {
+        this.returnToFormStage();
+      });
+    }
+
     // 5. Settings Modal
     const btnOpenSettings = document.getElementById('btn-open-sermon-settings');
     if (btnOpenSettings) {
@@ -472,6 +480,7 @@ const sermonSenderView = {
     const formStage = document.getElementById('sermon-form-stage');
     const progressWidget = document.getElementById('sermon-progress-widget');
     const completionCard = document.getElementById('sermon-completion-card');
+    const failCard = document.getElementById('sermon-fail-card');
     const formCard = document.querySelector('.sermon-form-card');
 
     if (uploadStage) uploadStage.style.display = 'flex';
@@ -479,6 +488,56 @@ const sermonSenderView = {
     if (formCard) formCard.style.display = 'flex';
     if (progressWidget) progressWidget.style.display = 'none';
     if (completionCard) completionCard.style.display = 'none';
+    if (failCard) failCard.style.display = 'none';
+
+    // Reset step items for next run
+    this.setStepState('upload', 'pending', 'File transferred to server');
+    this.setStepState('compress', 'pending', 'Optimizing audio bitrate with FFmpeg');
+    this.setStepState('email', 'pending', 'Delivering email to recipient via SMTP');
+
+    const overallBadge = document.getElementById('sermon-progress-overall-badge');
+    if (overallBadge) {
+      overallBadge.textContent = 'In Progress';
+      overallBadge.className = 'sermon-progress-badge in-progress';
+      overallBadge.removeAttribute('style');
+    }
+
+    this.isSending = false;
+  },
+
+  returnToFormStage() {
+    const uploadStage = document.getElementById('sermon-upload-stage');
+    const formStage = document.getElementById('sermon-form-stage');
+    const progressWidget = document.getElementById('sermon-progress-widget');
+    const completionCard = document.getElementById('sermon-completion-card');
+    const failCard = document.getElementById('sermon-fail-card');
+    const formCard = document.querySelector('.sermon-form-card');
+
+    if (failCard) failCard.style.display = 'none';
+    if (completionCard) completionCard.style.display = 'none';
+    if (progressWidget) progressWidget.style.display = 'none';
+
+    if (this.selectedFile) {
+      if (uploadStage) uploadStage.style.display = 'none';
+      if (formStage) formStage.style.display = 'flex';
+      if (formCard) formCard.style.display = 'flex';
+    } else {
+      if (uploadStage) uploadStage.style.display = 'flex';
+      if (formStage) formStage.style.display = 'none';
+      if (formCard) formCard.style.display = 'flex';
+    }
+
+    // Reset step items for next run
+    this.setStepState('upload', 'pending', 'File transferred to server');
+    this.setStepState('compress', 'pending', 'Optimizing audio bitrate with FFmpeg');
+    this.setStepState('email', 'pending', 'Delivering email to recipient via SMTP');
+
+    const overallBadge = document.getElementById('sermon-progress-overall-badge');
+    if (overallBadge) {
+      overallBadge.textContent = 'In Progress';
+      overallBadge.className = 'sermon-progress-badge in-progress';
+      overallBadge.removeAttribute('style');
+    }
 
     this.isSending = false;
   },
@@ -531,14 +590,17 @@ const sermonSenderView = {
     const formCard = document.querySelector('.sermon-form-card');
     const progressWidget = document.getElementById('sermon-progress-widget');
     const completionCard = document.getElementById('sermon-completion-card');
+    const failCard = document.getElementById('sermon-fail-card');
     const overallBadge = document.getElementById('sermon-progress-overall-badge');
 
     if (formCard) formCard.style.display = 'none';
     if (progressWidget) progressWidget.style.display = 'flex';
     if (completionCard) completionCard.style.display = 'none';
+    if (failCard) failCard.style.display = 'none';
     if (overallBadge) {
       overallBadge.textContent = 'In Progress';
-      overallBadge.style.color = '#58a6ff';
+      overallBadge.className = 'sermon-progress-badge in-progress';
+      overallBadge.removeAttribute('style');
     }
 
     // Step 1: Upload
@@ -578,7 +640,8 @@ const sermonSenderView = {
 
       if (overallBadge) {
         overallBadge.textContent = 'Completed';
-        overallBadge.style.color = '#10b981';
+        overallBadge.className = 'sermon-progress-badge completed';
+        overallBadge.removeAttribute('style');
       }
 
       // Show Completion Card
@@ -599,7 +662,15 @@ const sermonSenderView = {
 
       if (overallBadge) {
         overallBadge.textContent = 'Failed';
-        overallBadge.style.color = '#ef4444';
+        overallBadge.className = 'sermon-progress-badge failed';
+        overallBadge.removeAttribute('style');
+      }
+
+      const failCard = document.getElementById('sermon-fail-card');
+      const failMsg = document.getElementById('sermon-fail-msg');
+      if (failCard) {
+        if (failMsg) failMsg.textContent = err.message || 'An error occurred during audio processing or email delivery.';
+        failCard.style.display = 'flex';
       }
 
       helpers.showToast(err.message || 'Failed to send sermon', 'error');

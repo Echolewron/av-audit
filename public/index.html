@@ -21,15 +21,15 @@
     rel="stylesheet">
 
   <!-- Stylesheets -->
-  <link rel="stylesheet" href="/css/main.css?v=6.3">
-  <link rel="stylesheet" href="/css/layout.css?v=6.3">
-  <link rel="stylesheet" href="/css/checklists.css?v=6.3">
-  <link rel="stylesheet" href="/css/roles.css?v=6.3">
-  <link rel="stylesheet" href="/css/accounts.css?v=6.3">
+  <link rel="stylesheet" href="/css/main.css?v=6.4">
+  <link rel="stylesheet" href="/css/layout.css?v=6.4">
+  <link rel="stylesheet" href="/css/checklists.css?v=6.4">
+  <link rel="stylesheet" href="/css/roles.css?v=6.4">
+  <link rel="stylesheet" href="/css/accounts.css?v=6.4">
   <link rel="stylesheet" href="/css/flatpickr.min.css">
-  <link rel="stylesheet" href="/css/audit.css?v=6.3">
-  <link rel="stylesheet" href="/css/dashboard.css?v=6.3">
-  <link rel="stylesheet" href="/css/sermon-sender.css?v=6.3">
+  <link rel="stylesheet" href="/css/audit.css?v=6.4">
+  <link rel="stylesheet" href="/css/dashboard.css?v=6.4">
+  <link rel="stylesheet" href="/css/sermon-sender.css?v=6.4">
   <script>
     (function() {
       try {
@@ -781,6 +781,22 @@
                       emailed.</p>
                     <button type="button" class="btn btn-primary" id="btn-send-another-sermon">Send Another
                       Recording</button>
+                  </div>
+
+                  <!-- Failure Card (Visible on error) -->
+                  <div class="sermon-fail-card" id="sermon-fail-card" style="display: none;">
+                    <div class="sermon-fail-icon">⚠️</div>
+                    <h3 class="sermon-fail-title" id="sermon-fail-title">Recording Failed to Send</h3>
+                    <p class="sermon-fail-msg" id="sermon-fail-msg">An error occurred during audio processing or email delivery.</p>
+                    <div class="sermon-fail-actions">
+                      <button type="button" class="btn btn-primary" id="btn-sermon-try-again">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="1 4 1 10 7 10"></polyline>
+                          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
+                        </svg>
+                        <span>Try Again</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -2474,25 +2490,25 @@
 
   <!-- Scripts -->
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/libs/sortable.min.js?v=6.3"></script>
+  <script src="/js/libs/sortable.min.js?v=6.4"></script>
   <script src="/js/libs/blockly/blockly.min.js"></script>
-  <script src="/js/services/dashboardBlocklyService.js?v=6.3"></script>
-  <script src="/js/api.js?v=6.3"></script>
-  <script src="/js/socket.js?v=6.3"></script>
-  <script src="/js/utils/helpers.js?v=6.3"></script>
-  <script src="/js/utils/sessionManager.js?v=6.3"></script>
-  <script src="/js/utils/dragDrop.js?v=6.3"></script>
-  <script src="/js/views/authView.js?v=6.3"></script>
-  <script src="/js/views/updateView.js?v=6.3"></script>
-  <script src="/js/views/dashboardView.js?v=6.3"></script>
-  <script src="/js/views/sermonSenderView.js?v=6.3"></script>
-  <script src="/js/views/checklistsView.js?v=6.3"></script>
-  <script src="/js/views/templatesView.js?v=6.3"></script>
-  <script src="/js/views/rolesView.js?v=6.3"></script>
-  <script src="/js/views/accountsView.js?v=6.3"></script>
+  <script src="/js/services/dashboardBlocklyService.js?v=6.4"></script>
+  <script src="/js/api.js?v=6.4"></script>
+  <script src="/js/socket.js?v=6.4"></script>
+  <script src="/js/utils/helpers.js?v=6.4"></script>
+  <script src="/js/utils/sessionManager.js?v=6.4"></script>
+  <script src="/js/utils/dragDrop.js?v=6.4"></script>
+  <script src="/js/views/authView.js?v=6.4"></script>
+  <script src="/js/views/updateView.js?v=6.4"></script>
+  <script src="/js/views/dashboardView.js?v=6.4"></script>
+  <script src="/js/views/sermonSenderView.js?v=6.4"></script>
+  <script src="/js/views/checklistsView.js?v=6.4"></script>
+  <script src="/js/views/templatesView.js?v=6.4"></script>
+  <script src="/js/views/rolesView.js?v=6.4"></script>
+  <script src="/js/views/accountsView.js?v=6.4"></script>
   <script src="/js/libs/flatpickr.min.js"></script>
-  <script src="/js/views/auditView.js?v=6.3"></script>
-  <script src="/js/app.js?v=6.3"></script>
+  <script src="/js/views/auditView.js?v=6.4"></script>
+  <script src="/js/app.js?v=6.4"></script>
 </body>
 
 </html>
