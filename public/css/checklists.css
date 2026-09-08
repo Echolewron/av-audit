@@ -2502,3 +2502,67 @@
   padding: 0;
   overflow: visible;
 }
+
+/* ==========================================================================
+   WHITE THEME SPECIFICATION FOR CHECKLISTS
+   Accent Color: Cyan #28AFF3
+   ========================================================================== */
+[data-theme="white"] .checklist-card.card-add {
+  background: #ffffff;
+  border: 2px dashed #cbd5e1;
+}
+
+[data-theme="white"] .checklist-card.card-add:hover {
+  background: rgba(40, 175, 243, 0.05);
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 16px rgba(40, 175, 243, 0.12);
+}
+
+[data-theme="white"] .checklist-card.card-add .card-add-icon {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: var(--accent-primary);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+[data-theme="white"] .checklist-card.card-add:hover .card-add-icon {
+  background: var(--accent-primary);
+  color: #ffffff;
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 12px rgba(40, 175, 243, 0.35);
+}
+
+[data-theme="white"] .checklist-card.card-add .card-add-title {
+  color: var(--text-primary);
+}
+
+[data-theme="white"] .checklist-card.card-add .card-add-desc {
+  color: var(--text-secondary);
+}
+
+[data-theme="white"] .checklist-card.submitted {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  opacity: 0.85;
+}
+
+[data-theme="white"] .checklist-card.in-progress:hover {
+  border-color: var(--accent-primary);
+  box-shadow: 0 4px 16px rgba(40, 175, 243, 0.12);
+}
+
+[data-theme="white"] .execution-header {
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid var(--border-subtle);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="white"] .todoist-section-block {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: var(--border-subtle);
+}
+
+[data-theme="white"] .todoist-action-sheet {
+  background: #ffffff;
+  border-color: var(--border-subtle);
+}

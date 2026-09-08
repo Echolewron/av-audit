@@ -54,13 +54,12 @@ app.use('/demo', express.static(path.join(__dirname, 'demo')));
 // Static files with smart ETag validation (HTML passes through dynamic prepareHtml)
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: true,
-  maxAge: '1h',
   index: false,
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.html')) {
       res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
     } else {
-      res.set('Cache-Control', 'public, max-age=3600, must-revalidate');
+      res.set('Cache-Control', 'no-cache, must-revalidate');
     }
   }
 }));

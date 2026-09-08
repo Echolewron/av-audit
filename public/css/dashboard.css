@@ -787,6 +787,435 @@
   --ha-purple-bg: rgba(124, 58, 237, 0.12);
 }
 
+/* ==========================================================================
+   WHITE THEME COMPONENT SPECIFICATIONS FOR DASHBOARD
+   Accent Color: Cyan #28AFF3
+   ========================================================================== */
+
+/* 1. Dashboard Section Edit Mode & Handles */
+[data-theme="white"] .edit-mode-active .ha-section,
+[data-theme="white"] body.editing-mode .ha-section {
+  border: 2px dashed #cbd5e1 !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="white"] .section-edit-tab {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-bottom: none !important;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="white"] .section-tab-handle {
+  color: #64748b !important;
+}
+
+[data-theme="white"] .section-tab-handle:hover {
+  color: #1e293b !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="white"] .section-tab-delete {
+  color: #64748b !important;
+}
+
+[data-theme="white"] .section-tab-delete:hover {
+  color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.1) !important;
+}
+
+[data-theme="white"] .section-tab-menu {
+  color: #64748b !important;
+}
+
+[data-theme="white"] .section-tab-menu:hover {
+  color: #1e293b !important;
+  background: rgba(0, 0, 0, 0.06) !important;
+}
+
+[data-theme="white"] .section-title-input {
+  background: #f8fafc !important;
+  border: 1px dashed #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .section-title-input:hover,
+[data-theme="white"] .section-title-input:focus {
+  border-color: var(--ha-blue) !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(40, 175, 243, 0.25) !important;
+}
+
+/* 2. Card Edit Overlay & Add Slots */
+[data-theme="white"] .card-edit-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="white"] .card-edit-btn:hover {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: #94a3b8 !important;
+}
+
+[data-theme="white"] .add-card-slot {
+  border: 2px dashed #28AFF3 !important;
+  color: #28AFF3 !important;
+  background: rgba(40, 175, 243, 0.05) !important;
+}
+
+[data-theme="white"] .add-card-slot:hover {
+  background: rgba(40, 175, 243, 0.12) !important;
+  border-color: #199ee2 !important;
+}
+
+[data-theme="white"] .add-section-container {
+  border: 2px dashed #cbd5e1 !important;
+  background: #ffffff !important;
+  color: #64748b !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme="white"] .add-section-container:hover {
+  background: rgba(40, 175, 243, 0.05) !important;
+  border-color: #28AFF3 !important;
+  color: #28AFF3 !important;
+}
+
+/* 3. Empty Stage & Dropdown Menu */
+[data-theme="white"] .dashboard-stage-empty {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="white"] .dashboard-dropdown-menu {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="white"] .dashboard-dropdown-search-wrapper {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .dashboard-dropdown-footer {
+  background: #f8fafc !important;
+  border-top: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .btn-create-dashboard-dropdown {
+  background: rgba(40, 175, 243, 0.08) !important;
+  border-color: rgba(40, 175, 243, 0.35) !important;
+  color: #28AFF3 !important;
+}
+
+[data-theme="white"] .btn-create-dashboard-dropdown:hover {
+  background: rgba(40, 175, 243, 0.15) !important;
+  border-color: #28AFF3 !important;
+}
+
+/* 4. Badges & Tile States */
+[data-theme="white"] .ha-badge:hover {
+  background: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="white"] .badge-action-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="white"] .badge-action-btn:hover {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .ha-card.state-active,
+[data-theme="white"] .ha-card.card-active-on {
+  background: rgba(40, 175, 243, 0.06) !important;
+  border-color: var(--card-accent, #28AFF3) !important;
+  box-shadow: 0 4px 12px rgba(40, 175, 243, 0.15) !important;
+}
+
+[data-theme="white"] .linear-progress-track {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="white"] .tile-slider-track {
+  background: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+}
+
+[data-theme="white"] .climate-stepper-row {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="white"] .step-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .step-btn:hover {
+  background: #f1f5f9 !important;
+}
+
+/* 5. Matrix Grid Visualizer (Tab 3) */
+[data-theme="white"] .matrix-grid-visualizer-container {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .matrix-grid-header {
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .matrix-grid-canvas {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .matrix-cell {
+  background: #ffffff !important;
+  border: 1px dashed #cbd5e1 !important;
+}
+
+[data-theme="white"] .matrix-cell.selected {
+  background: rgba(40, 175, 243, 0.25) !important;
+  border-color: #28AFF3 !important;
+}
+
+/* 6. YAML / Code Tab & Live Feedback (Tab 4) */
+[data-theme="white"] .lovelace-code-editor {
+  background: #f8fafc !important;
+  color: #0284c7 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+[data-theme="white"] .live-eval-feedback-box {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .eval-title {
+  color: #64748b !important;
+}
+
+[data-theme="white"] .pipeline-step-item {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .pipeline-step-item:hover {
+  background: #ffffff !important;
+  border-color: #28AFF3 !important;
+}
+
+[data-theme="white"] .pipeline-step-item.sortable-chosen {
+  background: #ffffff !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+}
+
+[data-theme="white"] .pipeline-step-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #64748b !important;
+}
+
+[data-theme="white"] .pipeline-step-btn:hover {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .automation-header-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .action-type-popup-menu {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="white"] .macro-rule-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .macro-rule-header {
+  background: #f8fafc !important;
+}
+
+[data-theme="white"] .macro-toggle-wrapper .custom-check-box {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+}
+
+[data-theme="white"] .macro-icon-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #64748b !important;
+}
+
+[data-theme="white"] .macro-icon-btn:hover {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border-color: #28AFF3 !important;
+}
+
+[data-theme="white"] .macro-trigger-box {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .macro-add-step-btn {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+
+[data-theme="white"] .macro-add-step-btn:hover {
+  background: #ffffff !important;
+  border-color: #28AFF3 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="white"] .action-block-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .action-block-card:hover {
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* 7. Visual Logic Automations & Google Blockly Workspace (Tab 2) */
+[data-theme="white"] .automations-top-bar {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .automations-top-title {
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .blockly-workspace-wrapper {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
+[data-theme="white"] .blocklyMainBackground {
+  fill: #f8fafc !important;
+}
+
+[data-theme="white"] .blocklySvg {
+  background-color: #f8fafc !important;
+}
+
+[data-theme="white"] .blocklyPath {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.08)) !important;
+}
+
+[data-theme="white"] .blocklyToolboxDiv {
+  background-color: #ffffff !important;
+  border-right: 1px solid #e2e8f0 !important;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-theme="white"] .blocklyTreeRow {
+  color: #475569 !important;
+}
+
+[data-theme="white"] .blocklyTreeRow:hover {
+  background-color: #f1f5f9 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .blocklyTreeSelected {
+  background-color: rgba(40, 175, 243, 0.12) !important;
+  border: 1px solid rgba(40, 175, 243, 0.4) !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="white"] .blocklyFlyoutBackground {
+  fill: #ffffff !important;
+}
+
+[data-theme="white"] .blocklyScrollbarHandle {
+  fill: #cbd5e1 !important;
+}
+
+[data-theme="white"] .blocklyWidgetDiv .blocklyMenu,
+[data-theme="white"] .blocklyDropDownDiv {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme="white"] .blocklyMenuItem,
+[data-theme="white"] .blocklyMenuItemContent {
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .blocklyMenuItemHighlight {
+  background-color: #f1f5f9 !important;
+  color: #0284c7 !important;
+}
+
+[data-theme="white"] .pipeline-variables-guide {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .pipeline-variables-guide .guide-header {
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .pipeline-variables-guide .guide-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .pipeline-variables-guide .guide-card-title {
+  color: #0284c7 !important;
+}
+
+[data-theme="white"] .pipeline-variables-guide .guide-syntax {
+  color: #d97706 !important;
+}
+
+[data-theme="white"] .pipeline-variables-guide .guide-desc {
+  color: #64748b !important;
+}
+
+[data-theme="white"] .pipeline-variables-guide .guide-examples code {
+  background: #e2e8f0 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+[data-theme="white"] .card-extra-options-box {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+[data-theme="white"] .lovelace-tab-btn.active {
+  color: #28AFF3 !important;
+  border-bottom-color: #28AFF3 !important;
+  background: rgba(40, 175, 243, 0.08) !important;
+}
+
 /* Badges & Status Pills */
 .dashboard-badges-wrapper {
   margin-bottom: 0.75rem;

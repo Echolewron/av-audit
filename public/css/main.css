@@ -625,6 +625,13 @@ code, pre {
   pointer-events: none;
 }
 
+[data-theme="white"] [data-tooltip]:hover::after {
+  background: #ffffff;
+  border-color: var(--border-muted);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-md);
+}
+
 /* ==========================================================================
    DEDICATED FULL-PAGE AUTH VIEW
    ========================================================================== */
@@ -977,6 +984,12 @@ code, pre {
   visibility: visible;
   transform: translate(-50%, 0);
   pointer-events: auto;
+}
+
+[data-theme="white"] .inactivity-card {
+  background: #ffffff;
+  border-color: var(--border-muted);
+  box-shadow: var(--shadow-lg);
 }
 
 .inactivity-card-content {

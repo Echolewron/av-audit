@@ -165,6 +165,9 @@ const app = {
     if (window.authView && typeof authView.syncThemeUI === 'function') {
       authView.syncThemeUI(validTheme);
     }
+    if (window.dashboardBlocklyService && typeof dashboardBlocklyService.setTheme === 'function') {
+      dashboardBlocklyService.setTheme(validTheme);
+    }
     if (save && this.user) {
       api.auth.updateTheme(validTheme).catch(err => {
         console.error('Failed to save theme to user account:', err);

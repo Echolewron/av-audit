@@ -97,75 +97,137 @@ const dashboardBlocklyService = {
 
     this.registerCustomRenderer();
 
-    if (Blockly.Themes && Blockly.Themes.HaDarkTheme) {
-      return Blockly.Themes.HaDarkTheme;
+    if (!Blockly.Themes || !Blockly.Themes.HaDarkTheme) {
+      Blockly.Theme.defineTheme('haDarkTheme', {
+        base: Blockly.Themes.Classic,
+        blockStyles: {
+          trigger_blocks: {
+            colourPrimary: '#0c324e',
+            colourSecondary: '#071f32',
+            colourTertiary: '#38bdf8',
+            hat: 'cap'
+          },
+          logic_blocks: {
+            colourPrimary: '#341a54',
+            colourSecondary: '#200f35',
+            colourTertiary: '#c084fc'
+          },
+          loop_blocks: {
+            colourPrimary: '#4a2505',
+            colourSecondary: '#2f1602',
+            colourTertiary: '#fbbf24'
+          },
+          action_blocks: {
+            colourPrimary: '#0b3d2f',
+            colourSecondary: '#06261d',
+            colourTertiary: '#34d399'
+          },
+          network_blocks: {
+            colourPrimary: '#163359',
+            colourSecondary: '#0d2038',
+            colourTertiary: '#60a5fa'
+          },
+          time_blocks: {
+            colourPrimary: '#222d3b',
+            colourSecondary: '#151d27',
+            colourTertiary: '#94a3b8'
+          }
+        },
+        categoryStyles: {
+          triggers_category: { colour: '#38bdf8' },
+          logic_category: { colour: '#c084fc' },
+          loops_category: { colour: '#fbbf24' },
+          properties_category: { colour: '#34d399' },
+          network_category: { colour: '#60a5fa' },
+          time_category: { colour: '#94a3b8' }
+        },
+        componentStyles: {
+          workspaceBackgroundColour: '#0b0f17',
+          toolboxBackgroundColour: '#111622',
+          toolboxForegroundColour: '#e2e8f0',
+          flyoutBackgroundColour: '#141b29',
+          flyoutForegroundColour: '#f1f5f9',
+          flyoutOpacity: 0.98,
+          scrollbarColour: '#243044',
+          scrollbarOpacity: 0.8,
+          insertionMarkerColour: '#38bdf8',
+          insertionMarkerOpacity: 0.85,
+          markerColour: '#38bdf8',
+          cursorColour: '#38bdf8'
+        },
+        fontStyle: {
+          family: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+          weight: '600',
+          size: 11.5
+        }
+      });
     }
 
-    const theme = Blockly.Theme.defineTheme('haDarkTheme', {
-      base: Blockly.Themes.Classic,
-      blockStyles: {
-        trigger_blocks: {
-          colourPrimary: '#0c324e',
-          colourSecondary: '#071f32',
-          colourTertiary: '#38bdf8',
-          hat: 'cap'
+    if (!Blockly.Themes || !Blockly.Themes.HaLightTheme) {
+      Blockly.Theme.defineTheme('haLightTheme', {
+        base: Blockly.Themes.Classic,
+        blockStyles: {
+          trigger_blocks: {
+            colourPrimary: '#0284c7',
+            colourSecondary: '#0369a1',
+            colourTertiary: '#e0f2fe',
+            hat: 'cap'
+          },
+          logic_blocks: {
+            colourPrimary: '#7c3aed',
+            colourSecondary: '#6d28d9',
+            colourTertiary: '#f3e8ff'
+          },
+          loop_blocks: {
+            colourPrimary: '#d97706',
+            colourSecondary: '#b45309',
+            colourTertiary: '#fef3c7'
+          },
+          action_blocks: {
+            colourPrimary: '#059669',
+            colourSecondary: '#047857',
+            colourTertiary: '#d1fae5'
+          },
+          network_blocks: {
+            colourPrimary: '#2563eb',
+            colourSecondary: '#1d4ed8',
+            colourTertiary: '#dbeafe'
+          },
+          time_blocks: {
+            colourPrimary: '#475569',
+            colourSecondary: '#334155',
+            colourTertiary: '#f1f5f9'
+          }
         },
-        logic_blocks: {
-          colourPrimary: '#341a54',
-          colourSecondary: '#200f35',
-          colourTertiary: '#c084fc'
+        categoryStyles: {
+          triggers_category: { colour: '#0284c7' },
+          logic_category: { colour: '#7c3aed' },
+          loops_category: { colour: '#d97706' },
+          properties_category: { colour: '#059669' },
+          network_category: { colour: '#2563eb' },
+          time_category: { colour: '#475569' }
         },
-        loop_blocks: {
-          colourPrimary: '#4a2505',
-          colourSecondary: '#2f1602',
-          colourTertiary: '#fbbf24'
+        componentStyles: {
+          workspaceBackgroundColour: '#f8fafc',
+          toolboxBackgroundColour: '#ffffff',
+          toolboxForegroundColour: '#334155',
+          flyoutBackgroundColour: '#ffffff',
+          flyoutForegroundColour: '#1e293b',
+          flyoutOpacity: 0.98,
+          scrollbarColour: '#cbd5e1',
+          scrollbarOpacity: 0.8,
+          insertionMarkerColour: '#28AFF3',
+          insertionMarkerOpacity: 0.85,
+          markerColour: '#28AFF3',
+          cursorColour: '#28AFF3'
         },
-        action_blocks: {
-          colourPrimary: '#0b3d2f',
-          colourSecondary: '#06261d',
-          colourTertiary: '#34d399'
-        },
-        network_blocks: {
-          colourPrimary: '#163359',
-          colourSecondary: '#0d2038',
-          colourTertiary: '#60a5fa'
-        },
-        time_blocks: {
-          colourPrimary: '#222d3b',
-          colourSecondary: '#151d27',
-          colourTertiary: '#94a3b8'
+        fontStyle: {
+          family: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+          weight: '600',
+          size: 11.5
         }
-      },
-      categoryStyles: {
-        triggers_category: { colour: '#38bdf8' },
-        logic_category: { colour: '#c084fc' },
-        loops_category: { colour: '#fbbf24' },
-        properties_category: { colour: '#34d399' },
-        network_category: { colour: '#60a5fa' },
-        time_category: { colour: '#94a3b8' }
-      },
-      componentStyles: {
-        workspaceBackgroundColour: '#0b0f17',
-        toolboxBackgroundColour: '#111622',
-        toolboxForegroundColour: '#e2e8f0',
-        flyoutBackgroundColour: '#141b29',
-        flyoutForegroundColour: '#f1f5f9',
-        flyoutOpacity: 0.98,
-        scrollbarColour: '#243044',
-        scrollbarOpacity: 0.8,
-        insertionMarkerColour: '#38bdf8',
-        insertionMarkerOpacity: 0.85,
-        markerColour: '#38bdf8',
-        cursorColour: '#38bdf8'
-      },
-      fontStyle: {
-        family: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
-        weight: '600',
-        size: 11.5
-      }
-    });
-
-    return theme;
+      });
+    }
   },
 
   // 2. Register Custom Block Types
@@ -424,7 +486,10 @@ const dashboardBlocklyService = {
 
     containerEl.innerHTML = '';
 
-    const theme = Blockly.Themes.HaDarkTheme || 'haDarkTheme';
+    const isWhite = document.documentElement.getAttribute('data-theme') === 'white';
+    const theme = isWhite
+      ? (Blockly.Themes?.HaLightTheme || 'haLightTheme')
+      : (Blockly.Themes?.HaDarkTheme || 'haDarkTheme');
     const toolbox = this.getToolboxDef();
 
     this.workspace = Blockly.inject(containerEl, {
@@ -433,7 +498,7 @@ const dashboardBlocklyService = {
       grid: {
         spacing: 20,
         length: 2,
-        colour: 'rgba(255, 255, 255, 0.05)',
+        colour: isWhite ? 'rgba(0, 0, 0, 0.06)' : 'rgba(255, 255, 255, 0.05)',
         snap: true
       },
       zoom: {
@@ -465,6 +530,17 @@ const dashboardBlocklyService = {
     });
 
     return this.workspace;
+  },
+
+  setTheme(themeName) {
+    if (!this.workspace || typeof Blockly === 'undefined') return;
+    const isWhite = themeName === 'white';
+    const theme = isWhite
+      ? (Blockly.Themes?.HaLightTheme || 'haLightTheme')
+      : (Blockly.Themes?.HaDarkTheme || 'haDarkTheme');
+    try {
+      this.workspace.setTheme(theme);
+    } catch (_) {}
   },
 
   // 5. Import Rules from JSON Model to Visual Blocks
