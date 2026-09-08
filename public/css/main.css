@@ -565,6 +565,7 @@ code, pre {
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
+  box-shadow: none !important;
 }
 
 .theme-option-desc {
@@ -807,12 +808,12 @@ code, pre {
   justify-content: center;
   width: 52px;
   height: 52px;
-  background: linear-gradient(135deg, var(--accent-primary) 0%, #0d8363 100%);
+  background: var(--accent-primary);
   border-radius: var(--radius-lg);
   font-weight: 800;
   font-size: 1.6rem;
-  color: #04100c;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  color: var(--accent-primary-text, #04100c);
+  box-shadow: 0 4px 14px rgba(var(--accent-primary-rgb), 0.35);
   margin-bottom: 1rem;
 }
 
@@ -1320,12 +1321,12 @@ code, pre {
 }
 
 [data-theme="white"] .circuit-grid-dots {
-  fill: #28AFF3;
+  fill: var(--accent-primary);
   opacity: 0.22;
 }
 
 [data-theme="white"] .circuit-static-lines {
-  stroke: rgba(40, 175, 243, 0.2);
+  stroke: rgba(var(--accent-primary-rgb), 0.2);
   opacity: 0.85;
 }
 
@@ -1334,25 +1335,25 @@ code, pre {
 }
 
 [data-theme="white"] .circuit-pulse-lines path {
-  stroke: #28AFF3;
+  stroke: var(--accent-primary);
 }
 
 [data-theme="white"] .circuit-node-pulse {
-  fill: #28AFF3;
-  stroke: #28AFF3;
+  fill: var(--accent-primary);
+  stroke: var(--accent-primary);
   opacity: 0.75;
 }
 
 [data-theme="white"] .auth-card {
   background: #ffffff;
-  border: 1px solid rgba(40, 175, 243, 0.22);
-  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(40, 175, 243, 0.06);
+  border: 1px solid rgba(var(--accent-primary-rgb), 0.25);
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 4px 16px rgba(var(--accent-primary-rgb), 0.06);
 }
 
 [data-theme="white"] .auth-brand-badge {
-  background: linear-gradient(135deg, #28AFF3 0%, #0284c7 100%);
-  color: #ffffff;
-  box-shadow: 0 4px 14px rgba(40, 175, 243, 0.35);
+  background: var(--accent-primary);
+  color: var(--accent-primary-text, #ffffff);
+  box-shadow: 0 4px 14px rgba(var(--accent-primary-rgb), 0.35);
 }
 
 [data-theme="white"] .auth-title {
@@ -1378,7 +1379,7 @@ code, pre {
 
 [data-theme="white"] .auth-tab-btn.active {
   background: #ffffff;
-  color: #0284c7;
+  color: var(--accent-primary);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -1393,8 +1394,8 @@ code, pre {
 }
 
 [data-theme="white"] .auth-card .form-control:focus {
-  border-color: #28AFF3;
-  box-shadow: 0 0 0 3px rgba(40, 175, 243, 0.15);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary-rgb), 0.18);
 }
 
 [data-theme="white"] .auth-footer-version {

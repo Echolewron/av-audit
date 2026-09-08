@@ -510,7 +510,7 @@ const authView = {
     if (darkHex) darkHex.value = dColor.toUpperCase();
     if (darkDot) {
       darkDot.style.background = dColor;
-      darkDot.style.boxShadow = `0 0 8px ${dColor}99`;
+      darkDot.style.boxShadow = 'none';
     }
     if (darkDesc) {
       darkDesc.textContent = dColor.toLowerCase() === '#18edb3' ? 'Neon Green Accent' : `${dColor.toUpperCase()} Accent`;
@@ -525,7 +525,7 @@ const authView = {
     if (whiteHex) whiteHex.value = wColor.toUpperCase();
     if (whiteDot) {
       whiteDot.style.background = wColor;
-      whiteDot.style.boxShadow = `0 0 8px ${wColor}99`;
+      whiteDot.style.boxShadow = 'none';
     }
     if (whiteDesc) {
       whiteDesc.textContent = wColor.toLowerCase() === '#28aff3' ? 'Cyan #28AFF3 Accent' : `${wColor.toUpperCase()} Accent`;
