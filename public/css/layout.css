@@ -428,8 +428,8 @@
 
 .sidebar-version-badge.is-clickable:hover {
   color: var(--text-primary);
-  background: var(--accent-glow-subtle, rgba(24, 237, 179, 0.08));
-  border-color: var(--accent-border-glow, rgba(24, 237, 179, 0.35));
+  background: rgba(var(--accent-primary-rgb), 0.08);
+  border-color: rgba(var(--accent-primary-rgb), 0.35);
   box-shadow: none;
 }
 
@@ -441,7 +441,7 @@
 
 .sidebar-version-badge.is-clickable:active {
   transform: scale(0.97);
-  background: var(--accent-glow, rgba(24, 237, 179, 0.14));
+  background: rgba(var(--accent-primary-rgb), 0.14);
 }
 
 .sidebar-version-badge.is-clickable:focus-visible {
@@ -490,12 +490,34 @@
 
 #sidebar.collapsed .sidebar-version-badge.is-clickable:hover {
   color: var(--accent-primary);
-  background: var(--accent-glow, rgba(24, 237, 179, 0.12));
-  border-color: var(--accent-border-glow, rgba(24, 237, 179, 0.25));
+  background: rgba(var(--accent-primary-rgb), 0.12);
+  border-color: rgba(var(--accent-primary-rgb), 0.25);
 }
 
 #sidebar.collapsed .sidebar-version-badge .version-dot {
   display: none;
+}
+
+/* White Theme Sidebar Version Badge */
+[data-theme="white"] .sidebar-version-badge {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+[data-theme="white"] .sidebar-version-badge.is-clickable:hover {
+  color: var(--accent-primary);
+  background: rgba(var(--accent-primary-rgb), 0.08);
+  border-color: rgba(var(--accent-primary-rgb), 0.45);
+}
+
+[data-theme="white"] .sidebar-version-badge.is-clickable:active {
+  background: rgba(var(--accent-primary-rgb), 0.16);
+}
+
+[data-theme="white"] #sidebar.collapsed .sidebar-version-badge.is-clickable:hover {
+  background: rgba(var(--accent-primary-rgb), 0.1);
+  border-color: rgba(var(--accent-primary-rgb), 0.35);
 }
 
 #sidebar.collapsed .user-profile-widget {

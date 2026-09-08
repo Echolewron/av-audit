@@ -1221,6 +1221,17 @@ code, pre {
   word-break: break-word;
 }
 
+[data-theme="white"] .update-version-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+[data-theme="white"] .update-changelog-box {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #334155;
+}
+
 /* Global System Updating Screen Overlay */
 .system-updating-overlay {
   position: fixed;

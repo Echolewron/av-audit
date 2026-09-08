@@ -249,6 +249,9 @@ const app = {
   --accent-primary-hover: ${darkHover} !important;
   --accent-primary-rgb: ${darkRgb} !important;
   --accent-primary-glow: rgba(${darkRgb}, 0.25) !important;
+  --accent-glow: rgba(${darkRgb}, 0.15) !important;
+  --accent-glow-subtle: rgba(${darkRgb}, 0.08) !important;
+  --accent-border-glow: rgba(${darkRgb}, 0.35) !important;
   --accent-primary-text: ${darkText} !important;
 }
 [data-theme="white"] {
@@ -256,6 +259,9 @@ const app = {
   --accent-primary-hover: ${whiteHover} !important;
   --accent-primary-rgb: ${whiteRgb} !important;
   --accent-primary-glow: rgba(${whiteRgb}, 0.35) !important;
+  --accent-glow: rgba(${whiteRgb}, 0.15) !important;
+  --accent-glow-subtle: rgba(${whiteRgb}, 0.08) !important;
+  --accent-border-glow: rgba(${whiteRgb}, 0.35) !important;
   --accent-primary-text: ${whiteText} !important;
 }
 `;
