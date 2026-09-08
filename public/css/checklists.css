@@ -44,8 +44,8 @@
 }
 
 .checklist-card.in-progress:hover {
-  border-color: rgba(24, 237, 179, 0.4);
-  box-shadow: 0 4px 20px rgba(24, 237, 179, 0.08);
+  border-color: var(--accent-primary);
+  box-shadow: none;
 }
 
 /* Submitted / Dimmed Card (24h Retention State) */
@@ -94,7 +94,7 @@
 .checklist-card.card-add:hover .card-add-icon {
   background: var(--accent-primary);
   color: #04100c;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  box-shadow: none;
 }
 
 /* Card Elements */
@@ -224,21 +224,21 @@
   background: rgba(24, 237, 179, 0.16);
   color: #18edb3;
   border: 1px solid rgba(24, 237, 179, 0.45);
-  box-shadow: 0 1px 3px rgba(24, 237, 179, 0.12);
+  box-shadow: none;
 }
 
 .card-tag-status.badge-info {
   background: rgba(56, 189, 248, 0.16);
   color: #38bdf8;
   border: 1px solid rgba(56, 189, 248, 0.45);
-  box-shadow: 0 1px 3px rgba(56, 189, 248, 0.12);
+  box-shadow: none;
 }
 
 .card-tag-status.badge-danger {
   background: rgba(248, 113, 113, 0.16);
   color: #f87171;
   border: 1px solid rgba(248, 113, 113, 0.45);
-  box-shadow: 0 1px 3px rgba(248, 113, 113, 0.12);
+  box-shadow: none;
 }
 
 /* White Theme: High-Contrast, Vivid, Crisp Pills */
@@ -246,7 +246,7 @@
   background: #d1fae5;
   color: #065f46;
   border: 1.5px solid #059669;
-  box-shadow: 0 1px 3px rgba(5, 150, 105, 0.18);
+  box-shadow: none;
   font-weight: 700;
 }
 
@@ -254,7 +254,7 @@
   background: #dbeafe;
   color: #1e40af;
   border: 1.5px solid #2563eb;
-  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.18);
+  box-shadow: none;
   font-weight: 700;
 }
 
@@ -262,7 +262,7 @@
   background: #fee2e2;
   color: #991b1b;
   border: 1.5px solid #dc2626;
-  box-shadow: 0 1px 3px rgba(220, 38, 38, 0.18);
+  box-shadow: none;
   font-weight: 700;
 }
 
@@ -2284,9 +2284,9 @@
   pointer-events: none;
   box-sizing: border-box;
   opacity: 0.96;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1.5px var(--accent-primary), 0 0 20px rgba(24, 237, 179, 0.25);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 0 1.5px var(--accent-primary);
   background: var(--bg-surface-elevated);
-  border: 1px solid rgba(24, 237, 179, 0.4);
+  border: 1px solid rgba(var(--accent-primary-rgb), 0.4);
   border-radius: var(--radius-md);
   will-change: transform;
   transform: translate3d(0, 0, 0);
@@ -2295,9 +2295,9 @@
 
 .is-dragging {
   opacity: 0.25 !important;
-  outline: 2px dashed rgba(24, 237, 179, 0.55) !important;
+  outline: 2px dashed rgba(var(--accent-primary-rgb), 0.55) !important;
   outline-offset: -2px;
-  background: rgba(24, 237, 179, 0.04) !important;
+  background: rgba(var(--accent-primary-rgb), 0.04) !important;
   border-radius: var(--radius-md);
 }
 
@@ -2313,7 +2313,7 @@
   right: 0;
   height: 3.5px;
   background: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
+  box-shadow: none;
   border-radius: 3px;
   z-index: 20;
   pointer-events: none;
@@ -2331,7 +2331,7 @@
   right: 0;
   height: 3.5px;
   background: var(--accent-primary);
-  box-shadow: 0 0 10px rgba(24, 237, 179, 0.85), 0 0 18px rgba(24, 237, 179, 0.45);
+  box-shadow: none;
   border-radius: 3px;
   z-index: 20;
   pointer-events: none;
@@ -2341,7 +2341,7 @@
   outline: 2px dashed #a371f7 !important;
   outline-offset: 2px;
   background: rgba(163, 113, 247, 0.12) !important;
-  box-shadow: 0 0 12px rgba(163, 113, 247, 0.25) !important;
+  box-shadow: none !important;
   border-radius: var(--radius-md);
   position: relative;
 }
@@ -2602,23 +2602,23 @@
 }
 
 [data-theme="white"] .checklist-card.card-add:hover {
-  background: rgba(40, 175, 243, 0.05);
+  background: rgba(var(--accent-primary-rgb), 0.05);
   border-color: var(--accent-primary);
-  box-shadow: 0 4px 16px rgba(40, 175, 243, 0.12);
+  box-shadow: none;
 }
 
 [data-theme="white"] .checklist-card.card-add .card-add-icon {
   background: #ffffff;
   border-color: #cbd5e1;
   color: var(--accent-primary);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  box-shadow: none;
 }
 
 [data-theme="white"] .checklist-card.card-add:hover .card-add-icon {
   background: var(--accent-primary);
   color: #ffffff;
   border-color: var(--accent-primary);
-  box-shadow: 0 4px 12px rgba(40, 175, 243, 0.35);
+  box-shadow: none;
 }
 
 [data-theme="white"] .checklist-card.card-add .card-add-title {
@@ -2637,7 +2637,7 @@
 
 [data-theme="white"] .checklist-card.in-progress:hover {
   border-color: var(--accent-primary);
-  box-shadow: 0 4px 16px rgba(40, 175, 243, 0.12);
+  box-shadow: none;
 }
 
 [data-theme="white"] .execution-header {

@@ -3847,13 +3847,13 @@ body.editing-mode .add-section-container {
 .blocklyPath {
   stroke-width: 1.5px !important;
   stroke-linejoin: round !important;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.45));
+  filter: none !important;
 }
 
 .blocklySelected > .blocklyPath {
   stroke: #38bdf8 !important;
   stroke-width: 2.5px !important;
-  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.6)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+  filter: none !important;
 }
 
 /* Sleek Dark Block Inputs and Text Fields */

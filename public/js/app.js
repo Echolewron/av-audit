@@ -248,9 +248,10 @@ const app = {
   --accent-primary: ${this.darkAccent} !important;
   --accent-primary-hover: ${darkHover} !important;
   --accent-primary-rgb: ${darkRgb} !important;
-  --accent-primary-glow: rgba(${darkRgb}, 0.25) !important;
-  --accent-glow: rgba(${darkRgb}, 0.15) !important;
-  --accent-glow-subtle: rgba(${darkRgb}, 0.08) !important;
+  --accent-primary-glow: none !important;
+  --shadow-glow: none !important;
+  --accent-glow: rgba(${darkRgb}, 0.12) !important;
+  --accent-glow-subtle: rgba(${darkRgb}, 0.06) !important;
   --accent-border-glow: rgba(${darkRgb}, 0.35) !important;
   --accent-primary-text: ${darkText} !important;
 }
@@ -258,9 +259,10 @@ const app = {
   --accent-primary: ${this.whiteAccent} !important;
   --accent-primary-hover: ${whiteHover} !important;
   --accent-primary-rgb: ${whiteRgb} !important;
-  --accent-primary-glow: rgba(${whiteRgb}, 0.35) !important;
-  --accent-glow: rgba(${whiteRgb}, 0.15) !important;
-  --accent-glow-subtle: rgba(${whiteRgb}, 0.08) !important;
+  --accent-primary-glow: none !important;
+  --shadow-glow: none !important;
+  --accent-glow: rgba(${whiteRgb}, 0.12) !important;
+  --accent-glow-subtle: rgba(${whiteRgb}, 0.06) !important;
   --accent-border-glow: rgba(${whiteRgb}, 0.35) !important;
   --accent-primary-text: ${whiteText} !important;
 }
