@@ -105,6 +105,28 @@
   color: var(--status-warning);
 }
 
+/* White Theme Pending Queue & Badges */
+[data-theme="white"] .pending-queue-section {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+[data-theme="white"] .pending-queue-title {
+  color: #b45309;
+}
+
+[data-theme="white"] .pending-card {
+  background: #ffffff;
+  border-color: #fef08a;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="white"] .pending-avatar {
+  background: #fef3c7;
+  border-color: #d97706;
+  color: #b45309;
+}
+
 .pending-username {
   font-weight: 600;
   font-size: 0.9rem;

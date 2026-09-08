@@ -313,6 +313,12 @@
   margin-bottom: 1.25rem;
 }
 
+[data-theme="white"] .authority-restriction-banner {
+  background: #fffbeb;
+  border-color: #fde68a;
+  color: #b45309;
+}
+
 /* Mobile Responsive Optimization */
 @media (max-width: 768px) {
   .roles-layout {

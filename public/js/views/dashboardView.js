@@ -4321,17 +4321,15 @@ const dashboardView = {
       const badgeStyle = `background: ${role.color_hex}22; color: ${role.color_hex}; border: 1px solid ${role.color_hex}55;`;
 
       return `
-        <div class="role-checkbox-item">
-          <label class="role-checkbox-label">
-            <div class="custom-checkbox-wrapper">
-              <input type="checkbox" value="${role.id}" ${isChecked ? 'checked' : ''}>
-              <span class="custom-check-box">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </span>
-            </div>
-            <span class="badge user-role-badge" style="${badgeStyle}">${helpers.escapeHtml(role.name)}</span>
-          </label>
-        </div>
+        <label class="role-checkbox-item" style="display: flex; align-items: center; gap: 0.85rem; cursor: pointer;">
+          <div class="custom-checkbox-wrapper">
+            <input type="checkbox" value="${role.id}" ${isChecked ? 'checked' : ''}>
+            <span class="custom-check-box">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+          </div>
+          <span class="badge user-role-badge" style="${badgeStyle}">${helpers.escapeHtml(role.name)}</span>
+        </label>
       `;
     }).join('');
 

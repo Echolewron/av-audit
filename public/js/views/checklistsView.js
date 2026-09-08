@@ -612,7 +612,7 @@ const checklistsView = {
                 <span class="exec-section-chevron">▼</span>
                 <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:${secColor}; flex-shrink:0;"></span>
                 <strong style="color:var(--text-primary); font-size:0.95rem;">${secTitle}</strong>
-                ${isSectionOptional ? '<span class="badge" style="background:rgba(210,153,34,0.15); color:#e3b341; border:1px solid #d29922; font-size:0.7rem; padding:0.1rem 0.45rem;">⬠ Optional</span>' : ''}
+                ${isSectionOptional ? '<span class="badge badge-optional">⬠ Optional</span>' : ''}
               </div>
               <div style="font-size:0.775rem; color:var(--text-muted);">
                 ${secTasks.length} ${secTasks.length === 1 ? 'task' : 'tasks'}
@@ -748,7 +748,7 @@ const checklistsView = {
             <div class="task-body">
               <div class="task-title">
                 ${helpers.safeText(item.title)}
-                ${isOptional ? '<span class="badge" style="background:rgba(210,153,34,0.12); color:#e3b341; font-size:0.675rem; border:1px solid rgba(210,153,34,0.4); margin-left:0.4rem; padding:0.05rem 0.35rem;">Optional</span>' : ''}
+                ${isOptional ? '<span class="badge badge-optional" style="margin-left:0.4rem;">Optional</span>' : ''}
               </div>
               ${item.description ? `<div class="task-desc">${helpers.safeText(item.description)}</div>` : ''}
               ${issueDrawerHtml}

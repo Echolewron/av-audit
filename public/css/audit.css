@@ -256,6 +256,19 @@
 .cat-AUDIT { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.35); }
 .cat-GENERAL { background: rgba(139, 148, 158, 0.15); color: var(--text-muted); border-color: rgba(139, 148, 158, 0.3); }
 
+/* White Theme High-Contrast Category Pills */
+[data-theme="white"] .cat-ALL { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+[data-theme="white"] .cat-AUTH { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+[data-theme="white"] .cat-ACCOUNT { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+[data-theme="white"] .cat-ROLE { background: #f5f3ff; color: #6d28d9; border-color: #ddd6fe; }
+[data-theme="white"] .cat-CHECKLIST { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+[data-theme="white"] .cat-TEMPLATE { background: #fdf2f8; color: #be185d; border-color: #fbcfe8; }
+[data-theme="white"] .cat-AUTOMATION { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+[data-theme="white"] .cat-DASHBOARD { background: #f0f9ff; color: #0369a1; border-color: #bae6fd; }
+[data-theme="white"] .cat-SERMON_SENDER { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+[data-theme="white"] .cat-AUDIT { background: #f8fafc; color: #334155; border-color: #cbd5e1; }
+[data-theme="white"] .cat-GENERAL { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+
 /* User Role Display */
 .user-pill {
   display: inline-flex;

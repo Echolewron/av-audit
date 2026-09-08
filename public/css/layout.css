@@ -193,6 +193,26 @@
   stroke: #fb923c; /* 📜 Warm Orange */
 }
 
+/* White Theme: High-Contrast Distinguishable Palette */
+[data-theme="white"] .nav-item[data-nav="dashboard"] .nav-icon svg {
+  stroke: #0284c7; /* Vibrant Sky / Cyan */
+}
+[data-theme="white"] .nav-item[data-nav="sermon-sender"] .nav-icon svg {
+  stroke: #e11d48; /* Vibrant Rose / Red */
+}
+[data-theme="white"] .nav-item[data-nav="checklists"] .nav-icon svg {
+  stroke: #059669; /* Rich Emerald */
+}
+[data-theme="white"] .nav-item[data-nav="roles"] .nav-icon svg {
+  stroke: #d97706; /* Rich Amber Gold */
+}
+[data-theme="white"] .nav-item[data-nav="accounts"] .nav-icon svg {
+  stroke: #7c3aed; /* Vibrant Purple */
+}
+[data-theme="white"] .nav-item[data-nav="audit"] .nav-icon svg {
+  stroke: #ea580c; /* Rich Warm Orange */
+}
+
 .nav-link:hover .nav-icon svg {
   transform: scale(1.12);
   filter: brightness(1.2);
@@ -201,6 +221,21 @@
 .nav-link.active .nav-icon svg {
   transform: scale(1.06);
   filter: brightness(1.25);
+}
+
+[data-theme="white"] .nav-link:hover .nav-icon svg {
+  filter: brightness(0.9) saturate(1.25);
+}
+
+[data-theme="white"] .nav-link.active .nav-icon svg {
+  filter: brightness(0.85) saturate(1.3);
+}
+
+[data-theme="white"] .nav-link.active {
+  color: #0284c7;
+  background: rgba(40, 175, 243, 0.1);
+  border-left-color: #0284c7;
+  border-left-width: 3.5px;
 }
 
 .nav-text {
@@ -254,8 +289,31 @@
 .nav-badge {
   margin-left: auto;
   font-size: 0.7rem;
-  padding: 0.15rem 0.45rem;
+  padding: 0.15rem 0.5rem;
   border-radius: var(--radius-full);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+[data-theme="white"] .nav-badge.badge-warning {
+  background: #f59e0b;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="white"] .nav-badge.badge-success {
+  background: #10b981;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="white"] .nav-badge.badge-danger {
+  background: #ef4444;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 1px 3px rgba(239, 68, 68, 0.35);
 }
 
 #sidebar.collapsed .nav-badge {

@@ -228,6 +228,36 @@
   color: var(--text-secondary);
 }
 
+[data-theme="white"] .badge-disappearing {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #64748b;
+}
+
+[data-theme="white"] .checklist-card:hover .badge-disappearing {
+  color: #1e293b;
+  border-color: #94a3b8;
+}
+
+/* Optional Section & Task Badge */
+.badge-optional {
+  background: rgba(210, 153, 34, 0.15);
+  color: #e3b341;
+  border: 1px solid rgba(210, 153, 34, 0.35);
+  font-size: 0.675rem;
+  padding: 0.08rem 0.4rem;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+}
+
+[data-theme="white"] .badge-optional {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+
 /* Vertical Template Picker List for Instant Instantiation */
 .template-picker-list {
   display: flex;
