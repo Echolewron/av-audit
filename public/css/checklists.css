@@ -876,7 +876,7 @@
 .checker-popover-name {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #ffffff !important;
+  color: var(--text-primary) !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

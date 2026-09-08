@@ -271,6 +271,7 @@ const authView = {
         if (formChangePassword) formChangePassword.reset();
         this.clearFieldErrors('form-change-password');
         this.syncThemeUI(this.getCurrentTheme());
+        this.syncAccentUI();
         helpers.openModal('modal-user-settings');
       });
     }
@@ -368,6 +369,113 @@ const authView = {
         }
       });
     });
+
+    // Dark Theme Accent Customizer Controls
+    const darkPicker = document.getElementById('theme-dark-accent-picker');
+    const darkHex = document.getElementById('theme-dark-accent-hex');
+    const btnResetDark = document.getElementById('btn-reset-dark-accent');
+
+    if (darkPicker) {
+      darkPicker.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (darkHex) darkHex.value = val.toUpperCase();
+        if (window.app && typeof window.app.applyAccents === 'function') {
+          window.app.applyAccents({ darkAccent: val }, true);
+        }
+      });
+    }
+
+    if (darkHex) {
+      darkHex.addEventListener('input', (e) => {
+        let val = e.target.value.trim();
+        if (!val.startsWith('#')) val = '#' + val;
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+          if (darkPicker) darkPicker.value = val;
+          if (window.app && typeof window.app.applyAccents === 'function') {
+            window.app.applyAccents({ darkAccent: val }, true);
+          }
+        }
+      });
+    }
+
+    if (btnResetDark) {
+      btnResetDark.addEventListener('click', (e) => {
+        e.preventDefault();
+        const defaultDark = '#18edb3';
+        if (darkPicker) darkPicker.value = defaultDark;
+        if (darkHex) darkHex.value = defaultDark.toUpperCase();
+        if (window.app && typeof window.app.applyAccents === 'function') {
+          window.app.applyAccents({ darkAccent: defaultDark }, true);
+        }
+        helpers.showToast('Dark theme accent reset to default.', 'info');
+      });
+    }
+
+    // White Theme Accent Customizer Controls
+    const whitePicker = document.getElementById('theme-white-accent-picker');
+    const whiteHex = document.getElementById('theme-white-accent-hex');
+    const btnResetWhite = document.getElementById('btn-reset-white-accent');
+
+    if (whitePicker) {
+      whitePicker.addEventListener('input', (e) => {
+        const val = e.target.value;
+        if (whiteHex) whiteHex.value = val.toUpperCase();
+        if (window.app && typeof window.app.applyAccents === 'function') {
+          window.app.applyAccents({ whiteAccent: val }, true);
+        }
+      });
+    }
+
+    if (whiteHex) {
+      whiteHex.addEventListener('input', (e) => {
+        let val = e.target.value.trim();
+        if (!val.startsWith('#')) val = '#' + val;
+        if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+          if (whitePicker) whitePicker.value = val;
+          if (window.app && typeof window.app.applyAccents === 'function') {
+            window.app.applyAccents({ whiteAccent: val }, true);
+          }
+        }
+      });
+    }
+
+    if (btnResetWhite) {
+      btnResetWhite.addEventListener('click', (e) => {
+        e.preventDefault();
+        const defaultWhite = '#28AFF3';
+        if (whitePicker) whitePicker.value = defaultWhite;
+        if (whiteHex) whiteHex.value = defaultWhite.toUpperCase();
+        if (window.app && typeof window.app.applyAccents === 'function') {
+          window.app.applyAccents({ whiteAccent: defaultWhite }, true);
+        }
+        helpers.showToast('White theme accent reset to default.', 'info');
+      });
+    }
+
+    // Swatches for both themes
+    const swatchButtons = document.querySelectorAll('.theme-swatch-btn');
+    swatchButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = btn.dataset.target;
+        const color = btn.dataset.color;
+        if (!color) return;
+
+        if (target === 'dark') {
+          if (darkPicker) darkPicker.value = color;
+          if (darkHex) darkHex.value = color.toUpperCase();
+          if (window.app && typeof window.app.applyAccents === 'function') {
+            window.app.applyAccents({ darkAccent: color }, true);
+          }
+        } else if (target === 'white') {
+          if (whitePicker) whitePicker.value = color;
+          if (whiteHex) whiteHex.value = color.toUpperCase();
+          if (window.app && typeof window.app.applyAccents === 'function') {
+            window.app.applyAccents({ whiteAccent: color }, true);
+          }
+        }
+      });
+    });
   },
 
   getCurrentTheme() {
@@ -387,6 +495,52 @@ const authView = {
     if (indicator) {
       indicator.textContent = validTheme === 'white' ? 'White Theme Active' : 'Dark Theme Active';
     }
+  },
+
+  syncAccentUI(darkAccent, whiteAccent) {
+    const dColor = darkAccent || (window.app && window.app.darkAccent) || localStorage.getItem('av_audit_dark_accent') || '#18edb3';
+    const wColor = whiteAccent || (window.app && window.app.whiteAccent) || localStorage.getItem('av_audit_white_accent') || '#28AFF3';
+
+    const darkPicker = document.getElementById('theme-dark-accent-picker');
+    const darkHex = document.getElementById('theme-dark-accent-hex');
+    const darkDot = document.getElementById('theme-dot-dark');
+    const darkDesc = document.getElementById('theme-desc-dark');
+
+    if (darkPicker) darkPicker.value = dColor;
+    if (darkHex) darkHex.value = dColor.toUpperCase();
+    if (darkDot) {
+      darkDot.style.background = dColor;
+      darkDot.style.boxShadow = `0 0 8px ${dColor}99`;
+    }
+    if (darkDesc) {
+      darkDesc.textContent = dColor.toLowerCase() === '#18edb3' ? 'Neon Green Accent' : `${dColor.toUpperCase()} Accent`;
+    }
+
+    const whitePicker = document.getElementById('theme-white-accent-picker');
+    const whiteHex = document.getElementById('theme-white-accent-hex');
+    const whiteDot = document.getElementById('theme-dot-white');
+    const whiteDesc = document.getElementById('theme-desc-white');
+
+    if (whitePicker) whitePicker.value = wColor;
+    if (whiteHex) whiteHex.value = wColor.toUpperCase();
+    if (whiteDot) {
+      whiteDot.style.background = wColor;
+      whiteDot.style.boxShadow = `0 0 8px ${wColor}99`;
+    }
+    if (whiteDesc) {
+      whiteDesc.textContent = wColor.toLowerCase() === '#28aff3' ? 'Cyan #28AFF3 Accent' : `${wColor.toUpperCase()} Accent`;
+    }
+
+    // Highlight active swatch buttons
+    document.querySelectorAll('.theme-swatch-btn').forEach(btn => {
+      const target = btn.dataset.target;
+      const color = btn.dataset.color;
+      if (target === 'dark') {
+        btn.classList.toggle('active', color.toLowerCase() === dColor.toLowerCase());
+      } else if (target === 'white') {
+        btn.classList.toggle('active', color.toLowerCase() === wColor.toLowerCase());
+      }
+    });
   },
 
   showAuthPage(fromPublicChecklist = false) {

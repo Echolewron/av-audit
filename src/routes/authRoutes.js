@@ -187,50 +187,44 @@ router.get('/me', authMiddleware, (req, res) => {
       isAdmin: req.user.isAdmin,
       permissions: req.user.permissions,
       highestPosition: req.user.highestPosition,
-      theme: req.user.theme || 'dark'
+      theme: req.user.theme || 'dark',
+      dark_accent: req.user.dark_accent || '#18edb3',
+      white_accent: req.user.white_accent || '#28AFF3'
     }
   });
 });
 
-// Update User Theme Preference (persisted per user account)
-router.put('/theme', authMiddleware, (req, res) => {
+// Update User Theme & Accent Preference (persisted per user account)
+const handleThemeUpdate = (req, res) => {
   try {
-    const { theme } = req.body;
-    if (!theme || !['dark', 'white'].includes(theme)) {
-      return res.status(400).json({ error: 'INVALID_THEME', message: 'Theme must be either "dark" or "white".' });
+    const { theme, dark_accent, white_accent } = req.body;
+    const updates = {};
+    if (theme !== undefined) {
+      if (!['dark', 'white'].includes(theme)) {
+        return res.status(400).json({ error: 'INVALID_THEME', message: 'Theme must be either "dark" or "white".' });
+      }
+      updates.theme = theme;
     }
-    const { db } = require('../db/database');
-    const updated = db.users.update(req.user.id, { theme });
-    if (!updated) {
-      return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'User account not found.' });
+    const hexColorRegex = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
+    if (dark_accent !== undefined) {
+      if (!hexColorRegex.test(dark_accent)) {
+        return res.status(400).json({ error: 'INVALID_ACCENT', message: 'dark_accent must be a valid hex color string.' });
+      }
+      updates.dark_accent = dark_accent;
     }
-    const ipAddress = req.ip || req.connection.remoteAddress;
-    db.audit.log({
-      userId: req.user.id,
-      username: req.user.username,
-      actionType: 'ACCOUNT',
-      actionName: 'USER_THEME_CHANGED',
-      details: { theme },
-      ipAddress
-    });
-    res.json({
-      success: true,
-      message: `Theme preference saved as ${theme}.`,
-      theme
-    });
-  } catch (err) {
-    res.status(500).json({ error: 'THEME_UPDATE_FAILED', message: err.message });
-  }
-});
+    if (white_accent !== undefined) {
+      if (!hexColorRegex.test(white_accent)) {
+        return res.status(400).json({ error: 'INVALID_ACCENT', message: 'white_accent must be a valid hex color string.' });
+      }
+      updates.white_accent = white_accent;
+    }
 
-router.post('/theme', authMiddleware, (req, res) => {
-  try {
-    const { theme } = req.body;
-    if (!theme || !['dark', 'white'].includes(theme)) {
-      return res.status(400).json({ error: 'INVALID_THEME', message: 'Theme must be either "dark" or "white".' });
+    if (Object.keys(updates).length === 0) {
+      return res.status(400).json({ error: 'NO_UPDATES', message: 'No valid theme or accent provided to update.' });
     }
+
     const { db } = require('../db/database');
-    const updated = db.users.update(req.user.id, { theme });
+    const updated = db.users.update(req.user.id, updates);
     if (!updated) {
       return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'User account not found.' });
     }
@@ -240,17 +234,22 @@ router.post('/theme', authMiddleware, (req, res) => {
       username: req.user.username,
       actionType: 'ACCOUNT',
       actionName: 'USER_THEME_CHANGED',
-      details: { theme },
+      details: updates,
       ipAddress
     });
     res.json({
       success: true,
-      message: `Theme preference saved as ${theme}.`,
-      theme
+      message: 'Theme preference saved successfully.',
+      theme: updated.theme || 'dark',
+      dark_accent: updated.dark_accent || '#18edb3',
+      white_accent: updated.white_accent || '#28AFF3'
     });
   } catch (err) {
     res.status(500).json({ error: 'THEME_UPDATE_FAILED', message: err.message });
   }
-});
+};
+
+router.put('/theme', authMiddleware, handleThemeUpdate);
+router.post('/theme', authMiddleware, handleThemeUpdate);
 
 module.exports = router;

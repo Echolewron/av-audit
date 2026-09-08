@@ -9,10 +9,14 @@ const app = {
     // Initialize helpers & modals
     helpers.initModalCloseHandlers();
 
-    // Initialize cached theme
+    // Initialize cached theme & accents
     try {
       const initialTheme = localStorage.getItem('av_audit_theme') || 'dark';
       this.applyTheme(initialTheme);
+      this.applyAccents({
+        darkAccent: localStorage.getItem('av_audit_dark_accent') || '#18edb3',
+        whiteAccent: localStorage.getItem('av_audit_white_accent') || '#28AFF3'
+      });
     } catch (_) {}
     
     // Initialize views
@@ -169,10 +173,114 @@ const app = {
       dashboardBlocklyService.setTheme(validTheme);
     }
     if (save && this.user) {
-      api.auth.updateTheme(validTheme).catch(err => {
+      api.auth.updateTheme({ theme: validTheme }).catch(err => {
         console.error('Failed to save theme to user account:', err);
       });
     }
+  },
+
+  hexToRgb(hex) {
+    let clean = (hex || '#18edb3').replace('#', '');
+    if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+    const num = parseInt(clean, 16);
+    return [ (num >> 16) & 255, (num >> 8) & 255, num & 255 ].join(', ');
+  },
+
+  adjustBrightness(hex, percent) {
+    let clean = (hex || '#18edb3').replace('#', '');
+    if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+    const num = parseInt(clean, 16);
+    const r = Math.max(0, Math.min(255, ((num >> 16) & 255) + Math.round(255 * (percent / 100))));
+    const g = Math.max(0, Math.min(255, ((num >> 8) & 255) + Math.round(255 * (percent / 100))));
+    const b = Math.max(0, Math.min(255, (num & 255) + Math.round(255 * (percent / 100))));
+    return '#' + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+  },
+
+  getContrastText(hex) {
+    let clean = (hex || '#18edb3').replace('#', '');
+    if (clean.length === 3) clean = clean.split('').map(c => c + c).join('');
+    const num = parseInt(clean, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return yiq >= 150 ? '#051410' : '#ffffff';
+  },
+
+  applyAccents({ darkAccent, whiteAccent } = {}, save = false) {
+    if (darkAccent) this.darkAccent = darkAccent;
+    if (whiteAccent) this.whiteAccent = whiteAccent;
+
+    if (!this.darkAccent) {
+      this.darkAccent = (this.user && this.user.dark_accent) || localStorage.getItem('av_audit_dark_accent') || '#18edb3';
+    }
+    if (!this.whiteAccent) {
+      this.whiteAccent = (this.user && this.user.white_accent) || localStorage.getItem('av_audit_white_accent') || '#28AFF3';
+    }
+
+    try {
+      localStorage.setItem('av_audit_dark_accent', this.darkAccent);
+      localStorage.setItem('av_audit_white_accent', this.whiteAccent);
+    } catch (_) {}
+
+    if (this.user) {
+      this.user.dark_accent = this.darkAccent;
+      this.user.white_accent = this.whiteAccent;
+    }
+
+    let styleEl = document.getElementById('custom-theme-accents');
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = 'custom-theme-accents';
+      document.head.appendChild(styleEl);
+    }
+
+    const darkHover = this.adjustBrightness(this.darkAccent, -12);
+    const darkRgb = this.hexToRgb(this.darkAccent);
+    const darkText = this.getContrastText(this.darkAccent);
+
+    const whiteHover = this.adjustBrightness(this.whiteAccent, -12);
+    const whiteRgb = this.hexToRgb(this.whiteAccent);
+    const whiteText = this.getContrastText(this.whiteAccent);
+
+    styleEl.textContent = `
+:root {
+  --accent-primary: ${this.darkAccent} !important;
+  --accent-primary-hover: ${darkHover} !important;
+  --accent-primary-rgb: ${darkRgb} !important;
+  --accent-primary-glow: rgba(${darkRgb}, 0.25) !important;
+  --accent-primary-text: ${darkText} !important;
+}
+[data-theme="white"] {
+  --accent-primary: ${this.whiteAccent} !important;
+  --accent-primary-hover: ${whiteHover} !important;
+  --accent-primary-rgb: ${whiteRgb} !important;
+  --accent-primary-glow: rgba(${whiteRgb}, 0.35) !important;
+  --accent-primary-text: ${whiteText} !important;
+}
+`;
+
+    if (window.authView && typeof authView.syncAccentUI === 'function') {
+      authView.syncAccentUI(this.darkAccent, this.whiteAccent);
+    }
+
+    if (save && this.user) {
+      this.debouncedSaveAccents();
+    }
+  },
+
+  debouncedSaveAccents() {
+    if (this._saveAccentTimeout) clearTimeout(this._saveAccentTimeout);
+    this._saveAccentTimeout = setTimeout(() => {
+      if (this.user) {
+        api.auth.updateTheme({
+          dark_accent: this.darkAccent,
+          white_accent: this.whiteAccent
+        }).catch(err => {
+          console.error('Failed to save accent colors to user account:', err);
+        });
+      }
+    }, 350);
   },
 
   async loadCurrentUser() {
@@ -181,8 +289,16 @@ const app = {
     try {
       const res = await api.auth.me();
       this.user = res.user;
-      if (this.user && this.user.theme) {
-        this.applyTheme(this.user.theme);
+      if (this.user) {
+        if (this.user.theme) {
+          this.applyTheme(this.user.theme);
+        }
+        if (this.user.dark_accent || this.user.white_accent) {
+          this.applyAccents({
+            darkAccent: this.user.dark_accent,
+            whiteAccent: this.user.white_accent
+          });
+        }
       }
       this.appVersion = res.appVersion;
       if (res.appVersion) {

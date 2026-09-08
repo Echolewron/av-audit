@@ -695,7 +695,7 @@ const checklistsView = {
               <div class="checker-popover-header">
                 <div class="checker-popover-avatar">${helpers.escapeHtml(initial)}</div>
                 <div class="checker-popover-info">
-                  <div class="checker-popover-name" style="color: #ffffff;">${helpers.escapeHtml(username)}</div>
+                  <div class="checker-popover-name">${helpers.escapeHtml(username)}</div>
                   <div class="checker-popover-role" style="background-color: ${roleColor}22; color: ${roleColor}; border-color: ${roleColor}55;">${helpers.escapeHtml(roleName)}</div>
                 </div>
               </div>
@@ -1158,7 +1158,7 @@ const checklistsView = {
               <div class="checker-popover-header">
                 <div class="checker-popover-avatar">${helpers.escapeHtml(initial)}</div>
                 <div class="checker-popover-info">
-                  <div class="checker-popover-name" style="color: #ffffff;">${helpers.escapeHtml(username)}</div>
+                  <div class="checker-popover-name">${helpers.escapeHtml(username)}</div>
                   <div class="checker-popover-role" style="background-color: ${safeRoleColor}22; color: ${safeRoleColor}; border-color: ${safeRoleColor}55;">${helpers.escapeHtml(roleName || 'User')}</div>
                 </div>
               </div>

@@ -49,7 +49,10 @@ const api = {
     checkStatus: (username) => api.request(`/api/auth/check-status?username=${encodeURIComponent(username)}`),
     extendSession: () => api.request('/api/auth/extend-session', { method: 'POST' }),
     changePassword: (currentPassword, newPassword) => api.request('/api/auth/change-password', { method: 'POST', body: { currentPassword, newPassword } }),
-    updateTheme: (theme) => api.request('/api/auth/theme', { method: 'PUT', body: { theme } }),
+    updateTheme: (payload) => {
+      const body = typeof payload === 'string' ? { theme: payload } : payload;
+      return api.request('/api/auth/theme', { method: 'PUT', body });
+    },
     logout: () => api.request('/api/auth/logout', { method: 'POST' })
   },
 

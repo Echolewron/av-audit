@@ -81,7 +81,9 @@ function authMiddleware(req, res, next) {
     isAdmin,
     highestPosition,
     permissions: Array.from(permissionsSet),
-    theme: user.theme || 'dark'
+    theme: user.theme || 'dark',
+    dark_accent: user.dark_accent || '#18edb3',
+    white_accent: user.white_accent || '#28AFF3'
   };
   req.sessionToken = token;
 

@@ -533,6 +533,18 @@
   font-weight: 500;
 }
 
+.role-name-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  user-select: none;
+  line-height: 1.3;
+}
+
+[data-theme="white"] .role-name-text {
+  color: #0f172a;
+}
+
 /* Custom Checkmark Box Component */
 .custom-checkbox-wrapper {
   position: relative;
