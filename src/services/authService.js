@@ -28,7 +28,8 @@ class AuthService {
       username: cleanUsername,
       password_hash,
       role_ids: [],
-      status: 'PENDING'
+      status: 'PENDING',
+      theme: 'dark'
     });
 
     db.audit.log({
@@ -144,7 +145,8 @@ class AuthService {
         role_ids: user.role_ids,
         roles: userRoles,
         isAdmin,
-        permissions
+        permissions,
+        theme: user.theme || 'dark'
       }
     };
   }

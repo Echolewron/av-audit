@@ -186,9 +186,71 @@ router.get('/me', authMiddleware, (req, res) => {
       roles: req.user.roles,
       isAdmin: req.user.isAdmin,
       permissions: req.user.permissions,
-      highestPosition: req.user.highestPosition
+      highestPosition: req.user.highestPosition,
+      theme: req.user.theme || 'dark'
     }
   });
+});
+
+// Update User Theme Preference (persisted per user account)
+router.put('/theme', authMiddleware, (req, res) => {
+  try {
+    const { theme } = req.body;
+    if (!theme || !['dark', 'white'].includes(theme)) {
+      return res.status(400).json({ error: 'INVALID_THEME', message: 'Theme must be either "dark" or "white".' });
+    }
+    const { db } = require('../db/database');
+    const updated = db.users.update(req.user.id, { theme });
+    if (!updated) {
+      return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'User account not found.' });
+    }
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    db.audit.log({
+      userId: req.user.id,
+      username: req.user.username,
+      actionType: 'ACCOUNT',
+      actionName: 'USER_THEME_CHANGED',
+      details: { theme },
+      ipAddress
+    });
+    res.json({
+      success: true,
+      message: `Theme preference saved as ${theme}.`,
+      theme
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'THEME_UPDATE_FAILED', message: err.message });
+  }
+});
+
+router.post('/theme', authMiddleware, (req, res) => {
+  try {
+    const { theme } = req.body;
+    if (!theme || !['dark', 'white'].includes(theme)) {
+      return res.status(400).json({ error: 'INVALID_THEME', message: 'Theme must be either "dark" or "white".' });
+    }
+    const { db } = require('../db/database');
+    const updated = db.users.update(req.user.id, { theme });
+    if (!updated) {
+      return res.status(404).json({ error: 'USER_NOT_FOUND', message: 'User account not found.' });
+    }
+    const ipAddress = req.ip || req.connection.remoteAddress;
+    db.audit.log({
+      userId: req.user.id,
+      username: req.user.username,
+      actionType: 'ACCOUNT',
+      actionName: 'USER_THEME_CHANGED',
+      details: { theme },
+      ipAddress
+    });
+    res.json({
+      success: true,
+      message: `Theme preference saved as ${theme}.`,
+      theme
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'THEME_UPDATE_FAILED', message: err.message });
+  }
 });
 
 module.exports = router;

@@ -327,6 +327,7 @@ function seedInitialData() {
       password_hash,
       role_ids: [adminRoleId],
       status: 'ACTIVE',
+      theme: 'dark',
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString()
     }

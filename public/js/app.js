@@ -8,6 +8,12 @@ const app = {
     
     // Initialize helpers & modals
     helpers.initModalCloseHandlers();
+
+    // Initialize cached theme
+    try {
+      const initialTheme = localStorage.getItem('av_audit_theme') || 'dark';
+      this.applyTheme(initialTheme);
+    } catch (_) {}
     
     // Initialize views
     authView.init();
@@ -147,12 +153,34 @@ const app = {
     return match ? match[1] : null;
   },
 
+  applyTheme(theme, save = false) {
+    const validTheme = theme === 'white' ? 'white' : 'dark';
+    document.documentElement.setAttribute('data-theme', validTheme);
+    try {
+      localStorage.setItem('av_audit_theme', validTheme);
+    } catch (_) {}
+    if (this.user) {
+      this.user.theme = validTheme;
+    }
+    if (window.authView && typeof authView.syncThemeUI === 'function') {
+      authView.syncThemeUI(validTheme);
+    }
+    if (save && this.user) {
+      api.auth.updateTheme(validTheme).catch(err => {
+        console.error('Failed to save theme to user account:', err);
+      });
+    }
+  },
+
   async loadCurrentUser() {
     const targetChecklistId = this.publicChecklistId || this.getChecklistIdFromPath();
 
     try {
       const res = await api.auth.me();
       this.user = res.user;
+      if (this.user && this.user.theme) {
+        this.applyTheme(this.user.theme);
+      }
       this.appVersion = res.appVersion;
       if (res.appVersion) {
         const verEl = document.getElementById('app-version-label');

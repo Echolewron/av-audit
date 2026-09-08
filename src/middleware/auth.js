@@ -80,7 +80,8 @@ function authMiddleware(req, res, next) {
     roles: userRoles,
     isAdmin,
     highestPosition,
-    permissions: Array.from(permissionsSet)
+    permissions: Array.from(permissionsSet),
+    theme: user.theme || 'dark'
   };
   req.sessionToken = token;
 
@@ -119,7 +120,8 @@ function optionalAuthMiddleware(req, res, next) {
     roles: userRoles,
     isAdmin,
     highestPosition,
-    permissions: Array.from(permissionsSet)
+    permissions: Array.from(permissionsSet),
+    theme: user.theme || 'dark'
   };
   req.sessionToken = token;
   next();

@@ -30,6 +30,18 @@
   <link rel="stylesheet" href="/css/audit.css?v=3.8">
   <link rel="stylesheet" href="/css/dashboard.css?v=5.7">
   <link rel="stylesheet" href="/css/sermon-sender.css?v=3.8">
+  <script>
+    (function() {
+      try {
+        var savedTheme = localStorage.getItem('av_audit_theme');
+        if (savedTheme === 'white') {
+          document.documentElement.setAttribute('data-theme', 'white');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch (_) {}
+    })();
+  </script>
 </head>
 
 <body>
@@ -2155,6 +2167,65 @@
       </div>
       <form id="form-change-password" novalidate>
         <div class="modal-body">
+          <!-- Theme Preference Setting (First in modal) -->
+          <div class="theme-setting-container" id="setting-theme-container">
+            <label class="form-label" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+              <span>Theme &amp; Appearance</span>
+              <span id="theme-active-indicator" style="font-size: 0.725rem; font-weight: 600; text-transform: none; color: var(--accent-primary);">Dark Theme Active</span>
+            </label>
+            <div class="theme-options-grid">
+              <!-- Dark Theme Option -->
+              <div class="theme-option-card active" id="theme-opt-dark" role="button" tabindex="0" data-theme-val="dark" aria-label="Dark Theme">
+                <div class="theme-option-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                  </svg>
+                </div>
+                <div class="theme-option-info">
+                  <div class="theme-option-title">
+                    <span>Dark</span>
+                    <span class="theme-accent-dot" style="background: #18edb3; box-shadow: 0 0 8px rgba(24, 237, 179, 0.6);" title="Neon Green Accent"></span>
+                  </div>
+                  <div class="theme-option-desc">Neon Green Accent</div>
+                </div>
+                <div class="theme-check-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+
+              <!-- White Theme Option -->
+              <div class="theme-option-card" id="theme-opt-white" role="button" tabindex="0" data-theme-val="white" aria-label="White Theme">
+                <div class="theme-option-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                  </svg>
+                </div>
+                <div class="theme-option-info">
+                  <div class="theme-option-title">
+                    <span>White</span>
+                    <span class="theme-accent-dot" style="background: #28AFF3; box-shadow: 0 0 8px rgba(40, 175, 243, 0.6);" title="Cyan #28AFF3 Accent"></span>
+                  </div>
+                  <div class="theme-option-desc">Cyan #28AFF3 Accent</div>
+                </div>
+                <div class="theme-check-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="settings-user-summary"
             style="display: flex; align-items: center; gap: 0.75rem; padding: 0.85rem 1rem; background: var(--bg-surface); border: 1px solid var(--border-muted); border-radius: var(--radius-md); margin-bottom: 1.25rem;">
             <div class="user-avatar" id="modal-settings-avatar" style="width: 38px; height: 38px; font-size: 1.1rem;">A

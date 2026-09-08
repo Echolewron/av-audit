@@ -270,6 +270,7 @@ const authView = {
         }
         if (formChangePassword) formChangePassword.reset();
         this.clearFieldErrors('form-change-password');
+        this.syncThemeUI(this.getCurrentTheme());
         helpers.openModal('modal-user-settings');
       });
     }
@@ -342,6 +343,49 @@ const authView = {
           window.app.enterPublicReadOnlyMode(window.app.publicChecklistId);
         }
       });
+    }
+
+    // Theme Option Cards in Account Settings Modal
+    const themeCards = document.querySelectorAll('.theme-option-card');
+    themeCards.forEach(card => {
+      const handleThemeSelect = () => {
+        const targetTheme = card.dataset.themeVal;
+        if (window.app && typeof window.app.applyTheme === 'function') {
+          window.app.applyTheme(targetTheme, true);
+        } else {
+          document.documentElement.setAttribute('data-theme', targetTheme);
+          try { localStorage.setItem('av_audit_theme', targetTheme); } catch (_) {}
+        }
+        this.syncThemeUI(targetTheme);
+        helpers.showToast(`Theme switched to ${targetTheme === 'white' ? 'White' : 'Dark'}!`, 'success');
+      };
+
+      card.addEventListener('click', handleThemeSelect);
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          handleThemeSelect();
+        }
+      });
+    });
+  },
+
+  getCurrentTheme() {
+    if (window.app && window.app.user && window.app.user.theme) {
+      return window.app.user.theme;
+    }
+    return document.documentElement.getAttribute('data-theme') || (localStorage.getItem('av_audit_theme') || 'dark');
+  },
+
+  syncThemeUI(theme) {
+    const validTheme = theme === 'white' ? 'white' : 'dark';
+    const darkCard = document.getElementById('theme-opt-dark');
+    const whiteCard = document.getElementById('theme-opt-white');
+    const indicator = document.getElementById('theme-active-indicator');
+    if (darkCard) darkCard.classList.toggle('active', validTheme === 'dark');
+    if (whiteCard) whiteCard.classList.toggle('active', validTheme === 'white');
+    if (indicator) {
+      indicator.textContent = validTheme === 'white' ? 'White Theme Active' : 'Dark Theme Active';
     }
   },
 

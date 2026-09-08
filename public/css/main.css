@@ -18,7 +18,12 @@
 
   --accent-primary: #18edb3;
   --accent-primary-hover: #12cf9b;
-  --accent-primary-glow: transparent;
+  --accent-primary-rgb: 24, 237, 179;
+  --accent-primary-glow: rgba(24, 237, 179, 0.25);
+  --accent-glow: rgba(24, 237, 179, 0.12);
+  --accent-glow-subtle: rgba(24, 237, 179, 0.06);
+  --accent-border-glow: rgba(24, 237, 179, 0.35);
+  --accent-primary-text: #051410;
   --accent-secondary: #58a6ff;
   --accent-purple: #bc8cff;
 
@@ -57,6 +62,72 @@
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-full: 9999px;
+}
+
+/* ==========================================================================
+   WHITE THEME SPECIFICATION
+   Accent Color: Cyan #28AFF3 (per user specification)
+   ========================================================================== */
+[data-theme="white"] {
+  /* Color Palette - Clean Professional White Theme */
+  --bg-base: #f6f8fa;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-hover: #f1f4f8;
+  --bg-surface-active: #e3e8f0;
+
+  --border-subtle: #e2e8f0;
+  --border-muted: #d0d7de;
+  --border-focus: #28AFF3;
+  --border-glow: rgba(40, 175, 243, 0.25);
+
+  /* Accent Color: Cyan #28AFF3 */
+  --accent-primary: #28AFF3;
+  --accent-primary-hover: #199ee2;
+  --accent-primary-rgb: 40, 175, 243;
+  --accent-primary-glow: rgba(40, 175, 243, 0.35);
+  --accent-glow: rgba(40, 175, 243, 0.14);
+  --accent-glow-subtle: rgba(40, 175, 243, 0.08);
+  --accent-border-glow: rgba(40, 175, 243, 0.35);
+  --accent-primary-text: #ffffff;
+  --accent-secondary: #0284c7;
+  --accent-purple: #7c3aed;
+
+  /* Typography Colors */
+  --text-primary: #1e293b;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-disabled: #94a3b8;
+
+  /* Status Colors (Optimized for High Contrast on White) */
+  --status-success: #059669;
+  --status-warning: #d97706;
+  --status-danger: #dc2626;
+  --status-danger-bg: rgba(220, 38, 38, 0.1);
+  --status-warning-bg: rgba(217, 119, 6, 0.1);
+  --status-info-bg: rgba(40, 175, 243, 0.12);
+  --status-success-bg: rgba(5, 150, 105, 0.1);
+
+  /* Shadows & Glassmorphism */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --shadow-glow: 0 0 16px rgba(40, 175, 243, 0.35);
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-border: #d0d7de;
+
+  /* Home Assistant Dashboard Overrides */
+  --ha-bg: #f6f8fa;
+  --ha-surface: #ffffff;
+  --ha-header-bg: #ffffff;
+  --ha-text-primary: #1e293b;
+  --ha-text-secondary: #64748b;
+  --ha-border: #e2e8f0;
+  --ha-border-subtle: #cbd5e1;
+  --ha-card-bg: #ffffff;
+  --ha-card-hover: #f8fafc;
+  --ha-blue: #28AFF3;
+  --ha-blue-dark: #199ee2;
 }
 
 /* Base Resets */
@@ -139,13 +210,21 @@ code, pre {
 
 .btn-primary {
   background: var(--accent-primary);
-  color: #051410;
+  color: var(--accent-primary-text, #051410);
   font-weight: 600;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .btn-primary:hover {
   background: var(--accent-primary-hover);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="white"] .btn-primary {
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(40, 175, 243, 0.35);
+}
+[data-theme="white"] .btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(40, 175, 243, 0.45);
 }
 
 .btn-secondary {
@@ -360,6 +439,133 @@ code, pre {
   padding: 1rem 1.5rem;
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface);
+}
+
+[data-theme="white"] .modal-backdrop {
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+}
+
+[data-theme="white"] .modal-dialog {
+  background: #ffffff;
+  border-color: var(--border-subtle);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="white"] .modal-header,
+[data-theme="white"] .modal-footer {
+  background: #ffffff;
+  border-color: var(--border-subtle);
+}
+
+/* ==========================================================================
+   USER SETTINGS MODAL - THEME PICKER STYLES
+   ========================================================================== */
+.theme-setting-container {
+  margin-bottom: 1.25rem;
+}
+
+.theme-options-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.theme-option-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: var(--bg-surface);
+  border: 1.5px solid var(--border-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+  user-select: none;
+  position: relative;
+  outline: none;
+}
+
+.theme-option-card:hover {
+  border-color: var(--accent-primary);
+  background: var(--bg-surface-hover);
+}
+
+.theme-option-card.active {
+  border-color: var(--accent-primary);
+  background: var(--accent-glow-subtle);
+  box-shadow: 0 0 0 1.5px var(--accent-primary);
+}
+
+.theme-option-card:focus-visible {
+  box-shadow: 0 0 0 2px var(--accent-primary);
+}
+
+.theme-option-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+  color: var(--text-primary);
+}
+
+.theme-option-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-option-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.theme-accent-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.theme-option-desc {
+  font-size: 0.725rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.theme-check-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-primary);
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.theme-option-card.active .theme-check-icon {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (max-width: 480px) {
+  .theme-options-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
 }
 
 /* Toast Notifications */

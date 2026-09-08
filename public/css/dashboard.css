@@ -764,6 +764,29 @@
   --ha-card-hover: #242b3d;
 }
 
+[data-theme="white"] {
+  --ha-bg: #f6f8fa;
+  --ha-surface: #ffffff;
+  --ha-header-bg: #ffffff;
+  --ha-text-primary: #1e293b;
+  --ha-text-secondary: #64748b;
+  --ha-border: #e2e8f0;
+  --ha-border-subtle: #cbd5e1;
+  --ha-card-bg: #ffffff;
+  --ha-card-hover: #f8fafc;
+  --ha-blue: #28AFF3;
+  --ha-blue-dark: #199ee2;
+  --ha-amber: #d97706;
+  --ha-amber-bg: rgba(217, 119, 6, 0.12);
+  --ha-amber-slider: #f59e0b;
+  --ha-green: #059669;
+  --ha-green-bg: rgba(5, 150, 105, 0.12);
+  --ha-red: #dc2626;
+  --ha-red-bg: rgba(220, 38, 38, 0.12);
+  --ha-purple: #7c3aed;
+  --ha-purple-bg: rgba(124, 58, 237, 0.12);
+}
+
 /* Badges & Status Pills */
 .dashboard-badges-wrapper {
   margin-bottom: 0.75rem;
@@ -2390,7 +2413,7 @@ body.editing-mode .add-section-container {
 
 .macro-name-input:hover,
 .macro-name-input:focus {
-  background: #0d1117;
+  background: var(--ha-surface, #0d1117);
   border-color: var(--ha-border);
   outline: none;
 }
@@ -2522,7 +2545,7 @@ body.editing-mode .add-section-container {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #0d1117;
+  background: var(--ha-surface, #0d1117);
   border-top: 1px solid var(--ha-border-subtle);
 }
 
@@ -2858,10 +2881,10 @@ body.editing-mode .add-section-container {
 .block-webhook-body-area textarea {
   width: 100%;
   min-height: 58px;
-  background: #0d1117;
+  background: var(--ha-surface, #0d1117);
   border: 1px solid var(--ha-border-subtle);
   border-radius: 6px;
-  color: #e2e8f0;
+  color: var(--ha-text-primary, #e2e8f0);
   font-family: var(--font-mono);
   font-size: 0.775rem;
   padding: 6px 8px;
@@ -2870,11 +2893,11 @@ body.editing-mode .add-section-container {
 
 /* Modern Conditional & Loop Flow Cards */
 .flow-container-card {
-  background: #121620;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--ha-card-bg, #121620);
+  border: 1px solid var(--ha-border-subtle, rgba(255, 255, 255, 0.1));
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  box-shadow: var(--shadow-md, 0 4px 16px rgba(0, 0, 0, 0.35));
   display: flex;
   flex-direction: column;
   transition: all 0.15s ease;
@@ -2882,12 +2905,12 @@ body.editing-mode .add-section-container {
 }
 
 .flow-container-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: var(--ha-blue, rgba(255, 255, 255, 0.2));
 }
 
 .flow-header-bar {
-  background: rgba(255, 255, 255, 0.03);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--ha-header-bg, rgba(255, 255, 255, 0.03));
+  border-bottom: 1px solid var(--ha-border-subtle, rgba(255, 255, 255, 0.06));
   padding: 8px 12px;
   display: flex;
   align-items: center;
@@ -2898,7 +2921,7 @@ body.editing-mode .add-section-container {
 
 .flow-header-bar input,
 .flow-header-bar select {
-  background: #0d1117;
+  background: var(--ha-surface, #0d1117);
   border: 1px solid var(--ha-border-subtle);
   color: var(--ha-text-primary);
   font-family: var(--font-mono);

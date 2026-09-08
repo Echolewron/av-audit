@@ -85,6 +85,12 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
+[data-theme="white"] .brand-icon {
+  background: linear-gradient(135deg, var(--accent-primary) 0%, #0284c7 100%);
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(40, 175, 243, 0.35);
+}
+
 .brand-name {
   transition: opacity var(--transition-fast);
 }
@@ -144,7 +150,7 @@
 
 .nav-link.active {
   color: var(--accent-primary);
-  background: rgba(24, 237, 179, 0.08);
+  background: var(--accent-glow-subtle, rgba(24, 237, 179, 0.08));
   border-left-color: var(--accent-primary);
   font-weight: 600;
 }
@@ -213,7 +219,7 @@
 }
 
 #sidebar.collapsed .nav-link.active {
-  background: rgba(24, 237, 179, 0.12);
+  background: var(--accent-glow, rgba(24, 237, 179, 0.12));
   color: var(--accent-primary);
   border-radius: var(--radius-md);
 }
@@ -265,6 +271,10 @@
   background: rgba(13, 17, 23, 0.5);
 }
 
+[data-theme="white"] .sidebar-footer {
+  background: #ffffff;
+}
+
 .user-profile-widget {
   display: flex;
   flex-direction: column;
@@ -287,7 +297,7 @@
   height: 32px;
   min-width: 32px;
   border-radius: 50%;
-  background: #21262d;
+  background: var(--bg-surface-hover, #21262d);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -359,8 +369,8 @@
 
 .sidebar-version-badge.is-clickable:hover {
   color: var(--text-primary);
-  background: rgba(24, 237, 179, 0.08);
-  border-color: rgba(24, 237, 179, 0.35);
+  background: var(--accent-glow-subtle, rgba(24, 237, 179, 0.08));
+  border-color: var(--accent-border-glow, rgba(24, 237, 179, 0.35));
   box-shadow: none;
 }
 
@@ -372,7 +382,7 @@
 
 .sidebar-version-badge.is-clickable:active {
   transform: scale(0.97);
-  background: rgba(24, 237, 179, 0.14);
+  background: var(--accent-glow, rgba(24, 237, 179, 0.14));
 }
 
 .sidebar-version-badge.is-clickable:focus-visible {
@@ -421,8 +431,8 @@
 
 #sidebar.collapsed .sidebar-version-badge.is-clickable:hover {
   color: var(--accent-primary);
-  background: rgba(24, 237, 179, 0.12);
-  border-color: rgba(24, 237, 179, 0.25);
+  background: var(--accent-glow, rgba(24, 237, 179, 0.12));
+  border-color: var(--accent-border-glow, rgba(24, 237, 179, 0.25));
 }
 
 #sidebar.collapsed .sidebar-version-badge .version-dot {
