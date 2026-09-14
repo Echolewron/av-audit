@@ -143,7 +143,7 @@ function calculateChecklistStats(items) {
 
 class ChecklistService {
   getAllChecklists() {
-    // Run lazy purge check for 24h expired
+    // Run lazy purge check for expired submissions
     db.checklists.purgeSubmittedExpired();
     
     const all = db.checklists.findAll();

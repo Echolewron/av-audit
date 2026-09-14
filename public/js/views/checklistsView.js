@@ -298,9 +298,9 @@ const checklistsView = {
             <div class="card-tags">
               ${statusBadge}
               ${isSubmitted ? `
-                <span class="badge-disappearing" title="Auto-deletes 6 hours from submission">
+                <span class="badge-disappearing" title="Auto-deletes 7 days from submission">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <span>6h</span>
+                  <span>7d</span>
                 </span>
               ` : ''}
               <div class="card-meta" style="margin-left: 0.25rem;">${metaText}</div>

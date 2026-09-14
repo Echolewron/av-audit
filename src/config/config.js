@@ -45,7 +45,12 @@ const DEFAULT_ADMIN_USERNAME = (authConfig.defaultAdminUsername || 'admin').trim
 const DEFAULT_ADMIN_PASSWORD = authConfig.defaultAdminPassword || 'admin123';
 
 const DEFAULT_LOG_RETENTION_DAYS = parseInt(retentionConfig.defaultLogRetentionDays, 10) || 30;
-const CHECKLIST_SUBMISSION_PURGE_HOURS = parseInt(retentionConfig.checklistSubmissionPurgeHours, 10) || 6;
+const CHECKLIST_SUBMISSION_PURGE_HOURS = 
+  (retentionConfig.checklistSubmissionPurgeHours !== undefined && !isNaN(parseInt(retentionConfig.checklistSubmissionPurgeHours, 10)))
+    ? parseInt(retentionConfig.checklistSubmissionPurgeHours, 10)
+    : ((retentionConfig.checklistSubmissionPurgeDays !== undefined && !isNaN(parseInt(retentionConfig.checklistSubmissionPurgeDays, 10)))
+        ? parseInt(retentionConfig.checklistSubmissionPurgeDays, 10) * 24
+        : 168); // Default 7 days (168 hours)
 
 /**
  * Resolves relative or localhost URLs dynamically to the active configured PORT
