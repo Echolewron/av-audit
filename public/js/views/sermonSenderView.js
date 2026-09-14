@@ -818,13 +818,13 @@ const sermonSenderView = {
       return `
         <div class="sermon-history-card" data-id="${sub.id}">
           <div class="sermon-history-card-top">
-            <span class="sermon-ctx-pill-tag ${tagClass}">${helpers.escapeHtml(sub.context || 'General')}</span>
-            <span class="sermon-history-date">${dateStr} ${timeStr}</span>
+            <span class="sermon-ctx-pill-tag ${tagClass}" title="${helpers.escapeHtml(sub.context || 'General')}">${helpers.escapeHtml(sub.context || 'General')}</span>
           </div>
           <div class="sermon-history-card-title" title="${helpers.escapeHtml(sub.title)}">
             ${helpers.escapeHtml(sub.title)}
           </div>
           <div class="sermon-history-card-bottom">
+            <span class="sermon-history-date">${dateStr} · ${timeStr}</span>
             <div class="sermon-history-actions">
               <!-- Resend Button (Heroicon Refresh / Arrow Path) -->
               <button type="button" class="btn-sermon-action btn-resend-sermon" data-resend-id="${sub.id}" title="Resend sermon email">

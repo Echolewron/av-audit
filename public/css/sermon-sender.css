@@ -342,6 +342,10 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sermon-ctx-pill-tag.tag-sabbath {
@@ -788,14 +792,8 @@
 
 .sermon-history-card-top {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 6px;
-}
-
-.sermon-history-date {
-  font-size: 0.725rem;
-  color: var(--text-muted, #6e7681);
 }
 
 .sermon-history-card-title {
@@ -809,10 +807,19 @@
 
 .sermon-history-card-bottom {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
   margin-top: 4px;
+}
+
+.sermon-history-date {
+  font-size: 0.725rem;
+  color: var(--text-muted, #6e7681);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .sermon-history-actions {
