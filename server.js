@@ -163,7 +163,7 @@ app.get(['/checklist/:id', '/c/:id'], (req, res) => {
   <meta name="twitter:title" content="${safeTitle}">
   <meta name="twitter:description" content="${checklist.progress}% Completed • ${statusText}">
   <meta name="twitter:image" content="${previewImgUrl}">
-  <meta name="theme-color" content="${hasBlocked ? '#f85149' : (isSubmitted ? '#58a6ff' : '#18edb3')}">
+  <meta name="theme-color" content="${hasBlocked ? '#f85149' : '#18edb3'}">
   <script>window.__INITIAL_CHECKLIST_ID__ = "${checklist.id}";</script>`;
 
     let injectedHtml = html.replace(

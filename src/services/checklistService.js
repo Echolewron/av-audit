@@ -604,8 +604,8 @@ class ChecklistService {
     const hasBlocked = Boolean((chk.has_blocked || blockedCount > 0) && !isSubmitted);
     const progress = isSubmitted ? 100 : (chk.progress || 0);
 
-    // Accent color: Green normally, Red if blocked items exist, Blue if submitted
-    const accentColor = hasBlocked ? '#f85149' : (isSubmitted ? '#58a6ff' : '#18edb3');
+    // Accent color: Green normally/completed (#18edb3), Red if blocked items exist (#f85149)
+    const accentColor = hasBlocked ? '#f85149' : '#18edb3';
     const isCompleted = (progress === 100 && !hasBlocked);
 
     let progressLabelText = 'Checklist Progress';
@@ -615,11 +615,8 @@ class ChecklistService {
       progressLabelText = blockedCount > 1 ? `Blocked Items Reported (${blockedCount} Issues)` : `Blocked Items Reported`;
       progressLabelColor = '#f85149';
     } else if (isCompleted) {
-      progressLabelText = 'All Items Completed';
+      progressLabelText = 'ALL ITEMS COMPLETED';
       progressLabelColor = '#18edb3';
-    } else if (isSubmitted) {
-      progressLabelText = 'Submitted Checklist';
-      progressLabelColor = '#58a6ff';
     }
 
     // Wrap long titles across multiple lines
