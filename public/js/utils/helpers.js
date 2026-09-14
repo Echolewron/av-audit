@@ -219,6 +219,79 @@ const helpers = {
 
     // 1-hour halftime exponential decay: Score = 1000 * 2^(-delta)
     return 1000 * Math.pow(0.5, minDeltaHours);
+  },
+
+  // Calculate human-friendly purge countdown and tooltip
+  formatPurgeCountdown(purgeAt, submittedAt) {
+    let targetTime = null;
+    if (purgeAt) {
+      targetTime = new Date(purgeAt).getTime();
+    } else if (submittedAt) {
+      targetTime = new Date(submittedAt).getTime() + (7 * 24 * 60 * 60 * 1000);
+    }
+
+    if (!targetTime || isNaN(targetTime)) {
+      return {
+        badgeText: '7d',
+        tooltip: 'Auto-deletes in 7 days from submission'
+      };
+    }
+
+    const now = Date.now();
+    const remainingMs = targetTime - now;
+
+    if (remainingMs <= 0) {
+      return {
+        badgeText: '<1m',
+        tooltip: 'Auto-deleting momentarily'
+      };
+    }
+
+    const totalDays = remainingMs / (24 * 60 * 60 * 1000);
+    const totalHours = remainingMs / (60 * 60 * 1000);
+    const totalMinutes = remainingMs / (60 * 1000);
+
+    let badgeText = '7d';
+    if (totalDays >= 1) {
+      // Use Math.ceil so 6 days 23 hours displays as '7d' (not '6d')
+      const days = Math.ceil(totalDays);
+      badgeText = `${days}d`;
+    } else if (totalHours >= 1) {
+      const hours = Math.ceil(totalHours);
+      badgeText = `${hours}h`;
+    } else {
+      const mins = Math.max(1, Math.ceil(totalMinutes));
+      badgeText = `${mins}m`;
+    }
+
+    // Build descriptive tooltip breakdown: e.g. "Auto-deletes in 6 days, 23 hours (Sep 20, 9:15 PM)"
+    const fullDays = Math.floor(remainingMs / (24 * 60 * 60 * 1000));
+    const remHoursAfterDays = Math.floor((remainingMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+    const remMinsAfterHours = Math.floor((remainingMs % (60 * 60 * 1000)) / (60 * 1000));
+
+    const parts = [];
+    if (fullDays > 0) {
+      parts.push(`${fullDays} day${fullDays === 1 ? '' : 's'}`);
+    }
+    if (remHoursAfterDays > 0) {
+      parts.push(`${remHoursAfterDays} hour${remHoursAfterDays === 1 ? '' : 's'}`);
+    }
+    if (fullDays === 0 && remMinsAfterHours > 0) {
+      parts.push(`${remMinsAfterHours} min${remMinsAfterHours === 1 ? '' : 's'}`);
+    }
+    if (parts.length === 0) {
+      parts.push('less than a minute');
+    }
+
+    const formattedTarget = this.formatSubmissionTimeLA ? this.formatSubmissionTimeLA(new Date(targetTime)) : '';
+    const tooltip = formattedTarget 
+      ? `Auto-deletes in ${parts.join(', ')} (${formattedTarget})`
+      : `Auto-deletes in ${parts.join(', ')}`;
+
+    return {
+      badgeText,
+      tooltip
+    };
   }
 };
 

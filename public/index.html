@@ -31,7 +31,7 @@
   <link rel="stylesheet" href="/css/dashboard.css?v=6.6">
   <link rel="stylesheet" href="/css/sermon-sender.css?v=6.6">
   <script>
-    (function() {
+    (function () {
       try {
         var savedTheme = localStorage.getItem('av_audit_theme');
         if (savedTheme === 'white') {
@@ -45,13 +45,13 @@
 
         function hexToRgb(hex) {
           var clean = (hex || '#18edb3').replace('#', '');
-          if (clean.length === 3) clean = clean.split('').map(function(c) { return c + c; }).join('');
+          if (clean.length === 3) clean = clean.split('').map(function (c) { return c + c; }).join('');
           var num = parseInt(clean, 16);
-          return [ (num >> 16) & 255, (num >> 8) & 255, num & 255 ].join(', ');
+          return [(num >> 16) & 255, (num >> 8) & 255, num & 255].join(', ');
         }
         function adjustBrightness(hex, percent) {
           var clean = (hex || '#18edb3').replace('#', '');
-          if (clean.length === 3) clean = clean.split('').map(function(c) { return c + c; }).join('');
+          if (clean.length === 3) clean = clean.split('').map(function (c) { return c + c; }).join('');
           var num = parseInt(clean, 16);
           var r = Math.max(0, Math.min(255, ((num >> 16) & 255) + Math.round(255 * (percent / 100))));
           var g = Math.max(0, Math.min(255, ((num >> 8) & 255) + Math.round(255 * (percent / 100))));
@@ -60,7 +60,7 @@
         }
         function getContrastText(hex) {
           var clean = (hex || '#18edb3').replace('#', '');
-          if (clean.length === 3) clean = clean.split('').map(function(c) { return c + c; }).join('');
+          if (clean.length === 3) clean = clean.split('').map(function (c) { return c + c; }).join('');
           var num = parseInt(clean, 16);
           var r = (num >> 16) & 255;
           var g = (num >> 8) & 255;
@@ -79,31 +79,31 @@
         var whiteRgb = hexToRgb(whiteAccent);
         var whiteText = getContrastText(whiteAccent);
 
-        styleEl.textContent = 
+        styleEl.textContent =
           ':root {' +
-            '--accent-primary: ' + darkAccent + ' !important;' +
-            '--accent-primary-hover: ' + darkHover + ' !important;' +
-            '--accent-primary-rgb: ' + darkRgb + ' !important;' +
-            '--accent-primary-glow: none !important;' +
-            '--shadow-glow: none !important;' +
-            '--accent-glow: rgba(' + darkRgb + ', 0.12) !important;' +
-            '--accent-glow-subtle: rgba(' + darkRgb + ', 0.06) !important;' +
-            '--accent-border-glow: rgba(' + darkRgb + ', 0.35) !important;' +
-            '--accent-primary-text: ' + darkText + ' !important;' +
+          '--accent-primary: ' + darkAccent + ' !important;' +
+          '--accent-primary-hover: ' + darkHover + ' !important;' +
+          '--accent-primary-rgb: ' + darkRgb + ' !important;' +
+          '--accent-primary-glow: none !important;' +
+          '--shadow-glow: none !important;' +
+          '--accent-glow: rgba(' + darkRgb + ', 0.12) !important;' +
+          '--accent-glow-subtle: rgba(' + darkRgb + ', 0.06) !important;' +
+          '--accent-border-glow: rgba(' + darkRgb + ', 0.35) !important;' +
+          '--accent-primary-text: ' + darkText + ' !important;' +
           '}' +
           '[data-theme="white"] {' +
-            '--accent-primary: ' + whiteAccent + ' !important;' +
-            '--accent-primary-hover: ' + whiteHover + ' !important;' +
-            '--accent-primary-rgb: ' + whiteRgb + ' !important;' +
-            '--accent-primary-glow: none !important;' +
-            '--shadow-glow: none !important;' +
-            '--accent-glow: rgba(' + whiteRgb + ', 0.12) !important;' +
-            '--accent-glow-subtle: rgba(' + whiteRgb + ', 0.06) !important;' +
-            '--accent-border-glow: rgba(' + whiteRgb + ', 0.35) !important;' +
-            '--accent-primary-text: ' + whiteText + ' !important;' +
+          '--accent-primary: ' + whiteAccent + ' !important;' +
+          '--accent-primary-hover: ' + whiteHover + ' !important;' +
+          '--accent-primary-rgb: ' + whiteRgb + ' !important;' +
+          '--accent-primary-glow: none !important;' +
+          '--shadow-glow: none !important;' +
+          '--accent-glow: rgba(' + whiteRgb + ', 0.12) !important;' +
+          '--accent-glow-subtle: rgba(' + whiteRgb + ', 0.06) !important;' +
+          '--accent-border-glow: rgba(' + whiteRgb + ', 0.35) !important;' +
+          '--accent-primary-text: ' + whiteText + ' !important;' +
           '}';
         document.head.appendChild(styleEl);
-      } catch (_) {}
+      } catch (_) { }
     })();
   </script>
 </head>
@@ -795,10 +795,12 @@
                   <div class="sermon-fail-card" id="sermon-fail-card" style="display: none;">
                     <div class="sermon-fail-icon">⚠️</div>
                     <h3 class="sermon-fail-title" id="sermon-fail-title">Recording Failed to Send</h3>
-                    <p class="sermon-fail-msg" id="sermon-fail-msg">An error occurred during audio processing or email delivery.</p>
+                    <p class="sermon-fail-msg" id="sermon-fail-msg">An error occurred during audio processing or email
+                      delivery.</p>
                     <div class="sermon-fail-actions">
                       <button type="button" class="btn btn-primary" id="btn-sermon-try-again">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                           <polyline points="1 4 1 10 7 10"></polyline>
                           <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path>
                         </svg>
@@ -1343,7 +1345,7 @@
             <button type="button" class="btn btn-secondary btn-xs" id="btn-add-relevance-rule"
               style="font-size:0.775rem; padding:0.35rem 0.65rem; display:inline-flex; align-items:center; gap:0.3rem;">
               <span>+</span>
-              <span>Add Alarm Rule</span>
+              <span>Add Rule</span>
             </button>
           </div>
 
@@ -1894,7 +1896,8 @@
             <div class="automations-top-bar">
               <div class="automations-top-info">
                 <div class="automations-top-title">⚡ Visual Logic Block Automations</div>
-                <div class="automations-top-desc">Drag blocks from the category toolbox (Triggers, Logic, Loops, Properties, Webhooks, Delays) to build rules.</div>
+                <div class="automations-top-desc">Drag blocks from the category toolbox (Triggers, Logic, Loops,
+                  Properties, Webhooks, Delays) to build rules.</div>
               </div>
               <div style="display: flex; gap: 0.5rem; align-items: center;">
                 <button type="button" class="btn btn-secondary btn-sm" id="btn-blockly-center" title="Center View">
@@ -2245,36 +2248,45 @@
         <div class="modal-body">
           <!-- Theme Preference Setting (First in modal) -->
           <div class="theme-setting-container" id="setting-theme-container">
-            <label class="form-label" style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
+            <label class="form-label"
+              style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
               <span>Theme &amp; Appearance</span>
-              <span id="theme-active-indicator" style="font-size: 0.725rem; font-weight: 600; text-transform: none; color: var(--accent-primary);">Dark Theme Active</span>
+              <span id="theme-active-indicator"
+                style="font-size: 0.725rem; font-weight: 600; text-transform: none; color: var(--accent-primary);">Dark
+                Theme Active</span>
             </label>
             <div class="theme-options-grid">
               <!-- Dark Theme Option -->
-              <div class="theme-option-card active" id="theme-opt-dark" role="button" tabindex="0" data-theme-val="dark" aria-label="Dark Theme">
+              <div class="theme-option-card active" id="theme-opt-dark" role="button" tabindex="0" data-theme-val="dark"
+                aria-label="Dark Theme">
                 <div class="theme-option-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
                   </svg>
                 </div>
                 <div class="theme-option-info">
                   <div class="theme-option-title">
                     <span>Dark</span>
-                    <span class="theme-accent-dot" id="theme-dot-dark" style="background: #18edb3;" title="Dark Accent Color"></span>
+                    <span class="theme-accent-dot" id="theme-dot-dark" style="background: #18edb3;"
+                      title="Dark Accent Color"></span>
                   </div>
                   <div class="theme-option-desc" id="theme-desc-dark">Neon Green Accent</div>
                 </div>
                 <div class="theme-check-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 </div>
               </div>
 
               <!-- White Theme Option -->
-              <div class="theme-option-card" id="theme-opt-white" role="button" tabindex="0" data-theme-val="white" aria-label="White Theme">
+              <div class="theme-option-card" id="theme-opt-white" role="button" tabindex="0" data-theme-val="white"
+                aria-label="White Theme">
                 <div class="theme-option-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="5"></circle>
                     <line x1="12" y1="1" x2="12" y2="3"></line>
                     <line x1="12" y1="21" x2="12" y2="23"></line>
@@ -2289,12 +2301,14 @@
                 <div class="theme-option-info">
                   <div class="theme-option-title">
                     <span>White</span>
-                    <span class="theme-accent-dot" id="theme-dot-white" style="background: #28AFF3;" title="White Accent Color"></span>
+                    <span class="theme-accent-dot" id="theme-dot-white" style="background: #28AFF3;"
+                      title="White Accent Color"></span>
                   </div>
                   <div class="theme-option-desc" id="theme-desc-white">Cyan #28AFF3 Accent</div>
                 </div>
                 <div class="theme-check-icon">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12"></polyline>
                   </svg>
                 </div>
@@ -2302,55 +2316,84 @@
             </div>
 
             <!-- Individual Accent Color Customizer Boxes -->
-            <div class="theme-accents-section" style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed var(--border-subtle);">
-              <div style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between;">
+            <div class="theme-accents-section"
+              style="margin-top: 0.85rem; padding-top: 0.85rem; border-top: 1px dashed var(--border-subtle);">
+              <div
+                style="font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.6rem; display: flex; align-items: center; justify-content: space-between;">
                 <span>Individual Accent Colors</span>
-                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal;">Applies in real-time</span>
+                <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal;">Applies in
+                  real-time</span>
               </div>
               <div class="theme-accents-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
                 <!-- Dark Theme Accent Setting Box -->
-                <div class="theme-accent-box" id="box-accent-dark" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.65rem 0.75rem;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
-                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 0.35rem;">
+                <div class="theme-accent-box" id="box-accent-dark"
+                  style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.65rem 0.75rem;">
+                  <div
+                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                    <span
+                      style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 0.35rem;">
                       <span>🌙 Dark Accent</span>
                     </span>
-                    <button type="button" class="btn-theme-accent-reset" id="btn-reset-dark-accent" title="Reset to default (#18edb3)" style="background: none; border: none; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; padding: 0;">Reset</button>
+                    <button type="button" class="btn-theme-accent-reset" id="btn-reset-dark-accent"
+                      title="Reset to default (#18edb3)"
+                      style="background: none; border: none; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; padding: 0;">Reset</button>
                   </div>
                   <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <input type="color" id="theme-dark-accent-picker" value="#18edb3" style="width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-muted); padding: 1px; cursor: pointer; background: transparent;">
-                    <input type="text" id="theme-dark-accent-hex" class="form-control" value="#18edb3" maxlength="7" style="font-family: var(--font-mono); font-size: 0.8rem; padding: 0.25rem 0.5rem; height: 32px; flex: 1; text-transform: uppercase;">
+                    <input type="color" id="theme-dark-accent-picker" value="#18edb3"
+                      style="width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-muted); padding: 1px; cursor: pointer; background: transparent;">
+                    <input type="text" id="theme-dark-accent-hex" class="form-control" value="#18edb3" maxlength="7"
+                      style="font-family: var(--font-mono); font-size: 0.8rem; padding: 0.25rem 0.5rem; height: 32px; flex: 1; text-transform: uppercase;">
                   </div>
                   <!-- Quick swatches for Dark Theme -->
                   <div class="theme-swatch-list" style="display: flex; gap: 0.35rem; align-items: center;">
-                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#18edb3" style="background:#18edb3;" title="Neon Green (Default)"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#00f2fe" style="background:#00f2fe;" title="Electric Cyan"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#3b82f6" style="background:#3b82f6;" title="Blue"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#f59e0b" style="background:#f59e0b;" title="Amber"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#ec4899" style="background:#ec4899;" title="Hot Pink"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#a855f7" style="background:#a855f7;" title="Purple"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#18edb3"
+                      style="background:#18edb3;" title="Neon Green (Default)"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#00f2fe"
+                      style="background:#00f2fe;" title="Electric Cyan"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#3b82f6"
+                      style="background:#3b82f6;" title="Blue"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#f59e0b"
+                      style="background:#f59e0b;" title="Amber"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#ec4899"
+                      style="background:#ec4899;" title="Hot Pink"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="dark" data-color="#a855f7"
+                      style="background:#a855f7;" title="Purple"></button>
                   </div>
                 </div>
 
                 <!-- White Theme Accent Setting Box -->
-                <div class="theme-accent-box" id="box-accent-white" style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.65rem 0.75rem;">
-                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
-                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 0.35rem;">
+                <div class="theme-accent-box" id="box-accent-white"
+                  style="background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 0.65rem 0.75rem;">
+                  <div
+                    style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem;">
+                    <span
+                      style="font-size: 0.75rem; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 0.35rem;">
                       <span>☀️ White Accent</span>
                     </span>
-                    <button type="button" class="btn-theme-accent-reset" id="btn-reset-white-accent" title="Reset to default (#28AFF3)" style="background: none; border: none; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; padding: 0;">Reset</button>
+                    <button type="button" class="btn-theme-accent-reset" id="btn-reset-white-accent"
+                      title="Reset to default (#28AFF3)"
+                      style="background: none; border: none; font-size: 0.7rem; color: var(--text-muted); cursor: pointer; padding: 0;">Reset</button>
                   </div>
                   <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <input type="color" id="theme-white-accent-picker" value="#28AFF3" style="width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-muted); padding: 1px; cursor: pointer; background: transparent;">
-                    <input type="text" id="theme-white-accent-hex" class="form-control" value="#28AFF3" maxlength="7" style="font-family: var(--font-mono); font-size: 0.8rem; padding: 0.25rem 0.5rem; height: 32px; flex: 1; text-transform: uppercase;">
+                    <input type="color" id="theme-white-accent-picker" value="#28AFF3"
+                      style="width: 32px; height: 32px; border-radius: var(--radius-sm); border: 1px solid var(--border-muted); padding: 1px; cursor: pointer; background: transparent;">
+                    <input type="text" id="theme-white-accent-hex" class="form-control" value="#28AFF3" maxlength="7"
+                      style="font-family: var(--font-mono); font-size: 0.8rem; padding: 0.25rem 0.5rem; height: 32px; flex: 1; text-transform: uppercase;">
                   </div>
                   <!-- Quick swatches for White Theme -->
                   <div class="theme-swatch-list" style="display: flex; gap: 0.35rem; align-items: center;">
-                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#28AFF3" style="background:#28AFF3;" title="Cyan #28AFF3 (Default)"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#2563eb" style="background:#2563eb;" title="Royal Blue"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#059669" style="background:#059669;" title="Emerald"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#d97706" style="background:#d97706;" title="Amber Gold"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#e11d48" style="background:#e11d48;" title="Crimson"></button>
-                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#7c3aed" style="background:#7c3aed;" title="Purple"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#28AFF3"
+                      style="background:#28AFF3;" title="Cyan #28AFF3 (Default)"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#2563eb"
+                      style="background:#2563eb;" title="Royal Blue"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#059669"
+                      style="background:#059669;" title="Emerald"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#d97706"
+                      style="background:#d97706;" title="Amber Gold"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#e11d48"
+                      style="background:#e11d48;" title="Crimson"></button>
+                    <button type="button" class="theme-swatch-btn" data-target="white" data-color="#7c3aed"
+                      style="background:#7c3aed;" title="Purple"></button>
                   </div>
                 </div>
               </div>
