@@ -157,6 +157,16 @@ const api = {
   system: {
     checkUpdate: () => api.request('/api/system/update/check'),
     applyUpdate: () => api.request('/api/system/update/apply', { method: 'POST' })
+  },
+
+  // Remote Player
+  remotePlayers: {
+    getAll: () => api.request('/api/remote-players'),
+    get: (id) => api.request(`/api/remote-players/${encodeURIComponent(id)}`),
+    generatePairCode: () => api.request('/api/remote-players/pair-code', { method: 'POST' }),
+    update: (id, data) => api.request(`/api/remote-players/${encodeURIComponent(id)}`, { method: 'PATCH', body: data }),
+    delete: (id) => api.request(`/api/remote-players/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+    sendCommand: (id, command, params = {}) => api.request(`/api/remote-players/${encodeURIComponent(id)}/command`, { method: 'POST', body: { command, params } })
   }
 };
 

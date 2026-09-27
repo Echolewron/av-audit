@@ -1,0 +1,885 @@
+/**
+ * Remote Player View Controller for AV Audit
+ * Strictly Flat Minimal Design (No Glows, No Blurs)
+ * Responsive: Desktop Split-View / Mobile Stacked-View
+ */
+
+class RemotePlayerView {
+  constructor() {
+    this.players = [];
+    this.activePlayerId = null;
+    this.activeTabId = null;
+    this.searchQuery = '';
+    this.isSeeking = false;
+    this.pairModalTimer = null;
+    this.audioPopoverOpen = false;
+    this.initialized = false;
+  }
+
+  init() {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    this.setupSocketListeners();
+  }
+
+  setupSocketListeners() {
+    if (!window.socket) return;
+
+    window.socket.on('remote_player:list_updated', ({ players }) => {
+      this.players = players || [];
+      if (!this.activePlayerId) {
+        this.renderGrid();
+      } else {
+        this.updateConsoleHeader();
+      }
+    });
+
+    window.socket.on('remote_player:status_changed', ({ playerId, isOnline, player }) => {
+      const idx = this.players.findIndex(p => p.id === playerId);
+      if (idx !== -1) {
+        this.players[idx].is_online = isOnline;
+        if (player) this.players[idx] = { ...this.players[idx], ...player };
+      } else if (player) {
+        this.players.push(player);
+      }
+
+      if (!this.activePlayerId) {
+        this.renderGrid();
+      } else if (this.activePlayerId === playerId) {
+        this.updateConsoleHeader();
+      }
+    });
+
+    window.socket.on('remote_player:telemetry', ({ playerId, telemetry }) => {
+      const idx = this.players.findIndex(p => p.id === playerId);
+      if (idx !== -1) {
+        this.players[idx].telemetry = telemetry;
+        this.players[idx].is_online = true;
+      }
+
+      if (this.activePlayerId === playerId) {
+        this.applyTelemetry(telemetry);
+      } else if (!this.activePlayerId) {
+        this.updateCardMiniTelemetry(playerId, telemetry);
+      }
+    });
+
+    window.socket.on('remote_player:paired', ({ player }) => {
+      this.closePairingModal();
+      if (window.helpers && window.helpers.showToast) {
+        window.helpers.showToast(`Connected to ${player.name || 'NS Player'}!`, 'success');
+      }
+      this.loadPlayers();
+    });
+  }
+
+  async render() {
+    this.init();
+    const container = document.getElementById('view-remote-player');
+    if (!container) return;
+
+    if (this.activePlayerId) {
+      this.renderConsole();
+    } else {
+      await this.loadPlayers();
+      this.renderGrid();
+    }
+  }
+
+  async loadPlayers() {
+    try {
+      const res = await window.api.remotePlayers.getAll();
+      this.players = res.players || [];
+    } catch (err) {
+      console.error('Failed to load remote players:', err);
+      if (window.helpers && window.helpers.showToast) {
+        window.helpers.showToast(err.message || 'Failed to load remote players', 'error');
+      }
+    }
+  }
+
+  /* ============================================================
+     VIEW A: PLAYERS GRID
+     ============================================================ */
+
+  renderGrid() {
+    const container = document.getElementById('view-remote-player');
+    if (!container) return;
+
+    const canManage = window.app && window.app.hasPermission('remote_player', 'manage_players');
+    const onlineCount = this.players.filter(p => p.is_online).length;
+
+    let cardsHtml = '';
+    if (this.players.length === 0) {
+      cardsHtml = `
+        <div class="rp-empty-state">
+          <div class="rp-empty-icon">🎵</div>
+          <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">No Remote Players Connected</h3>
+          <p style="margin: 0 0 1.5rem 0; color: var(--text-muted); max-width: 420px;">
+            Link your running NS Player audio instances to control playback, trigger songs, and monitor playlists in real time.
+          </p>
+          ${canManage ? `
+            <button class="rp-btn-primary" id="btn-add-remote-player-empty">
+              + Add Remote Player
+            </button>
+          ` : ''}
+        </div>
+      `;
+    } else {
+      cardsHtml = `
+        <div class="rp-grid">
+          ${this.players.map(p => this.renderPlayerCard(p, canManage)).join('')}
+        </div>
+      `;
+    }
+
+    container.innerHTML = `
+      <div class="remote-player-container">
+        <div class="rp-header-bar">
+          <div>
+            <h1 class="rp-header-title">Remote Player</h1>
+            <div class="rp-header-subtitle">
+              ${this.players.length} registered player${this.players.length === 1 ? '' : 's'} · ${onlineCount} online
+            </div>
+          </div>
+          <div class="rp-header-actions">
+            ${canManage ? `
+              <button class="rp-btn-primary" id="btn-add-remote-player">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 5v14M5 12h14"/>
+                </svg>
+                Add Remote Player
+              </button>
+            ` : ''}
+          </div>
+        </div>
+
+        ${cardsHtml}
+      </div>
+    `;
+
+    // Event listeners
+    const btnAdd = container.querySelector('#btn-add-remote-player') || container.querySelector('#btn-add-remote-player-empty');
+    if (btnAdd) {
+      btnAdd.addEventListener('click', () => this.openPairingModal());
+    }
+
+    container.querySelectorAll('.rp-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.rp-btn-delete-card')) return;
+        const playerId = card.dataset.id;
+        const player = this.players.find(p => p.id === playerId);
+        if (player && player.is_online) {
+          this.openPlayerConsole(playerId);
+        } else {
+          if (window.helpers && window.helpers.showToast) {
+            window.helpers.showToast('Player is currently offline. Start NS Player to reconnect.', 'warning');
+          }
+        }
+      });
+    });
+
+    container.querySelectorAll('.rp-btn-delete-card').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const playerId = btn.dataset.id;
+        const player = this.players.find(p => p.id === playerId);
+        const confirmed = confirm(`Are you sure you want to unpair "${player ? player.name : 'this player'}"?`);
+        if (!confirmed) return;
+
+        try {
+          await window.api.remotePlayers.delete(playerId);
+          if (window.helpers && window.helpers.showToast) {
+            window.helpers.showToast('Player unlinked successfully.', 'success');
+          }
+          await this.loadPlayers();
+          this.renderGrid();
+        } catch (err) {
+          if (window.helpers && window.helpers.showToast) {
+            window.helpers.showToast(err.message || 'Failed to unpair player', 'error');
+          }
+        }
+      });
+    });
+  }
+
+  renderPlayerCard(player, canManage) {
+    const isOnline = Boolean(player.is_online);
+    const telemetry = player.telemetry || {};
+    const trackTitle = telemetry.currentTrack ? telemetry.currentTrack.title : (isOnline ? 'Stopped' : 'Unavailable');
+    const state = telemetry.state || (isOnline ? 'IDLE' : 'OFFLINE');
+
+    return `
+      <div class="rp-card ${isOnline ? 'online' : 'offline'}" data-id="${player.id}">
+        <div>
+          <div class="rp-card-header">
+            <div>
+              <h3 class="rp-card-name">${helpers.escapeHtml(player.name || 'NS Player')}</h3>
+              <div class="rp-card-device">${helpers.escapeHtml(player.device_name || 'Windows PC')}</div>
+            </div>
+            <div class="${isOnline ? 'rp-badge-online' : 'rp-badge-offline'}">
+              <span class="rp-dot"></span>
+              ${isOnline ? 'Online' : 'Offline'}
+            </div>
+          </div>
+
+          <div class="rp-card-body">
+            <div class="rp-card-track" id="card-track-${player.id}">${helpers.escapeHtml(trackTitle)}</div>
+            <div class="rp-card-state" id="card-state-${player.id}">
+              <span style="font-weight: 600;">${helpers.escapeHtml(state)}</span>
+              ${telemetry.currentTime ? `<span>· ${telemetry.currentTime}</span>` : ''}
+              ${telemetry.volume !== undefined ? `<span>· 🔊 ${telemetry.volume}%</span>` : ''}
+            </div>
+          </div>
+        </div>
+
+        <div class="rp-card-footer">
+          <span>${isOnline ? 'Click to open remote controls' : `Last seen: ${player.last_seen_at ? new Date(player.last_seen_at).toLocaleTimeString() : 'Never'}`}</span>
+          ${canManage ? `
+            <button class="rp-btn-delete-card" data-id="${player.id}" title="Unpair player">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18m-2 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              </svg>
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  updateCardMiniTelemetry(playerId, telemetry) {
+    const trackEl = document.getElementById(`card-track-${playerId}`);
+    const stateEl = document.getElementById(`card-state-${playerId}`);
+    if (!trackEl || !stateEl) return;
+
+    const trackTitle = telemetry.currentTrack ? telemetry.currentTrack.title : 'Stopped';
+    trackEl.textContent = trackTitle;
+    stateEl.innerHTML = `
+      <span style="font-weight: 600;">${helpers.escapeHtml(telemetry.state || 'IDLE')}</span>
+      ${telemetry.currentTime ? `<span>· ${telemetry.currentTime}</span>` : ''}
+      ${telemetry.volume !== undefined ? `<span>· 🔊 ${telemetry.volume}%</span>` : ''}
+    `;
+  }
+
+  /* ============================================================
+     VIEW B: FULL-PAGE CONTROLLER CONSOLE (Responsive)
+     ============================================================ */
+
+  openPlayerConsole(playerId) {
+    this.activePlayerId = playerId;
+    this.searchQuery = '';
+    this.renderConsole();
+  }
+
+  renderConsole() {
+    const container = document.getElementById('view-remote-player');
+    if (!container) return;
+
+    const player = this.players.find(p => p.id === this.activePlayerId);
+    if (!player) {
+      this.activePlayerId = null;
+      this.renderGrid();
+      return;
+    }
+
+    const telemetry = player.telemetry || {};
+    const tabs = telemetry.tabs || [];
+    if (!this.activeTabId && tabs.length > 0) {
+      this.activeTabId = telemetry.activeTabId || tabs[0].id;
+    }
+
+    container.innerHTML = `
+      <div class="remote-player-container">
+        <div class="rp-console">
+          <!-- Top Bar -->
+          <div class="rp-console-top-bar">
+            <div class="rp-console-player-info">
+              <button class="rp-btn-secondary" id="btn-back-to-players">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                All Players
+              </button>
+              <h2 class="rp-console-title" id="console-player-name">${helpers.escapeHtml(player.name || 'NS Player')}</h2>
+              <span class="${player.is_online ? 'rp-badge-online' : 'rp-badge-offline'}" id="console-status-pill">
+                <span class="rp-dot"></span>
+                ${player.is_online ? 'Online' : 'Offline'}
+              </span>
+            </div>
+            <div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);" id="console-output-device">
+                ${telemetry.audioDevice ? `Audio: ${helpers.escapeHtml(telemetry.audioDevice)}` : ''}
+              </span>
+            </div>
+          </div>
+
+          <!-- Console Body: Left Hero + Right Playlist -->
+          <div class="rp-console-body">
+            <!-- Left Hero Column -->
+            <div class="rp-hero-panel">
+              <div class="rp-now-playing-box">
+                <div class="rp-track-art-placeholder">
+                  🎵
+                </div>
+                <h3 class="rp-track-title" id="rp-hero-track-title">
+                  ${helpers.escapeHtml(telemetry.currentTrack ? telemetry.currentTrack.title : 'Ready / Stopped')}
+                </h3>
+                <span class="rp-track-state-pill ${(telemetry.state || '').toLowerCase()}" id="rp-hero-state-pill">
+                  ${helpers.escapeHtml(telemetry.state || 'STOPPED')}
+                </span>
+              </div>
+
+              <!-- Scrubber Bar -->
+              <div class="rp-scrubber-group">
+                <input type="range" class="rp-scrubber-slider" id="rp-seek-slider" min="0" max="100" step="0.1" value="0">
+                <div class="rp-time-row">
+                  <span id="rp-time-current">${telemetry.currentTime || '00:00'}</span>
+                  <span id="rp-time-total">${telemetry.totalTime || '00:00'}</span>
+                </div>
+              </div>
+
+              <!-- Transport Controls -->
+              <div class="rp-transport-row">
+                <button class="rp-btn-transport" id="btn-transport-prev" title="Previous Track">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                  </svg>
+                </button>
+                <button class="rp-btn-transport rp-btn-playpause" id="btn-transport-playpause" title="Play / Pause">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" id="rp-playpause-icon">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </button>
+                <button class="rp-btn-transport" id="btn-transport-next" title="Next Track">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/>
+                  </svg>
+                </button>
+                <button class="rp-btn-transport" id="btn-transport-stop" title="Stop">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="6" width="12" height="12"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- Volume Control -->
+              <div class="rp-volume-row">
+                <button class="rp-btn-mute" id="btn-transport-mute" title="Toggle Mute">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" id="rp-mute-icon">
+                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+                  </svg>
+                </button>
+                <input type="range" class="rp-volume-slider" id="rp-volume-slider" min="0" max="100" value="${telemetry.volume !== undefined ? telemetry.volume : 80}">
+                <span class="rp-volume-pct" id="rp-volume-pct">${telemetry.volume !== undefined ? telemetry.volume : 80}%</span>
+              </div>
+
+              <!-- Secondary Bar: Loop Mode, Shuffle, and Tucked-away Audio Options -->
+              <div class="rp-secondary-controls">
+                <button class="rp-btn-pill" id="btn-mode-cycle" title="Playback Loop Mode">
+                  🔁 <span id="rp-loop-mode-text">${telemetry.playbackMode || 'Repeat All'}</span>
+                </button>
+                <button class="rp-btn-pill ${telemetry.isShuffle ? 'active' : ''}" id="btn-toggle-shuffle" title="Shuffle">
+                  🔀 Shuffle
+                </button>
+
+                <!-- Tucked-away Audio Channel Settings Popover -->
+                <div class="rp-audio-popover-wrapper">
+                  <button class="rp-btn-pill" id="btn-audio-options-toggle" title="Audio Channel Routing">
+                    ⚙️ <span id="rp-channel-badge">${telemetry.channelMode || 'Stereo'}</span>
+                  </button>
+                  <div class="rp-audio-popover" id="rp-audio-popover">
+                    <div class="rp-audio-popover-title">Audio Channel Mode</div>
+                    <button class="rp-channel-option ${telemetry.channelMode === 'Stereo' ? 'selected' : ''}" data-mode="Stereo">
+                      🔊 Stereo (Normal)
+                    </button>
+                    <button class="rp-channel-option ${telemetry.channelMode === 'Left' ? 'selected' : ''}" data-mode="Left">
+                      🎙️ Left Only (Guide Vocals)
+                    </button>
+                    <button class="rp-channel-option ${telemetry.channelMode === 'Right' ? 'selected' : ''}" data-mode="Right">
+                      🎹 Right Only (Accompaniment)
+                    </button>
+                    <button class="rp-channel-option ${telemetry.channelMode === 'Mono' ? 'selected' : ''}" data-mode="Mono">
+                      📻 Mono Sum
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Playlists & Songs -->
+            <div class="rp-playlist-panel">
+              <!-- Tab Strip -->
+              <div class="rp-tabs-header" id="rp-tabs-strip">
+                ${this.renderTabsHtml(tabs)}
+              </div>
+
+              <!-- Search Bar -->
+              <div class="rp-search-bar-row">
+                <div class="rp-search-wrapper">
+                  <svg class="rp-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" class="rp-search-input" id="rp-song-search" placeholder="Search songs in playlist..." value="${helpers.escapeHtml(this.searchQuery)}">
+                  <button class="rp-search-clear" id="rp-song-search-clear" title="Clear search">✕</button>
+                </div>
+              </div>
+
+              <!-- Song List -->
+              <div class="rp-tracklist-container" id="rp-tracklist">
+                ${this.renderTracklistHtml(tabs)}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    this.bindConsoleEvents(container);
+    this.applyTelemetry(telemetry);
+  }
+
+  renderTabsHtml(tabs) {
+    if (!tabs || tabs.length === 0) {
+      return '<div style="padding: 0.75rem 1rem; color: var(--text-muted); font-size: 0.85rem;">No playlists loaded</div>';
+    }
+
+    return tabs.map(tab => {
+      const isActive = tab.id === this.activeTabId;
+      return `
+        <button class="rp-tab-btn ${isActive ? 'active' : ''}" data-tab-id="${tab.id}">
+          ${helpers.escapeHtml(tab.name || 'Playlist')}
+        </button>
+      `;
+    }).join('');
+  }
+
+  renderTracklistHtml(tabs) {
+    const activeTab = (tabs || []).find(t => t.id === this.activeTabId) || (tabs && tabs[0]);
+    if (!activeTab || !activeTab.items || activeTab.items.length === 0) {
+      return '<div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">This playlist has no songs.</div>';
+    }
+
+    const query = (this.searchQuery || '').trim().toLowerCase();
+    const filtered = activeTab.items.filter(item => {
+      if (!query) return true;
+      return (item.title && item.title.toLowerCase().includes(query)) ||
+             (item.filePath && item.filePath.toLowerCase().includes(query));
+    });
+
+    if (filtered.length === 0) {
+      return `<div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No songs match "${helpers.escapeHtml(this.searchQuery)}".</div>`;
+    }
+
+    return filtered.map(item => {
+      const isItemPlaying = Boolean(item.isPlaying);
+      return `
+        <div class="rp-track-row ${isItemPlaying ? 'playing' : ''}" data-tab-id="${activeTab.id}" data-idx="${item.index}">
+          <div class="rp-track-idx">${isItemPlaying ? '▶' : item.index + 1}</div>
+          <div class="rp-track-info">
+            <div class="rp-track-name">${helpers.escapeHtml(item.title || 'Untitled Track')}</div>
+          </div>
+          <div class="rp-track-len">${helpers.escapeHtml(item.formattedDuration || '--:--')}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  bindConsoleEvents(container) {
+    // Back to players list
+    const btnBack = container.querySelector('#btn-back-to-players');
+    if (btnBack) {
+      btnBack.addEventListener('click', () => {
+        this.activePlayerId = null;
+        this.renderGrid();
+      });
+    }
+
+    // Transport buttons
+    const btnPlayPause = container.querySelector('#btn-transport-playpause');
+    if (btnPlayPause) {
+      btnPlayPause.addEventListener('click', () => this.sendPlaybackCommand('play_pause'));
+    }
+
+    const btnPrev = container.querySelector('#btn-transport-prev');
+    if (btnPrev) {
+      btnPrev.addEventListener('click', () => this.sendPlaybackCommand('prev'));
+    }
+
+    const btnNext = container.querySelector('#btn-transport-next');
+    if (btnNext) {
+      btnNext.addEventListener('click', () => this.sendPlaybackCommand('next'));
+    }
+
+    const btnStop = container.querySelector('#btn-transport-stop');
+    if (btnStop) {
+      btnStop.addEventListener('click', () => this.sendPlaybackCommand('stop'));
+    }
+
+    // Scrubber
+    const seekSlider = container.querySelector('#rp-seek-slider');
+    if (seekSlider) {
+      seekSlider.addEventListener('mousedown', () => { this.isSeeking = true; });
+      seekSlider.addEventListener('touchstart', () => { this.isSeeking = true; }, { passive: true });
+
+      seekSlider.addEventListener('input', (e) => {
+        const pct = parseFloat(e.target.value) / 100;
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        if (player && player.telemetry && player.telemetry.totalSeconds) {
+          const sec = pct * player.telemetry.totalSeconds;
+          const timeCur = container.querySelector('#rp-time-current');
+          if (timeCur) timeCur.textContent = this.formatSeconds(sec);
+        }
+      });
+
+      const finishSeek = (e) => {
+        if (!this.isSeeking) return;
+        this.isSeeking = false;
+        const pct = parseFloat(e.target.value) / 100;
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        if (player && player.telemetry && player.telemetry.totalSeconds) {
+          const sec = pct * player.telemetry.totalSeconds;
+          this.sendPlaybackCommand('seek', { positionSeconds: sec });
+        }
+      };
+
+      seekSlider.addEventListener('mouseup', finishSeek);
+      seekSlider.addEventListener('touchend', finishSeek);
+      seekSlider.addEventListener('change', finishSeek);
+    }
+
+    // Volume & Mute
+    const volSlider = container.querySelector('#rp-volume-slider');
+    if (volSlider) {
+      volSlider.addEventListener('input', (e) => {
+        const val = parseInt(e.target.value, 10);
+        const pctEl = container.querySelector('#rp-volume-pct');
+        if (pctEl) pctEl.textContent = `${val}%`;
+      });
+      volSlider.addEventListener('change', (e) => {
+        const val = parseInt(e.target.value, 10);
+        this.sendPlaybackCommand('set_volume', { volume: val });
+      });
+    }
+
+    const btnMute = container.querySelector('#btn-transport-mute');
+    if (btnMute) {
+      btnMute.addEventListener('click', () => this.sendPlaybackCommand('toggle_mute'));
+    }
+
+    // Mode cycle & Shuffle
+    const btnMode = container.querySelector('#btn-mode-cycle');
+    if (btnMode) {
+      btnMode.addEventListener('click', () => {
+        const modes = ['RepeatAll', 'RepeatOne', 'NoRepeat', 'StopOnFinish'];
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        const curMode = (player && player.telemetry && player.telemetry.playbackMode) || 'RepeatAll';
+        const nextIdx = (modes.indexOf(curMode) + 1) % modes.length;
+        this.sendPlaybackCommand('set_playback_mode', { mode: modes[nextIdx] });
+      });
+    }
+
+    const btnShuffle = container.querySelector('#btn-toggle-shuffle');
+    if (btnShuffle) {
+      btnShuffle.addEventListener('click', () => this.sendPlaybackCommand('toggle_shuffle'));
+    }
+
+    // Tucked-away Audio Options Popover
+    const btnAudioOpt = container.querySelector('#btn-audio-options-toggle');
+    const popover = container.querySelector('#rp-audio-popover');
+    if (btnAudioOpt && popover) {
+      btnAudioOpt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.audioPopoverOpen = !this.audioPopoverOpen;
+        popover.classList.toggle('open', this.audioPopoverOpen);
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.rp-audio-popover-wrapper') && this.audioPopoverOpen) {
+          this.audioPopoverOpen = false;
+          popover.classList.remove('open');
+        }
+      });
+
+      popover.querySelectorAll('.rp-channel-option').forEach(opt => {
+        opt.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const mode = opt.dataset.mode;
+          this.sendPlaybackCommand('set_channel_mode', { mode });
+          this.audioPopoverOpen = false;
+          popover.classList.remove('open');
+        });
+      });
+    }
+
+    // Tab buttons
+    container.querySelectorAll('.rp-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tabId;
+        this.activeTabId = tabId;
+        this.sendPlaybackCommand('select_tab', { tabId });
+
+        container.querySelectorAll('.rp-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        const tracklist = container.querySelector('#rp-tracklist');
+        if (tracklist && player && player.telemetry) {
+          tracklist.innerHTML = this.renderTracklistHtml(player.telemetry.tabs);
+          this.bindTracklistEvents(container);
+        }
+      });
+    });
+
+    // Song Search Input
+    const searchInput = container.querySelector('#rp-song-search');
+    const searchClear = container.querySelector('#rp-song-search-clear');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        this.searchQuery = e.target.value;
+        if (searchClear) searchClear.style.display = this.searchQuery ? 'block' : 'none';
+
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        const tracklist = container.querySelector('#rp-tracklist');
+        if (tracklist && player && player.telemetry) {
+          tracklist.innerHTML = this.renderTracklistHtml(player.telemetry.tabs);
+          this.bindTracklistEvents(container);
+        }
+      });
+
+      if (searchClear) {
+        searchClear.addEventListener('click', () => {
+          searchInput.value = '';
+          this.searchQuery = '';
+          searchClear.style.display = 'none';
+          searchInput.focus();
+
+          const player = this.players.find(p => p.id === this.activePlayerId);
+          const tracklist = container.querySelector('#rp-tracklist');
+          if (tracklist && player && player.telemetry) {
+            tracklist.innerHTML = this.renderTracklistHtml(player.telemetry.tabs);
+            this.bindTracklistEvents(container);
+          }
+        });
+      }
+    }
+
+    this.bindTracklistEvents(container);
+  }
+
+  bindTracklistEvents(container) {
+    container.querySelectorAll('.rp-track-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const tabId = row.dataset.tabId;
+        const trackIndex = parseInt(row.dataset.idx, 10);
+        this.sendPlaybackCommand('select_track', { tabId, trackIndex });
+      });
+    });
+  }
+
+  applyTelemetry(telemetry) {
+    if (!telemetry || !this.activePlayerId) return;
+    const container = document.getElementById('view-remote-player');
+    if (!container) return;
+
+    // Track Title
+    const titleEl = container.querySelector('#rp-hero-track-title');
+    if (titleEl) {
+      titleEl.textContent = telemetry.currentTrack ? telemetry.currentTrack.title : 'Ready / Stopped';
+    }
+
+    // State Pill
+    const stateEl = container.querySelector('#rp-hero-state-pill');
+    if (stateEl) {
+      const state = telemetry.state || 'STOPPED';
+      stateEl.textContent = state;
+      stateEl.className = `rp-track-state-pill ${state.toLowerCase()}`;
+    }
+
+    // Play/Pause icon
+    const playPauseIcon = container.querySelector('#rp-playpause-icon');
+    if (playPauseIcon) {
+      if (telemetry.state === 'PLAYING') {
+        playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+      } else {
+        playPauseIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+      }
+    }
+
+    // Times & Scrubber
+    if (!this.isSeeking) {
+      const timeCur = container.querySelector('#rp-time-current');
+      const timeTot = container.querySelector('#rp-time-total');
+      const slider = container.querySelector('#rp-seek-slider');
+
+      if (timeCur && telemetry.currentTime) timeCur.textContent = telemetry.currentTime;
+      if (timeTot && telemetry.totalTime) timeTot.textContent = telemetry.totalTime;
+
+      if (slider && telemetry.progress !== undefined) {
+        slider.value = (telemetry.progress * 100).toFixed(1);
+      }
+    }
+
+    // Volume
+    const volSlider = container.querySelector('#rp-volume-slider');
+    const volPct = container.querySelector('#rp-volume-pct');
+    if (volSlider && telemetry.volume !== undefined && document.activeElement !== volSlider) {
+      volSlider.value = telemetry.volume;
+      if (volPct) volPct.textContent = `${telemetry.volume}%`;
+    }
+
+    // Mute icon
+    const muteIcon = container.querySelector('#rp-mute-icon');
+    if (muteIcon && telemetry.isMuted) {
+      muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+    } else if (muteIcon) {
+      muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+    }
+
+    // Loop mode & Shuffle
+    const loopText = container.querySelector('#rp-loop-mode-text');
+    if (loopText && telemetry.playbackMode) {
+      loopText.textContent = telemetry.playbackMode;
+    }
+
+    const btnShuffle = container.querySelector('#btn-toggle-shuffle');
+    if (btnShuffle && telemetry.isShuffle !== undefined) {
+      btnShuffle.classList.toggle('active', Boolean(telemetry.isShuffle));
+    }
+
+    // Audio channel mode
+    const chanBadge = container.querySelector('#rp-channel-badge');
+    if (chanBadge && telemetry.channelMode) {
+      chanBadge.textContent = telemetry.channelMode;
+    }
+  }
+
+  updateConsoleHeader() {
+    const container = document.getElementById('view-remote-player');
+    if (!container || !this.activePlayerId) return;
+
+    const player = this.players.find(p => p.id === this.activePlayerId);
+    if (!player) return;
+
+    const nameEl = container.querySelector('#console-player-name');
+    if (nameEl) nameEl.textContent = player.name || 'NS Player';
+
+    const pill = container.querySelector('#console-status-pill');
+    if (pill) {
+      pill.className = player.is_online ? 'rp-badge-online' : 'rp-badge-offline';
+      pill.innerHTML = `<span class="rp-dot"></span> ${player.is_online ? 'Online' : 'Offline'}`;
+    }
+  }
+
+  sendPlaybackCommand(command, params = {}) {
+    if (!this.activePlayerId) return;
+
+    // Use live Socket.IO connection if available
+    if (window.socket && window.socket.connected) {
+      window.socket.emit('remote_player:command', {
+        playerId: this.activePlayerId,
+        command,
+        params
+      }, (res) => {
+        if (res && res.error) {
+          if (window.helpers && window.helpers.showToast) {
+            window.helpers.showToast(res.message || res.error, 'error');
+          }
+        }
+      });
+    } else {
+      // Fallback to REST API
+      window.api.remotePlayers.sendCommand(this.activePlayerId, command, params).catch(err => {
+        if (window.helpers && window.helpers.showToast) {
+          window.helpers.showToast(err.message || 'Command failed', 'error');
+        }
+      });
+    }
+  }
+
+  formatSeconds(totalSec) {
+    if (isNaN(totalSec) || totalSec < 0) return '00:00';
+    const m = Math.floor(totalSec / 60);
+    const s = Math.floor(totalSec % 60);
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  }
+
+  /* ============================================================
+     PAIRING MODAL (4-Digit Code Flow)
+     ============================================================ */
+
+  async openPairingModal() {
+    this.closePairingModal();
+
+    let codeData;
+    try {
+      codeData = await window.api.remotePlayers.generatePairCode();
+    } catch (err) {
+      if (window.helpers && window.helpers.showToast) {
+        window.helpers.showToast(err.message || 'Failed to generate pairing code', 'error');
+      }
+      return;
+    }
+
+    const host = window.location.origin;
+    const modalEl = document.createElement('div');
+    modalEl.id = 'rp-pairing-modal-overlay';
+    modalEl.className = 'rp-modal-overlay';
+
+    modalEl.innerHTML = `
+      <div class="rp-modal-card">
+        <h2 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem 0; color: var(--text-primary);">
+          Pair New Remote Player
+        </h2>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">
+          Open NS Player on your playback PC, click <strong>Remote Link</strong> in the title bar, and enter this code:
+        </p>
+
+        <div class="rp-code-display" id="rp-modal-code">${codeData.code}</div>
+
+        <div class="rp-timer-pill" id="rp-modal-timer">Code expires in 5:00</div>
+
+        <div style="font-size: 0.8rem; color: var(--text-secondary); background: var(--bg-primary); padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; width: 100%; box-sizing: border-box; text-align: left; margin-bottom: 1.5rem;">
+          <div><strong>Server Address:</strong></div>
+          <code style="color: var(--accent-primary); font-size: 0.85rem; user-select: all;">${host}</code>
+        </div>
+
+        <button class="rp-btn-secondary" id="btn-cancel-pairing" style="width: 100%;">
+          Cancel
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(modalEl);
+
+    modalEl.querySelector('#btn-cancel-pairing').addEventListener('click', () => {
+      this.closePairingModal();
+    });
+
+    // Countdown timer
+    let remaining = codeData.expiresInSeconds || 300;
+    this.pairModalTimer = setInterval(() => {
+      remaining--;
+      const timerEl = document.getElementById('rp-modal-timer');
+      if (!timerEl || remaining <= 0) {
+        this.closePairingModal();
+        return;
+      }
+      const m = Math.floor(remaining / 60);
+      const s = remaining % 60;
+      timerEl.textContent = `Code expires in ${m}:${String(s).padStart(2, '0')}`;
+    }, 1000);
+  }
+
+  closePairingModal() {
+    if (this.pairModalTimer) {
+      clearInterval(this.pairModalTimer);
+      this.pairModalTimer = null;
+    }
+    const modalEl = document.getElementById('rp-pairing-modal-overlay');
+    if (modalEl) modalEl.remove();
+  }
+}
+
+window.remotePlayerView = new RemotePlayerView();

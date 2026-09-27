@@ -33,6 +33,11 @@ const PERMISSION_REGISTRY = {
     'view_history',
     'manage_settings'
   ],
+  remote_player: [
+    'access_nav',
+    'control_playback',
+    'manage_players'
+  ],
   system: [
     'manage_updates'
   ]
@@ -44,6 +49,15 @@ const PERMISSION_METADATA = {
     description: 'Software updates and system maintenance',
     permissions: {
       manage_updates: { label: 'Manage System Updates', description: 'Check for and install software updates' }
+    }
+  },
+  remote_player: {
+    label: 'Remote Player',
+    description: 'Real-time control and management of connected NS Player audio instances',
+    permissions: {
+      access_nav: { label: 'Access Remote Player', description: 'Show and access Remote Player in navigation' },
+      control_playback: { label: 'Control Playback', description: 'Play, pause, seek, adjust volume, and trigger songs' },
+      manage_players: { label: 'Manage Player Instances', description: 'Generate pairing codes and remove/unpair players' }
     }
   },
   sermon_sender: {

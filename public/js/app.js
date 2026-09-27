@@ -80,6 +80,7 @@ const app = {
         if (window.dashboardView) dashboardView.updatePermissionsUI();
         if (this.currentView === 'dashboard') dashboardView.render();
         if (this.currentView === 'sermon-sender' && window.sermonSenderView) sermonSenderView.render();
+        if (this.currentView === 'remote-player' && window.remotePlayerView) remotePlayerView.render();
         if (this.currentView === 'roles') rolesView.loadRoles();
         if (this.currentView === 'accounts') accountsView.loadAccounts();
         if (this.currentView === 'audit') auditView.loadAuditLogs();
@@ -402,6 +403,8 @@ const app = {
         return this.hasPermission('dashboards', 'access_nav') || this.hasPermission('dashboards', 'manage_dashboards');
       case 'sermon-sender':
         return this.hasPermission('sermon_sender', 'access_nav');
+      case 'remote-player':
+        return this.hasPermission('remote_player', 'access_nav');
       case 'checklists':
       case 'execution':
         return this.hasPermission('checklists', 'access_nav') || this.hasPermission('checklists', 'view_active');
@@ -422,6 +425,7 @@ const app = {
     const navItems = {
       dashboard: this.hasPermission('dashboards', 'access_nav') || this.hasPermission('dashboards', 'manage_dashboards'),
       'sermon-sender': this.hasPermission('sermon_sender', 'access_nav'),
+      'remote-player': this.hasPermission('remote_player', 'access_nav'),
       checklists: this.hasPermission('checklists', 'access_nav') || this.hasPermission('checklists', 'view_active'),
       roles: this.hasPermission('roles', 'access_nav') || this.hasPermission('roles', 'manage_roles'),
       accounts: this.hasPermission('accounts', 'access_nav') || this.hasPermission('accounts', 'view_users') || this.hasPermission('accounts', 'admit_pending'),
@@ -496,6 +500,12 @@ const app = {
         if (breadcrumb) breadcrumb.textContent = 'Recordings Sender';
         if (window.sermonSenderView && typeof window.sermonSenderView.render === 'function') {
           sermonSenderView.render();
+        }
+        break;
+      case 'remote-player':
+        if (breadcrumb) breadcrumb.textContent = 'Remote Player';
+        if (window.remotePlayerView && typeof window.remotePlayerView.render === 'function') {
+          remotePlayerView.render();
         }
         break;
       case 'checklists':

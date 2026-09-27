@@ -208,7 +208,13 @@ function initDb() {
     saveDb();
   }
 
-  // Ensure admin role has all permissions including sermon_sender
+  // Ensure empty remote_players array if missing
+  if (!Array.isArray(dbState.remote_players)) {
+    dbState.remote_players = [];
+    saveDb();
+  }
+
+  // Ensure admin role has all permissions including sermon_sender and remote_player
   const allPerms = getAllPermissionKeys();
   const adminRole = dbState.roles.find(r => r.id === 'role_admin' || r.is_admin);
   if (adminRole && (!adminRole.permissions || adminRole.permissions.length < allPerms.length)) {
@@ -855,6 +861,54 @@ const db = {
         saveDb();
       }
       return expired;
+    }
+  },
+  remotePlayers: {
+    findAll: () => {
+      return Array.isArray(dbState.remote_players) ? [...dbState.remote_players] : [];
+    },
+    findById: (id) => {
+      if (!Array.isArray(dbState.remote_players)) return null;
+      return dbState.remote_players.find(p => p.id === id) || null;
+    },
+    create: (data) => {
+      if (!Array.isArray(dbState.remote_players)) dbState.remote_players = [];
+      const existing = dbState.remote_players.find(p => p.id === data.id);
+      if (existing) {
+        Object.assign(existing, data, { updated_at: new Date().toISOString() });
+        saveDb();
+        return existing;
+      }
+      const player = {
+        id: data.id,
+        name: data.name || data.device_name || 'NS Player',
+        device_name: data.device_name || data.name || 'Windows PC',
+        token: data.token || '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        last_seen_at: new Date().toISOString()
+      };
+      dbState.remote_players.push(player);
+      saveDb();
+      return player;
+    },
+    update: (id, updates = {}) => {
+      if (!Array.isArray(dbState.remote_players)) return null;
+      const index = dbState.remote_players.findIndex(p => p.id === id);
+      if (index === -1) return null;
+      const current = dbState.remote_players[index];
+      const updated = { ...current, ...updates, updated_at: new Date().toISOString() };
+      dbState.remote_players[index] = updated;
+      saveDb();
+      return updated;
+    },
+    delete: (id) => {
+      if (!Array.isArray(dbState.remote_players)) return false;
+      const index = dbState.remote_players.findIndex(p => p.id === id);
+      if (index === -1) return false;
+      const [removed] = dbState.remote_players.splice(index, 1);
+      saveDb();
+      return removed;
     }
   }
 };

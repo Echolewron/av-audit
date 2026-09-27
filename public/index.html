@@ -30,6 +30,7 @@
   <link rel="stylesheet" href="/css/audit.css?v=6.6">
   <link rel="stylesheet" href="/css/dashboard.css?v=6.6">
   <link rel="stylesheet" href="/css/sermon-sender.css?v=6.6">
+  <link rel="stylesheet" href="/css/remote-player.css?v=1.0">
   <script>
     (function () {
       try {
@@ -355,6 +356,17 @@
               </svg>
             </span>
             <span class="nav-text">Recordings Sender</span>
+          </a>
+        </li>
+        <li class="nav-item" data-nav="remote-player">
+          <a class="nav-link" data-view="remote-player" data-title="Remote Player" id="nav-remote-player">
+            <span class="nav-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+                stroke-linecap="round" stroke-linejoin="round">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            </span>
+            <span class="nav-text">Remote Player</span>
           </a>
         </li>
         <li class="nav-item" data-nav="checklists">
@@ -919,6 +931,11 @@
             </div>
           </div>
 
+        </section>
+
+        <!-- ================= VIEW: REMOTE PLAYER ================= -->
+        <section class="view-section" id="view-remote-player" style="display: none;">
+          <!-- Rendered dynamically by remotePlayerView.js -->
         </section>
 
         <!-- ================= VIEW 2: CHECKLIST EXECUTION VIEW ================= -->
@@ -2559,6 +2576,7 @@
   <script src="/js/views/accountsView.js?v=6.6"></script>
   <script src="/js/libs/flatpickr.min.js"></script>
   <script src="/js/views/auditView.js?v=6.6"></script>
+  <script src="/js/views/remotePlayerView.js?v=1.0"></script>
   <script src="/js/app.js?v=6.6"></script>
 </body>
 

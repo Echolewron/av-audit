@@ -1,11 +1,15 @@
 const { parse } = require('cookie');
 const { db } = require('../db/database');
 const { SESSION_COOKIE_NAME } = require('../config/config');
+const remotePlayerService = require('../services/remotePlayerService');
+const { hasPermission } = require('../config/permissions');
 
 // In-memory presence map: checklistId -> Map(socketId -> username)
 const checklistViewers = new Map();
 
 function setupSocketHandler(io) {
+  remotePlayerService.setIo(io);
+
   // Socket.io authentication middleware (allows both authenticated users and public guest viewers)
   io.use((socket, next) => {
     const rawCookies = socket.handshake.headers.cookie;
@@ -41,11 +45,13 @@ function setupSocketHandler(io) {
       const allRoles = db.roles.findAll();
       const userRoles = allRoles.filter(r => (user.role_ids || []).includes(r.id));
       const isAdmin = userRoles.some(r => r.is_admin);
+      const permissions = [...new Set(userRoles.flatMap(r => r.permissions || []))];
 
       socket.user = {
         id: user.id,
         username: user.username,
         roles: userRoles,
+        permissions,
         isAdmin
       };
       socket.isGuest = false;
@@ -61,6 +67,43 @@ function setupSocketHandler(io) {
   io.on('connection', (socket) => {
     const username = socket.user ? socket.user.username : null;
     let currentChecklistRoom = null;
+
+    // --- NS Player Registration & Telemetry ---
+    socket.on('player:register', (payload, ack) => {
+      const result = remotePlayerService.handlePlayerRegister(socket, payload);
+      if (typeof ack === 'function') {
+        ack(result);
+      } else {
+        socket.emit('player:register_response', result);
+      }
+    });
+
+    socket.on('player:telemetry', (payload) => {
+      const pId = socket.playerId || (payload && payload.playerId);
+      if (pId) {
+        remotePlayerService.handlePlayerTelemetry(pId, payload);
+      }
+    });
+
+    // --- Web Client Commands to NS Player ---
+    socket.on('remote_player:command', ({ playerId, command, params }, ack) => {
+      // Check permissions
+      if (socket.user && !socket.user.isAdmin) {
+        const permitted = hasPermission(socket.user.permissions, 'remote_player', 'control_playback', socket.user.isAdmin);
+        if (!permitted) {
+          const errRes = { success: false, error: 'PERMISSION_DENIED', message: 'You do not have permission to control playback.' };
+          if (typeof ack === 'function') ack(errRes);
+          return;
+        }
+      }
+
+      try {
+        const result = remotePlayerService.sendCommand(playerId, command, params);
+        if (typeof ack === 'function') ack(result);
+      } catch (err) {
+        if (typeof ack === 'function') ack({ success: false, error: err.message });
+      }
+    });
 
     // Join checklist room and track active viewer presence
     socket.on('join_checklist', ({ checklistId }) => {
@@ -100,6 +143,7 @@ function setupSocketHandler(io) {
       if (currentChecklistRoom) {
         removeViewer(currentChecklistRoom, socket.id, io);
       }
+      remotePlayerService.handlePlayerDisconnect(socket);
     });
   });
 

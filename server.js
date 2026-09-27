@@ -21,6 +21,7 @@ const dashboardRoutes = require('./src/routes/dashboardRoutes');
 const sermonRoutes = require('./src/routes/sermonRoutes');
 const infoRoutes = require('./src/routes/infoRoutes');
 const updateRoutes = require('./src/routes/updateRoutes');
+const remotePlayerRoutes = require('./src/routes/remotePlayerRoutes');
 const checklistService = require('./src/services/checklistService');
 const dashboardAutomationService = require('./src/services/dashboardAutomationService');
 
@@ -74,6 +75,7 @@ app.use('/api/automation', automationRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/dashboards', dashboardRoutes);
 app.use('/api/sermons', sermonRoutes);
+app.use('/api/remote-players', remotePlayerRoutes);
 app.use('/api/system/update', updateRoutes);
 
 const fs = require('fs');
