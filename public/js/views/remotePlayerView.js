@@ -192,7 +192,11 @@ class RemotePlayerView {
     if (this.players.length === 0) {
       cardsHtml = `
         <div class="rp-empty-state">
-          <div class="rp-empty-icon">🎵</div>
+          <div class="rp-empty-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 9l10.5-3m0 0v5.25m0-5.25L9 9m10.5 0v5.25m0-5.25L9 9m0 0v11.25m0-11.25L21 6v11.25M9 20.25a3 3 0 11-6 0 3 3 0 016 0zm12 0a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
           <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary);">No Remote Players Connected</h3>
           <p style="margin: 0 0 1.5rem 0; color: var(--text-muted); max-width: 420px;">
             Link your running NS Player audio instances to control playback, trigger songs, and monitor playlists in real time.
@@ -291,6 +295,11 @@ class RemotePlayerView {
     const telemetry = player.telemetry || {};
     const trackTitle = telemetry.currentTrack ? telemetry.currentTrack.title : (isOnline ? 'Stopped' : 'Unavailable');
     const state = telemetry.state || (isOnline ? 'IDLE' : 'OFFLINE');
+    const volSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1.5px; margin-right: 2px;"><path d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z"/></svg>`;
+
+    // Only display device_name subtitle if distinct from the player display name
+    const hasDistinctDevice = player.device_name && player.name &&
+      player.device_name.trim().toLowerCase() !== player.name.trim().toLowerCase();
 
     return `
       <div class="rp-card ${isOnline ? 'online' : 'offline'}" data-id="${player.id}">
@@ -298,7 +307,7 @@ class RemotePlayerView {
           <div class="rp-card-header">
             <div>
               <h3 class="rp-card-name">${safeEscape(player.name || 'NS Player')}</h3>
-              <div class="rp-card-device">${safeEscape(player.device_name || 'Windows PC')}</div>
+              ${hasDistinctDevice ? `<div class="rp-card-device">${safeEscape(player.device_name)}</div>` : ''}
             </div>
             <div class="${isOnline ? 'rp-badge-online' : 'rp-badge-offline'}">
               <span class="rp-dot"></span>
@@ -310,8 +319,8 @@ class RemotePlayerView {
             <div class="rp-card-track" id="card-track-${player.id}">${safeEscape(trackTitle)}</div>
             <div class="rp-card-state" id="card-state-${player.id}">
               <span style="font-weight: 600;">${safeEscape(state)}</span>
-              ${telemetry.currentTime ? `<span>· ${telemetry.currentTime}</span>` : ''}
-              ${telemetry.volume !== undefined ? `<span>· 🔊 ${telemetry.volume}%</span>` : ''}
+              ${telemetry.currentTime ? `<span>· ${safeEscape(telemetry.currentTime)}</span>` : ''}
+              ${telemetry.volume !== undefined ? `<span>· ${volSvg}${telemetry.volume}%</span>` : ''}
             </div>
           </div>
         </div>
@@ -337,10 +346,11 @@ class RemotePlayerView {
 
     const trackTitle = telemetry.currentTrack ? telemetry.currentTrack.title : 'Stopped';
     trackEl.textContent = trackTitle;
+    const volSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1.5px; margin-right: 2px;"><path d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.757 3.63 8.25 4.51 8.25H6.75z"/></svg>`;
     stateEl.innerHTML = `
       <span style="font-weight: 600;">${safeEscape(telemetry.state || 'IDLE')}</span>
-      ${telemetry.currentTime ? `<span>· ${telemetry.currentTime}</span>` : ''}
-      ${telemetry.volume !== undefined ? `<span>· 🔊 ${telemetry.volume}%</span>` : ''}
+      ${telemetry.currentTime ? `<span>· ${safeEscape(telemetry.currentTime)}</span>` : ''}
+      ${telemetry.volume !== undefined ? `<span>· ${volSvg}${telemetry.volume}%</span>` : ''}
     `;
   }
 
@@ -402,7 +412,9 @@ class RemotePlayerView {
             <div class="rp-hero-panel">
               <div class="rp-now-playing-box">
                 <div class="rp-track-art-placeholder">
-                  🎵
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 9l10.5-3m0 0v5.25m0-5.25L9 9m10.5 0v5.25m0-5.25L9 9m0 0v11.25m0-11.25L21 6v11.25M9 20.25a3 3 0 11-6 0 3 3 0 016 0zm12 0a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
                 </div>
                 <h3 class="rp-track-title" id="rp-hero-track-title">
                   ${safeEscape(telemetry.currentTrack ? telemetry.currentTrack.title : 'Ready / Stopped')}
@@ -523,7 +535,11 @@ class RemotePlayerView {
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
                   <input type="text" class="rp-search-input" id="rp-song-search" placeholder="Search songs in playlist..." value="${safeEscape(this.searchQuery)}">
-                  <button class="rp-search-clear" id="rp-song-search-clear" title="Clear search">✕</button>
+                  <button class="rp-search-clear" id="rp-song-search-clear" title="Clear search">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                  </button>
                 </div>
               </div>
 
@@ -1167,7 +1183,7 @@ class RemotePlayerView {
 
         <div class="rp-timer-pill" id="rp-modal-timer">Code expires in 5:00</div>
 
-        <div style="font-size: 0.8rem; color: var(--text-secondary); background: var(--bg-primary); padding: 0.75rem 1rem; border: 1px solid var(--border-color); border-radius: 6px; width: 100%; box-sizing: border-box; text-align: left; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.8rem; color: var(--text-secondary); background: var(--bg-surface); padding: 0.75rem 1rem; border: 1px solid var(--border-muted); border-radius: 6px; width: 100%; box-sizing: border-box; text-align: left; margin-bottom: 1.5rem;">
           <div><strong>Server Address:</strong></div>
           <code style="color: var(--accent-primary); font-size: 0.85rem; user-select: all;">${host}</code>
         </div>
