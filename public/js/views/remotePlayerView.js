@@ -4,6 +4,21 @@
  * Responsive: Desktop Split-View / Mobile Stacked-View
  */
 
+function safeEscape(str) {
+  if (typeof helpers !== 'undefined' && helpers && typeof helpers.escapeHtml === 'function') {
+    return helpers.escapeHtml(str);
+  }
+  if (typeof window !== 'undefined' && window.helpers && typeof window.helpers.escapeHtml === 'function') {
+    return window.helpers.escapeHtml(str);
+  }
+  return String(str || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 class RemotePlayerView {
   constructor() {
     this.players = [];
@@ -89,8 +104,15 @@ class RemotePlayerView {
 
   async loadPlayers() {
     try {
-      const res = await window.api.remotePlayers.getAll();
-      this.players = res.players || [];
+      if (window.api && window.api.remotePlayers && typeof window.api.remotePlayers.getAll === 'function') {
+        const res = await window.api.remotePlayers.getAll();
+        this.players = res.players || [];
+      } else {
+        const res = await fetch('/api/remote-players', {
+          headers: { 'Authorization': `Bearer ${sessionStorage.getItem('av_token') || ''}` }
+        }).then(r => r.json());
+        this.players = res.players || [];
+      }
     } catch (err) {
       console.error('Failed to load remote players:', err);
       if (window.helpers && window.helpers.showToast) {
@@ -160,9 +182,13 @@ class RemotePlayerView {
     `;
 
     // Event listeners
-    const btnAdd = container.querySelector('#btn-add-remote-player') || container.querySelector('#btn-add-remote-player-empty');
+    const btnAdd = container.querySelector('#btn-add-remote-player');
+    const btnAddEmpty = container.querySelector('#btn-add-remote-player-empty');
     if (btnAdd) {
       btnAdd.addEventListener('click', () => this.openPairingModal());
+    }
+    if (btnAddEmpty) {
+      btnAddEmpty.addEventListener('click', () => this.openPairingModal());
     }
 
     container.querySelectorAll('.rp-card').forEach(card => {
@@ -215,8 +241,8 @@ class RemotePlayerView {
         <div>
           <div class="rp-card-header">
             <div>
-              <h3 class="rp-card-name">${helpers.escapeHtml(player.name || 'NS Player')}</h3>
-              <div class="rp-card-device">${helpers.escapeHtml(player.device_name || 'Windows PC')}</div>
+              <h3 class="rp-card-name">${safeEscape(player.name || 'NS Player')}</h3>
+              <div class="rp-card-device">${safeEscape(player.device_name || 'Windows PC')}</div>
             </div>
             <div class="${isOnline ? 'rp-badge-online' : 'rp-badge-offline'}">
               <span class="rp-dot"></span>
@@ -225,9 +251,9 @@ class RemotePlayerView {
           </div>
 
           <div class="rp-card-body">
-            <div class="rp-card-track" id="card-track-${player.id}">${helpers.escapeHtml(trackTitle)}</div>
+            <div class="rp-card-track" id="card-track-${player.id}">${safeEscape(trackTitle)}</div>
             <div class="rp-card-state" id="card-state-${player.id}">
-              <span style="font-weight: 600;">${helpers.escapeHtml(state)}</span>
+              <span style="font-weight: 600;">${safeEscape(state)}</span>
               ${telemetry.currentTime ? `<span>· ${telemetry.currentTime}</span>` : ''}
               ${telemetry.volume !== undefined ? `<span>· 🔊 ${telemetry.volume}%</span>` : ''}
             </div>
@@ -256,7 +282,7 @@ class RemotePlayerView {
     const trackTitle = telemetry.currentTrack ? telemetry.currentTrack.title : 'Stopped';
     trackEl.textContent = trackTitle;
     stateEl.innerHTML = `
-      <span style="font-weight: 600;">${helpers.escapeHtml(telemetry.state || 'IDLE')}</span>
+      <span style="font-weight: 600;">${safeEscape(telemetry.state || 'IDLE')}</span>
       ${telemetry.currentTime ? `<span>· ${telemetry.currentTime}</span>` : ''}
       ${telemetry.volume !== undefined ? `<span>· 🔊 ${telemetry.volume}%</span>` : ''}
     `;
@@ -301,7 +327,7 @@ class RemotePlayerView {
                 </svg>
                 All Players
               </button>
-              <h2 class="rp-console-title" id="console-player-name">${helpers.escapeHtml(player.name || 'NS Player')}</h2>
+              <h2 class="rp-console-title" id="console-player-name">${safeEscape(player.name || 'NS Player')}</h2>
               <span class="${player.is_online ? 'rp-badge-online' : 'rp-badge-offline'}" id="console-status-pill">
                 <span class="rp-dot"></span>
                 ${player.is_online ? 'Online' : 'Offline'}
@@ -309,7 +335,7 @@ class RemotePlayerView {
             </div>
             <div>
               <span style="font-size: 0.8rem; color: var(--text-muted);" id="console-output-device">
-                ${telemetry.audioDevice ? `Audio: ${helpers.escapeHtml(telemetry.audioDevice)}` : ''}
+                ${telemetry.audioDevice ? `Audio: ${safeEscape(telemetry.audioDevice)}` : ''}
               </span>
             </div>
           </div>
@@ -323,10 +349,10 @@ class RemotePlayerView {
                   🎵
                 </div>
                 <h3 class="rp-track-title" id="rp-hero-track-title">
-                  ${helpers.escapeHtml(telemetry.currentTrack ? telemetry.currentTrack.title : 'Ready / Stopped')}
+                  ${safeEscape(telemetry.currentTrack ? telemetry.currentTrack.title : 'Ready / Stopped')}
                 </h3>
                 <span class="rp-track-state-pill ${(telemetry.state || '').toLowerCase()}" id="rp-hero-state-pill">
-                  ${helpers.escapeHtml(telemetry.state || 'STOPPED')}
+                  ${safeEscape(telemetry.state || 'STOPPED')}
                 </span>
               </div>
 
@@ -421,7 +447,7 @@ class RemotePlayerView {
                     <circle cx="11" cy="11" r="8"></circle>
                     <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                   </svg>
-                  <input type="text" class="rp-search-input" id="rp-song-search" placeholder="Search songs in playlist..." value="${helpers.escapeHtml(this.searchQuery)}">
+                  <input type="text" class="rp-search-input" id="rp-song-search" placeholder="Search songs in playlist..." value="${safeEscape(this.searchQuery)}">
                   <button class="rp-search-clear" id="rp-song-search-clear" title="Clear search">✕</button>
                 </div>
               </div>
@@ -449,7 +475,7 @@ class RemotePlayerView {
       const isActive = tab.id === this.activeTabId;
       return `
         <button class="rp-tab-btn ${isActive ? 'active' : ''}" data-tab-id="${tab.id}">
-          ${helpers.escapeHtml(tab.name || 'Playlist')}
+          ${safeEscape(tab.name || 'Playlist')}
         </button>
       `;
     }).join('');
@@ -469,7 +495,7 @@ class RemotePlayerView {
     });
 
     if (filtered.length === 0) {
-      return `<div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No songs match "${helpers.escapeHtml(this.searchQuery)}".</div>`;
+      return `<div style="padding: 3rem 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">No songs match "${safeEscape(this.searchQuery)}".</div>`;
     }
 
     return filtered.map(item => {
@@ -478,9 +504,9 @@ class RemotePlayerView {
         <div class="rp-track-row ${isItemPlaying ? 'playing' : ''}" data-tab-id="${activeTab.id}" data-idx="${item.index}">
           <div class="rp-track-idx">${isItemPlaying ? '▶' : item.index + 1}</div>
           <div class="rp-track-info">
-            <div class="rp-track-name">${helpers.escapeHtml(item.title || 'Untitled Track')}</div>
+            <div class="rp-track-name">${safeEscape(item.title || 'Untitled Track')}</div>
           </div>
-          <div class="rp-track-len">${helpers.escapeHtml(item.formattedDuration || '--:--')}</div>
+          <div class="rp-track-len">${safeEscape(item.formattedDuration || '--:--')}</div>
         </div>
       `;
     }).join('');
@@ -814,7 +840,17 @@ class RemotePlayerView {
 
     let codeData;
     try {
-      codeData = await window.api.remotePlayers.generatePairCode();
+      if (window.api && window.api.remotePlayers && typeof window.api.remotePlayers.generatePairCode === 'function') {
+        codeData = await window.api.remotePlayers.generatePairCode();
+      } else {
+        codeData = await fetch('/api/remote-players/pair-code', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('av_token') || ''}`,
+            'Content-Type': 'application/json'
+          }
+        }).then(r => r.json());
+      }
     } catch (err) {
       if (window.helpers && window.helpers.showToast) {
         window.helpers.showToast(err.message || 'Failed to generate pairing code', 'error');
