@@ -26,9 +26,37 @@ class RemotePlayerView {
     this.activeTabId = null;
     this.searchQuery = '';
     this.isSeeking = false;
+    this.isChangingVolume = false;
     this.pairModalTimer = null;
     this.audioPopoverOpen = false;
     this.initialized = false;
+    this.optimisticOverrides = {};
+  }
+
+  setOptimisticOverride(prop, value, ttlMs = 1500) {
+    this.optimisticOverrides[prop] = {
+      value,
+      expiresAt: Date.now() + ttlMs
+    };
+  }
+
+  isOptimisticallyOverridden(prop, incomingValue) {
+    const override = this.optimisticOverrides[prop];
+    if (!override) return false;
+    if (Date.now() > override.expiresAt) {
+      delete this.optimisticOverrides[prop];
+      return false;
+    }
+    // If incoming value caught up with our optimistic value, lock can be released
+    if (incomingValue !== undefined && override.value !== undefined) {
+      const v1 = typeof override.value === 'string' ? override.value.trim().toLowerCase() : override.value;
+      const v2 = typeof incomingValue === 'string' ? incomingValue.trim().toLowerCase() : incomingValue;
+      if (v1 === v2) {
+        delete this.optimisticOverrides[prop];
+        return false;
+      }
+    }
+    return true;
   }
 
   init() {
@@ -578,16 +606,18 @@ class RemotePlayerView {
         const player = this.players.find(p => p.id === this.activePlayerId);
         const isPlaying = (player && player.telemetry && player.telemetry.state === 'PLAYING') ||
                           (icon && icon.innerHTML.includes('M6 19h4V5H6v14zm8-14v14h4V5h-4z'));
+        const nextState = isPlaying ? 'PAUSED' : 'PLAYING';
 
-        if (isPlaying) {
-          if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
-          if (stateEl) { stateEl.textContent = 'PAUSED'; stateEl.className = 'rp-track-state-pill paused'; }
-          if (player && player.telemetry) player.telemetry.state = 'PAUSED';
-        } else {
+        this.setOptimisticOverride('state', nextState, 1500);
+
+        if (nextState === 'PLAYING') {
           if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
           if (stateEl) { stateEl.textContent = 'PLAYING'; stateEl.className = 'rp-track-state-pill playing'; }
-          if (player && player.telemetry) player.telemetry.state = 'PLAYING';
+        } else {
+          if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+          if (stateEl) { stateEl.textContent = 'PAUSED'; stateEl.className = 'rp-track-state-pill paused'; }
         }
+        if (player && player.telemetry) player.telemetry.state = nextState;
         this.sendPlaybackCommand('play_pause');
       });
     }
@@ -613,6 +643,11 @@ class RemotePlayerView {
         if (stateEl) { stateEl.textContent = 'STOPPED'; stateEl.className = 'rp-track-state-pill stopped'; }
         if (timeCur) timeCur.textContent = '00:00';
         if (slider) slider.value = '0';
+
+        this.setOptimisticOverride('state', 'STOPPED', 1500);
+        this.setOptimisticOverride('currentTime', '00:00', 1500);
+        this.setOptimisticOverride('progress', 0, 1500);
+
         const player = this.players.find(p => p.id === this.activePlayerId);
         if (player && player.telemetry) {
           player.telemetry.state = 'STOPPED';
@@ -643,6 +678,7 @@ class RemotePlayerView {
         if (!this.isSeeking) return;
         this.isSeeking = false;
         const pct = parseFloat(e.target.value) / 100;
+        this.setOptimisticOverride('progress', pct, 1200);
         const player = this.players.find(p => p.id === this.activePlayerId);
         if (player && player.telemetry && player.telemetry.totalSeconds) {
           const sec = pct * player.telemetry.totalSeconds;
@@ -658,17 +694,28 @@ class RemotePlayerView {
     // Volume & Mute
     const volSlider = container.querySelector('#rp-volume-slider');
     if (volSlider) {
+      volSlider.addEventListener('mousedown', () => { this.isChangingVolume = true; });
+      volSlider.addEventListener('touchstart', () => { this.isChangingVolume = true; }, { passive: true });
       volSlider.addEventListener('input', (e) => {
+        this.isChangingVolume = true;
         const val = parseInt(e.target.value, 10);
         const pctEl = container.querySelector('#rp-volume-pct');
         if (pctEl) pctEl.textContent = `${val}%`;
       });
-      volSlider.addEventListener('change', (e) => {
-        const val = parseInt(e.target.value, 10);
+
+      const finishVolume = (e) => {
+        const val = parseInt(volSlider.value, 10);
         const player = this.players.find(p => p.id === this.activePlayerId);
         if (player && player.telemetry) player.telemetry.volume = val;
+        this.setOptimisticOverride('volume', val, 1200);
         this.sendPlaybackCommand('set_volume', { volume: val });
-      });
+        this.isChangingVolume = false;
+        volSlider.blur();
+      };
+
+      volSlider.addEventListener('change', finishVolume);
+      volSlider.addEventListener('mouseup', finishVolume);
+      volSlider.addEventListener('touchend', finishVolume);
     }
 
     const btnMute = container.querySelector('#btn-transport-mute');
@@ -677,6 +724,7 @@ class RemotePlayerView {
         const player = this.players.find(p => p.id === this.activePlayerId);
         const curMuted = Boolean(player && player.telemetry && player.telemetry.isMuted);
         if (player && player.telemetry) player.telemetry.isMuted = !curMuted;
+        this.setOptimisticOverride('isMuted', !curMuted, 1500);
         this.sendPlaybackCommand('toggle_mute');
       });
     }
@@ -691,6 +739,7 @@ class RemotePlayerView {
         const nextIdx = (modes.indexOf(curMode) + 1) % modes.length;
         const nextMode = modes[nextIdx];
 
+        this.setOptimisticOverride('playbackMode', nextMode, 1500);
         if (player && player.telemetry) player.telemetry.playbackMode = nextMode;
 
         // Optimistic UI update
@@ -710,6 +759,7 @@ class RemotePlayerView {
       btnShuffle.addEventListener('click', () => {
         const player = this.players.find(p => p.id === this.activePlayerId);
         const nextShuffle = player && player.telemetry ? !player.telemetry.isShuffle : !btnShuffle.classList.contains('active');
+        this.setOptimisticOverride('isShuffle', nextShuffle, 1500);
         if (player && player.telemetry) player.telemetry.isShuffle = nextShuffle;
         btnShuffle.classList.toggle('active', nextShuffle);
         this.sendPlaybackCommand('toggle_shuffle');
@@ -809,6 +859,14 @@ class RemotePlayerView {
       row.addEventListener('click', () => {
         const tabId = row.dataset.tabId;
         const trackIndex = parseInt(row.dataset.idx, 10);
+        const rowTitle = row.querySelector('.rp-track-name');
+        const titleText = rowTitle ? rowTitle.textContent.trim() : '';
+
+        // Optimistic overrides to prevent flicker from pending stale telemetry
+        if (titleText) {
+          this.setOptimisticOverride('trackTitle', titleText, 2000);
+        }
+        this.setOptimisticOverride('state', 'PLAYING', 2000);
 
         // Optimistic track row highlight
         container.querySelectorAll('.rp-track-row').forEach(r => {
@@ -821,11 +879,8 @@ class RemotePlayerView {
         const rowIdxEl = row.querySelector('.rp-track-idx');
         if (rowIdxEl) rowIdxEl.textContent = '▶';
 
-        const rowTitle = row.querySelector('.rp-track-name');
-        if (rowTitle) {
-          const heroTitle = container.querySelector('#rp-hero-track-title');
-          if (heroTitle) heroTitle.textContent = rowTitle.textContent;
-        }
+        const heroTitle = container.querySelector('#rp-hero-track-title');
+        if (heroTitle && titleText) heroTitle.textContent = titleText;
 
         const stateEl = container.querySelector('#rp-hero-state-pill');
         if (stateEl) {
@@ -836,6 +891,13 @@ class RemotePlayerView {
         const playPauseIcon = container.querySelector('#rp-playpause-icon');
         if (playPauseIcon) {
           playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        }
+
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        if (player && player.telemetry) {
+          player.telemetry.state = 'PLAYING';
+          if (!player.telemetry.currentTrack) player.telemetry.currentTrack = {};
+          player.telemetry.currentTrack.title = titleText;
         }
 
         this.sendPlaybackCommand('select_track', { tabId, trackIndex });
@@ -854,34 +916,38 @@ class RemotePlayerView {
       player.telemetry = { ...(player.telemetry || {}), ...telemetry };
     }
 
-    // Track Title
-    const titleEl = container.querySelector('#rp-hero-track-title');
-    if (titleEl && telemetry.currentTrack) {
-      titleEl.textContent = telemetry.currentTrack.title || 'Ready / Stopped';
-    } else if (titleEl && telemetry.state === 'STOPPED') {
-      titleEl.textContent = 'Ready / Stopped';
-    }
-
-    // State Pill
-    const stateEl = container.querySelector('#rp-hero-state-pill');
-    if (stateEl && telemetry.state) {
-      const state = telemetry.state;
-      stateEl.textContent = state;
-      stateEl.className = `rp-track-state-pill ${state.toLowerCase()}`;
-    }
-
-    // Play/Pause icon
-    const playPauseIcon = container.querySelector('#rp-playpause-icon');
-    if (playPauseIcon && telemetry.state) {
-      if (telemetry.state === 'PLAYING') {
-        playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
-      } else {
-        playPauseIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+    // Track Title (Optimistic lock check)
+    const incomingTitle = telemetry.currentTrack ? telemetry.currentTrack.title : '';
+    if (!this.isOptimisticallyOverridden('trackTitle', incomingTitle)) {
+      const titleEl = container.querySelector('#rp-hero-track-title');
+      if (titleEl && telemetry.currentTrack) {
+        titleEl.textContent = telemetry.currentTrack.title || 'Ready / Stopped';
+      } else if (titleEl && telemetry.state === 'STOPPED') {
+        titleEl.textContent = 'Ready / Stopped';
       }
     }
 
-    // Times & Scrubber
-    if (!this.isSeeking) {
+    // State Pill & Play/Pause icon (Optimistic lock check)
+    if (!this.isOptimisticallyOverridden('state', telemetry.state)) {
+      const stateEl = container.querySelector('#rp-hero-state-pill');
+      if (stateEl && telemetry.state) {
+        const state = telemetry.state;
+        stateEl.textContent = state;
+        stateEl.className = `rp-track-state-pill ${state.toLowerCase()}`;
+      }
+
+      const playPauseIcon = container.querySelector('#rp-playpause-icon');
+      if (playPauseIcon && telemetry.state) {
+        if (telemetry.state === 'PLAYING') {
+          playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        } else {
+          playPauseIcon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+        }
+      }
+    }
+
+    // Times & Scrubber (Optimistic lock check)
+    if (!this.isSeeking && !this.isOptimisticallyOverridden('progress', telemetry.progress)) {
       const timeCur = container.querySelector('#rp-time-current');
       const timeTot = container.querySelector('#rp-time-total');
       const slider = container.querySelector('#rp-seek-slider');
@@ -894,59 +960,75 @@ class RemotePlayerView {
       }
     }
 
-    // Volume
+    // Volume (No document.activeElement check; use !isChangingVolume and !isOptimisticallyOverridden)
     const volSlider = container.querySelector('#rp-volume-slider');
     const volPct = container.querySelector('#rp-volume-pct');
-    if (volSlider && telemetry.volume !== undefined && document.activeElement !== volSlider) {
+    if (volSlider && telemetry.volume !== undefined && !this.isChangingVolume && !this.isOptimisticallyOverridden('volume', telemetry.volume)) {
       volSlider.value = telemetry.volume;
       if (volPct) volPct.textContent = `${telemetry.volume}%`;
     }
 
-    // Mute icon
-    const muteIcon = container.querySelector('#rp-mute-icon');
-    if (muteIcon && telemetry.isMuted !== undefined) {
-      if (telemetry.isMuted) {
-        muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
-      } else {
-        muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+    // Mute icon (Optimistic lock check)
+    if (!this.isOptimisticallyOverridden('isMuted', Boolean(telemetry.isMuted))) {
+      const muteIcon = container.querySelector('#rp-mute-icon');
+      if (muteIcon && telemetry.isMuted !== undefined) {
+        if (telemetry.isMuted) {
+          muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+        } else {
+          muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+        }
       }
     }
 
-    // Loop mode & Shuffle
-    const loopText = container.querySelector('#rp-loop-mode-text');
-    const loopIcon = container.querySelector('#rp-loop-mode-icon');
-    const btnMode = container.querySelector('#btn-mode-cycle');
-    if (telemetry.playbackMode) {
-      if (loopText) loopText.textContent = this.formatPlaybackMode(telemetry.playbackMode);
-      if (loopIcon) loopIcon.innerHTML = this.getPlaybackModeIcon(telemetry.playbackMode);
-      if (btnMode) {
-        btnMode.classList.toggle('mode-stop', telemetry.playbackMode === 'StopOnFinish');
-        btnMode.classList.toggle('active', telemetry.playbackMode !== 'NoRepeat' && telemetry.playbackMode !== 'StopOnFinish');
+    // Loop mode & Shuffle (Optimistic lock check)
+    if (!this.isOptimisticallyOverridden('playbackMode', telemetry.playbackMode)) {
+      const loopText = container.querySelector('#rp-loop-mode-text');
+      const loopIcon = container.querySelector('#rp-loop-mode-icon');
+      const btnMode = container.querySelector('#btn-mode-cycle');
+      if (telemetry.playbackMode) {
+        if (loopText) loopText.textContent = this.formatPlaybackMode(telemetry.playbackMode);
+        if (loopIcon) loopIcon.innerHTML = this.getPlaybackModeIcon(telemetry.playbackMode);
+        if (btnMode) {
+          btnMode.classList.toggle('mode-stop', telemetry.playbackMode === 'StopOnFinish');
+          btnMode.classList.toggle('active', telemetry.playbackMode !== 'NoRepeat' && telemetry.playbackMode !== 'StopOnFinish');
+        }
       }
     }
 
-    const btnShuffle = container.querySelector('#btn-toggle-shuffle');
-    if (btnShuffle && telemetry.isShuffle !== undefined) {
-      btnShuffle.classList.toggle('active', Boolean(telemetry.isShuffle));
+    if (!this.isOptimisticallyOverridden('isShuffle', Boolean(telemetry.isShuffle))) {
+      const btnShuffle = container.querySelector('#btn-toggle-shuffle');
+      if (btnShuffle && telemetry.isShuffle !== undefined) {
+        btnShuffle.classList.toggle('active', Boolean(telemetry.isShuffle));
+      }
     }
 
-    // Audio channel mode
-    const chanBadge = container.querySelector('#rp-channel-badge');
-    if (chanBadge && telemetry.channelMode) {
-      chanBadge.textContent = telemetry.channelMode;
+    // Audio channel mode (Optimistic lock check)
+    if (!this.isOptimisticallyOverridden('channelMode', telemetry.channelMode)) {
+      const chanBadge = container.querySelector('#rp-channel-badge');
+      if (chanBadge && telemetry.channelMode) {
+        chanBadge.textContent = telemetry.channelMode;
+      }
     }
 
     // Synchronize track list playing row highlight
+    const effectiveTitle = (this.optimisticOverrides['trackTitle'] && Date.now() <= this.optimisticOverrides['trackTitle'].expiresAt)
+      ? this.optimisticOverrides['trackTitle'].value
+      : (telemetry.currentTrack ? (telemetry.currentTrack.title || '') : '');
+
+    const effectiveState = (this.optimisticOverrides['state'] && Date.now() <= this.optimisticOverrides['state'].expiresAt)
+      ? this.optimisticOverrides['state'].value
+      : telemetry.state;
+
     const tracklist = container.querySelector('#rp-tracklist');
     if (tracklist) {
-      const playingTitle = telemetry.currentTrack ? (telemetry.currentTrack.title || '').trim().toLowerCase() : '';
+      const playingTitle = effectiveTitle.trim().toLowerCase();
       tracklist.querySelectorAll('.rp-track-row').forEach(row => {
         const rowTitleEl = row.querySelector('.rp-track-name');
         const rowTitle = rowTitleEl ? rowTitleEl.textContent.trim().toLowerCase() : '';
         const idxEl = row.querySelector('.rp-track-idx');
         const origIdx = parseInt(row.dataset.idx, 10);
 
-        if (playingTitle && rowTitle === playingTitle && telemetry.state !== 'STOPPED') {
+        if (playingTitle && rowTitle === playingTitle && effectiveState !== 'STOPPED') {
           row.classList.add('playing');
           if (idxEl) idxEl.textContent = '▶';
         } else {
