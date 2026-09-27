@@ -13,6 +13,7 @@ const socketClient = {
       withCredentials: true,
       autoConnect: true
     });
+    window.socket = this.socket;
 
     const dot = document.getElementById('socket-dot');
     const label = document.getElementById('socket-label');
@@ -131,3 +132,6 @@ const socketClient = {
 
 window.socketClient = socketClient;
 window.ws = socketClient;
+if (socketClient.socket) {
+  window.socket = socketClient.socket;
+}

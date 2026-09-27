@@ -38,10 +38,37 @@ class RemotePlayerView {
     this.setupSocketListeners();
   }
 
-  setupSocketListeners() {
-    if (!window.socket) return;
+  formatPlaybackMode(mode) {
+    switch (mode) {
+      case 'RepeatAll': return 'Repeat All';
+      case 'RepeatOne': return 'Repeat 1';
+      case 'NoRepeat': return 'Continuous';
+      case 'StopOnFinish': return 'Stop on Finish';
+      default: return mode || 'Repeat All';
+    }
+  }
 
-    window.socket.on('remote_player:list_updated', ({ players }) => {
+  getPlaybackModeIcon(mode) {
+    if (mode === 'RepeatOne') {
+      return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/><text x="10" y="15" font-size="8" font-weight="700" fill="currentColor" stroke="none">1</text></svg>`;
+    }
+    if (mode === 'StopOnFinish') {
+      return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="2"/></svg>`;
+    }
+    return `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m17 2 4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="m7 22-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>`;
+  }
+
+  setupSocketListeners() {
+    const socket = window.socket || (window.socketClient && window.socketClient.socket);
+    if (!socket) {
+      setTimeout(() => this.setupSocketListeners(), 250);
+      return;
+    }
+
+    if (this._socketListenersAttached) return;
+    this._socketListenersAttached = true;
+
+    socket.on('remote_player:list_updated', ({ players }) => {
       this.players = players || [];
       if (!this.activePlayerId) {
         this.renderGrid();
@@ -50,7 +77,7 @@ class RemotePlayerView {
       }
     });
 
-    window.socket.on('remote_player:status_changed', ({ playerId, isOnline, player }) => {
+    socket.on('remote_player:status_changed', ({ playerId, isOnline, player }) => {
       const idx = this.players.findIndex(p => p.id === playerId);
       if (idx !== -1) {
         this.players[idx].is_online = isOnline;
@@ -66,10 +93,11 @@ class RemotePlayerView {
       }
     });
 
-    window.socket.on('remote_player:telemetry', ({ playerId, telemetry }) => {
+    socket.on('remote_player:telemetry', ({ playerId, telemetry }) => {
       const idx = this.players.findIndex(p => p.id === playerId);
       if (idx !== -1) {
-        this.players[idx].telemetry = telemetry;
+        const merged = { ...(this.players[idx].telemetry || {}), ...telemetry };
+        this.players[idx].telemetry = merged;
         this.players[idx].is_online = true;
       }
 
@@ -80,7 +108,7 @@ class RemotePlayerView {
       }
     });
 
-    window.socket.on('remote_player:paired', ({ player }) => {
+    socket.on('remote_player:paired', ({ player }) => {
       this.closePairingModal();
       if (window.helpers && window.helpers.showToast) {
         window.helpers.showToast(`Connected to ${player.name || 'NS Player'}!`, 'success');
@@ -402,31 +430,50 @@ class RemotePlayerView {
 
               <!-- Secondary Bar: Loop Mode, Shuffle, and Tucked-away Audio Options -->
               <div class="rp-secondary-controls">
-                <button class="rp-btn-pill" id="btn-mode-cycle" title="Playback Loop Mode">
-                  🔁 <span id="rp-loop-mode-text">${telemetry.playbackMode || 'Repeat All'}</span>
+                <button class="rp-btn-pill ${telemetry.playbackMode === 'StopOnFinish' ? 'mode-stop' : (telemetry.playbackMode && telemetry.playbackMode !== 'NoRepeat' ? 'active' : '')}" id="btn-mode-cycle" title="Playback Loop Mode">
+                  <span id="rp-loop-mode-icon">${this.getPlaybackModeIcon(telemetry.playbackMode)}</span>
+                  <span id="rp-loop-mode-text">${this.formatPlaybackMode(telemetry.playbackMode)}</span>
                 </button>
-                <button class="rp-btn-pill ${telemetry.isShuffle ? 'active' : ''}" id="btn-toggle-shuffle" title="Shuffle">
-                  🔀 Shuffle
+                <button class="rp-btn-pill ${telemetry.isShuffle ? 'active' : ''}" id="btn-toggle-shuffle" title="Shuffle Playlist">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 3 21 3 21 8"></polyline>
+                    <line x1="4" y1="20" x2="21" y2="3"></line>
+                    <polyline points="21 16 21 21 16 21"></polyline>
+                    <line x1="15" y1="15" x2="21" y2="21"></line>
+                    <line x1="4" y1="4" x2="9" y2="9"></line>
+                  </svg>
+                  <span>Shuffle</span>
                 </button>
 
                 <!-- Tucked-away Audio Channel Settings Popover -->
                 <div class="rp-audio-popover-wrapper">
                   <button class="rp-btn-pill" id="btn-audio-options-toggle" title="Audio Channel Routing">
-                    ⚙️ <span id="rp-channel-badge">${telemetry.channelMode || 'Stereo'}</span>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="4" y1="21" x2="4" y2="14"></line>
+                      <line x1="4" y1="10" x2="4" y2="3"></line>
+                      <line x1="12" y1="21" x2="12" y2="12"></line>
+                      <line x1="12" y1="8" x2="12" y2="3"></line>
+                      <line x1="20" y1="21" x2="20" y2="16"></line>
+                      <line x1="20" y1="12" x2="20" y2="3"></line>
+                      <line x1="1" y1="14" x2="7" y2="14"></line>
+                      <line x1="9" y1="8" x2="15" y2="8"></line>
+                      <line x1="17" y1="16" x2="23" y2="16"></line>
+                    </svg>
+                    <span id="rp-channel-badge">${telemetry.channelMode || 'Stereo'}</span>
                   </button>
                   <div class="rp-audio-popover" id="rp-audio-popover">
                     <div class="rp-audio-popover-title">Audio Channel Mode</div>
-                    <button class="rp-channel-option ${telemetry.channelMode === 'Stereo' ? 'selected' : ''}" data-mode="Stereo">
-                      🔊 Stereo (Normal)
+                    <button class="rp-channel-option ${(!telemetry.channelMode || telemetry.channelMode === 'Stereo') ? 'selected' : ''}" data-mode="Stereo">
+                      Stereo (Normal)
                     </button>
                     <button class="rp-channel-option ${telemetry.channelMode === 'Left' ? 'selected' : ''}" data-mode="Left">
-                      🎙️ Left Only (Guide Vocals)
+                      Left Only (Guide Vocals)
                     </button>
                     <button class="rp-channel-option ${telemetry.channelMode === 'Right' ? 'selected' : ''}" data-mode="Right">
-                      🎹 Right Only (Accompaniment)
+                      Right Only (Accompaniment)
                     </button>
                     <button class="rp-channel-option ${telemetry.channelMode === 'Mono' ? 'selected' : ''}" data-mode="Mono">
-                      📻 Mono Sum
+                      Mono Sum
                     </button>
                   </div>
                 </div>
@@ -525,7 +572,24 @@ class RemotePlayerView {
     // Transport buttons
     const btnPlayPause = container.querySelector('#btn-transport-playpause');
     if (btnPlayPause) {
-      btnPlayPause.addEventListener('click', () => this.sendPlaybackCommand('play_pause'));
+      btnPlayPause.addEventListener('click', () => {
+        const icon = container.querySelector('#rp-playpause-icon');
+        const stateEl = container.querySelector('#rp-hero-state-pill');
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        const isPlaying = (player && player.telemetry && player.telemetry.state === 'PLAYING') ||
+                          (icon && icon.innerHTML.includes('M6 19h4V5H6v14zm8-14v14h4V5h-4z'));
+
+        if (isPlaying) {
+          if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+          if (stateEl) { stateEl.textContent = 'PAUSED'; stateEl.className = 'rp-track-state-pill paused'; }
+          if (player && player.telemetry) player.telemetry.state = 'PAUSED';
+        } else {
+          if (icon) icon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+          if (stateEl) { stateEl.textContent = 'PLAYING'; stateEl.className = 'rp-track-state-pill playing'; }
+          if (player && player.telemetry) player.telemetry.state = 'PLAYING';
+        }
+        this.sendPlaybackCommand('play_pause');
+      });
     }
 
     const btnPrev = container.querySelector('#btn-transport-prev');
@@ -540,7 +604,23 @@ class RemotePlayerView {
 
     const btnStop = container.querySelector('#btn-transport-stop');
     if (btnStop) {
-      btnStop.addEventListener('click', () => this.sendPlaybackCommand('stop'));
+      btnStop.addEventListener('click', () => {
+        const icon = container.querySelector('#rp-playpause-icon');
+        const stateEl = container.querySelector('#rp-hero-state-pill');
+        const timeCur = container.querySelector('#rp-time-current');
+        const slider = container.querySelector('#rp-seek-slider');
+        if (icon) icon.innerHTML = '<path d="M8 5v14l11-7z"/>';
+        if (stateEl) { stateEl.textContent = 'STOPPED'; stateEl.className = 'rp-track-state-pill stopped'; }
+        if (timeCur) timeCur.textContent = '00:00';
+        if (slider) slider.value = '0';
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        if (player && player.telemetry) {
+          player.telemetry.state = 'STOPPED';
+          player.telemetry.currentTime = '00:00';
+          player.telemetry.progress = 0;
+        }
+        this.sendPlaybackCommand('stop');
+      });
     }
 
     // Scrubber
@@ -585,13 +665,20 @@ class RemotePlayerView {
       });
       volSlider.addEventListener('change', (e) => {
         const val = parseInt(e.target.value, 10);
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        if (player && player.telemetry) player.telemetry.volume = val;
         this.sendPlaybackCommand('set_volume', { volume: val });
       });
     }
 
     const btnMute = container.querySelector('#btn-transport-mute');
     if (btnMute) {
-      btnMute.addEventListener('click', () => this.sendPlaybackCommand('toggle_mute'));
+      btnMute.addEventListener('click', () => {
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        const curMuted = Boolean(player && player.telemetry && player.telemetry.isMuted);
+        if (player && player.telemetry) player.telemetry.isMuted = !curMuted;
+        this.sendPlaybackCommand('toggle_mute');
+      });
     }
 
     // Mode cycle & Shuffle
@@ -602,13 +689,31 @@ class RemotePlayerView {
         const player = this.players.find(p => p.id === this.activePlayerId);
         const curMode = (player && player.telemetry && player.telemetry.playbackMode) || 'RepeatAll';
         const nextIdx = (modes.indexOf(curMode) + 1) % modes.length;
-        this.sendPlaybackCommand('set_playback_mode', { mode: modes[nextIdx] });
+        const nextMode = modes[nextIdx];
+
+        if (player && player.telemetry) player.telemetry.playbackMode = nextMode;
+
+        // Optimistic UI update
+        const loopText = container.querySelector('#rp-loop-mode-text');
+        const loopIcon = container.querySelector('#rp-loop-mode-icon');
+        if (loopText) loopText.textContent = this.formatPlaybackMode(nextMode);
+        if (loopIcon) loopIcon.innerHTML = this.getPlaybackModeIcon(nextMode);
+        btnMode.classList.toggle('mode-stop', nextMode === 'StopOnFinish');
+        btnMode.classList.toggle('active', nextMode !== 'NoRepeat' && nextMode !== 'StopOnFinish');
+
+        this.sendPlaybackCommand('set_playback_mode', { mode: nextMode });
       });
     }
 
     const btnShuffle = container.querySelector('#btn-toggle-shuffle');
     if (btnShuffle) {
-      btnShuffle.addEventListener('click', () => this.sendPlaybackCommand('toggle_shuffle'));
+      btnShuffle.addEventListener('click', () => {
+        const player = this.players.find(p => p.id === this.activePlayerId);
+        const nextShuffle = player && player.telemetry ? !player.telemetry.isShuffle : !btnShuffle.classList.contains('active');
+        if (player && player.telemetry) player.telemetry.isShuffle = nextShuffle;
+        btnShuffle.classList.toggle('active', nextShuffle);
+        this.sendPlaybackCommand('toggle_shuffle');
+      });
     }
 
     // Tucked-away Audio Options Popover
@@ -632,6 +737,11 @@ class RemotePlayerView {
         opt.addEventListener('click', (e) => {
           e.stopPropagation();
           const mode = opt.dataset.mode;
+          const chanBadge = container.querySelector('#rp-channel-badge');
+          if (chanBadge) chanBadge.textContent = mode;
+          popover.querySelectorAll('.rp-channel-option').forEach(o => o.classList.toggle('selected', o.dataset.mode === mode));
+          const player = this.players.find(p => p.id === this.activePlayerId);
+          if (player && player.telemetry) player.telemetry.channelMode = mode;
           this.sendPlaybackCommand('set_channel_mode', { mode });
           this.audioPopoverOpen = false;
           popover.classList.remove('open');
@@ -699,6 +809,35 @@ class RemotePlayerView {
       row.addEventListener('click', () => {
         const tabId = row.dataset.tabId;
         const trackIndex = parseInt(row.dataset.idx, 10);
+
+        // Optimistic track row highlight
+        container.querySelectorAll('.rp-track-row').forEach(r => {
+          r.classList.remove('playing');
+          const idxEl = r.querySelector('.rp-track-idx');
+          const origIdx = parseInt(r.dataset.idx, 10);
+          if (idxEl && !isNaN(origIdx)) idxEl.textContent = origIdx + 1;
+        });
+        row.classList.add('playing');
+        const rowIdxEl = row.querySelector('.rp-track-idx');
+        if (rowIdxEl) rowIdxEl.textContent = '▶';
+
+        const rowTitle = row.querySelector('.rp-track-name');
+        if (rowTitle) {
+          const heroTitle = container.querySelector('#rp-hero-track-title');
+          if (heroTitle) heroTitle.textContent = rowTitle.textContent;
+        }
+
+        const stateEl = container.querySelector('#rp-hero-state-pill');
+        if (stateEl) {
+          stateEl.textContent = 'PLAYING';
+          stateEl.className = 'rp-track-state-pill playing';
+        }
+
+        const playPauseIcon = container.querySelector('#rp-playpause-icon');
+        if (playPauseIcon) {
+          playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
+        }
+
         this.sendPlaybackCommand('select_track', { tabId, trackIndex });
       });
     });
@@ -709,23 +848,31 @@ class RemotePlayerView {
     const container = document.getElementById('view-remote-player');
     if (!container) return;
 
+    // Keep internal player telemetry up-to-date
+    const player = this.players.find(p => p.id === this.activePlayerId);
+    if (player) {
+      player.telemetry = { ...(player.telemetry || {}), ...telemetry };
+    }
+
     // Track Title
     const titleEl = container.querySelector('#rp-hero-track-title');
-    if (titleEl) {
-      titleEl.textContent = telemetry.currentTrack ? telemetry.currentTrack.title : 'Ready / Stopped';
+    if (titleEl && telemetry.currentTrack) {
+      titleEl.textContent = telemetry.currentTrack.title || 'Ready / Stopped';
+    } else if (titleEl && telemetry.state === 'STOPPED') {
+      titleEl.textContent = 'Ready / Stopped';
     }
 
     // State Pill
     const stateEl = container.querySelector('#rp-hero-state-pill');
-    if (stateEl) {
-      const state = telemetry.state || 'STOPPED';
+    if (stateEl && telemetry.state) {
+      const state = telemetry.state;
       stateEl.textContent = state;
       stateEl.className = `rp-track-state-pill ${state.toLowerCase()}`;
     }
 
     // Play/Pause icon
     const playPauseIcon = container.querySelector('#rp-playpause-icon');
-    if (playPauseIcon) {
+    if (playPauseIcon && telemetry.state) {
       if (telemetry.state === 'PLAYING') {
         playPauseIcon.innerHTML = '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>';
       } else {
@@ -757,16 +904,25 @@ class RemotePlayerView {
 
     // Mute icon
     const muteIcon = container.querySelector('#rp-mute-icon');
-    if (muteIcon && telemetry.isMuted) {
-      muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
-    } else if (muteIcon) {
-      muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+    if (muteIcon && telemetry.isMuted !== undefined) {
+      if (telemetry.isMuted) {
+        muteIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+      } else {
+        muteIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+      }
     }
 
     // Loop mode & Shuffle
     const loopText = container.querySelector('#rp-loop-mode-text');
-    if (loopText && telemetry.playbackMode) {
-      loopText.textContent = telemetry.playbackMode;
+    const loopIcon = container.querySelector('#rp-loop-mode-icon');
+    const btnMode = container.querySelector('#btn-mode-cycle');
+    if (telemetry.playbackMode) {
+      if (loopText) loopText.textContent = this.formatPlaybackMode(telemetry.playbackMode);
+      if (loopIcon) loopIcon.innerHTML = this.getPlaybackModeIcon(telemetry.playbackMode);
+      if (btnMode) {
+        btnMode.classList.toggle('mode-stop', telemetry.playbackMode === 'StopOnFinish');
+        btnMode.classList.toggle('active', telemetry.playbackMode !== 'NoRepeat' && telemetry.playbackMode !== 'StopOnFinish');
+      }
     }
 
     const btnShuffle = container.querySelector('#btn-toggle-shuffle');
@@ -778,6 +934,47 @@ class RemotePlayerView {
     const chanBadge = container.querySelector('#rp-channel-badge');
     if (chanBadge && telemetry.channelMode) {
       chanBadge.textContent = telemetry.channelMode;
+    }
+
+    // Synchronize track list playing row highlight
+    const tracklist = container.querySelector('#rp-tracklist');
+    if (tracklist) {
+      const playingTitle = telemetry.currentTrack ? (telemetry.currentTrack.title || '').trim().toLowerCase() : '';
+      tracklist.querySelectorAll('.rp-track-row').forEach(row => {
+        const rowTitleEl = row.querySelector('.rp-track-name');
+        const rowTitle = rowTitleEl ? rowTitleEl.textContent.trim().toLowerCase() : '';
+        const idxEl = row.querySelector('.rp-track-idx');
+        const origIdx = parseInt(row.dataset.idx, 10);
+
+        if (playingTitle && rowTitle === playingTitle && telemetry.state !== 'STOPPED') {
+          row.classList.add('playing');
+          if (idxEl) idxEl.textContent = '▶';
+        } else {
+          row.classList.remove('playing');
+          if (idxEl && !isNaN(origIdx)) idxEl.textContent = origIdx + 1;
+        }
+      });
+    }
+
+    // Synchronize tabs if needed
+    if (telemetry.tabs && telemetry.tabs.length > 0) {
+      const tabsStrip = container.querySelector('#rp-tabs-strip');
+      if (tabsStrip && (!tabsStrip.children.length || tabsStrip.children.length !== telemetry.tabs.length)) {
+        tabsStrip.innerHTML = this.renderTabsHtml(telemetry.tabs);
+        tabsStrip.querySelectorAll('.rp-tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tabId;
+            this.activeTabId = tabId;
+            this.sendPlaybackCommand('select_tab', { tabId });
+            tabsStrip.querySelectorAll('.rp-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            if (tracklist && player && player.telemetry) {
+              tracklist.innerHTML = this.renderTracklistHtml(player.telemetry.tabs);
+              this.bindTracklistEvents(container);
+            }
+          });
+        });
+      }
     }
   }
 
@@ -801,9 +998,10 @@ class RemotePlayerView {
   sendPlaybackCommand(command, params = {}) {
     if (!this.activePlayerId) return;
 
+    const socket = window.socket || (window.socketClient && window.socketClient.socket);
     // Use live Socket.IO connection if available
-    if (window.socket && window.socket.connected) {
-      window.socket.emit('remote_player:command', {
+    if (socket && socket.connected) {
+      socket.emit('remote_player:command', {
         playerId: this.activePlayerId,
         command,
         params
@@ -816,11 +1014,22 @@ class RemotePlayerView {
       });
     } else {
       // Fallback to REST API
-      window.api.remotePlayers.sendCommand(this.activePlayerId, command, params).catch(err => {
-        if (window.helpers && window.helpers.showToast) {
-          window.helpers.showToast(err.message || 'Command failed', 'error');
-        }
-      });
+      if (window.api && window.api.remotePlayers && typeof window.api.remotePlayers.sendCommand === 'function') {
+        window.api.remotePlayers.sendCommand(this.activePlayerId, command, params).catch(err => {
+          if (window.helpers && window.helpers.showToast) {
+            window.helpers.showToast(err.message || 'Command failed', 'error');
+          }
+        });
+      } else {
+        fetch(`/api/remote-players/${encodeURIComponent(this.activePlayerId)}/command`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${sessionStorage.getItem('av_token') || ''}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ command, params })
+        }).catch(err => console.error('Command failed:', err));
+      }
     }
   }
 

@@ -31,6 +31,7 @@ let dbState = {
   info_state: {},
   sermon_settings: null,
   sermon_submissions: [],
+  remote_players: [],
   settings: {
     retention_days: DEFAULT_LOG_RETENTION_DAYS
   }
@@ -122,6 +123,7 @@ function initDb() {
           target_file_size_mb: 15
         },
         sermon_submissions: Array.isArray(loaded.sermon_submissions) ? loaded.sermon_submissions : [],
+        remote_players: Array.isArray(loaded.remote_players) ? loaded.remote_players : [],
         settings: Object.assign({ retention_days: DEFAULT_LOG_RETENTION_DAYS }, loaded.settings || {})
       };
       console.log(`Database loaded: ${dbState.users.length} users, ${dbState.roles.length} roles, ${dbState.dashboards.length} dashboards`);

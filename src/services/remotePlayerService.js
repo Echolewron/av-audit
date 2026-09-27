@@ -222,12 +222,14 @@ class RemotePlayerService {
 
   handlePlayerTelemetry(playerId, telemetry) {
     if (!playerId) return;
-    this.latestTelemetry.set(playerId, telemetry);
+    const existing = this.latestTelemetry.get(playerId) || {};
+    const merged = { ...existing, ...telemetry };
+    this.latestTelemetry.set(playerId, merged);
 
     if (this.io) {
       this.io.emit('remote_player:telemetry', {
         playerId,
-        telemetry,
+        telemetry: merged,
         timestamp: Date.now()
       });
     }

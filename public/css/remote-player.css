@@ -500,52 +500,86 @@
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  width: 100%;
+  margin-top: 0.5rem;
 }
 
 .rp-btn-pill {
-  background: var(--bg-primary, #0d1117);
-  border: 1px solid var(--border-color, #30363d);
+  background: var(--bg-surface-elevated, #161b22);
+  border: 1px solid var(--border-muted, #30363d);
   color: var(--text-secondary, #c9d1d9);
-  padding: 0.35rem 0.65rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+  height: 34px;
+  padding: 0 0.65rem;
+  border-radius: 6px;
+  font-size: 0.775rem;
   font-weight: 500;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  transition: background-color 0.15s ease;
+  justify-content: center;
+  gap: 0.45rem;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  user-select: none;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+.rp-btn-pill svg {
+  flex-shrink: 0;
 }
 
 .rp-btn-pill:hover {
-  background-color: var(--bg-hover, #21262d);
+  background-color: var(--bg-surface-hover, #1f242c);
+  border-color: #484f58;
+  color: var(--text-primary, #f0f6fc);
 }
 
 .rp-btn-pill.active {
-  background-color: var(--accent-primary, #2895f3);
-  color: #ffffff;
-  border-color: var(--accent-primary, #2895f3);
+  background-color: rgba(24, 237, 179, 0.12);
+  border-color: var(--accent-primary, #18edb3);
+  color: var(--accent-primary, #18edb3);
+}
+
+.rp-btn-pill.active svg {
+  stroke: var(--accent-primary, #18edb3);
+}
+
+.rp-btn-pill.mode-stop {
+  background-color: rgba(248, 81, 73, 0.12);
+  border-color: var(--status-danger, #f85149);
+  color: var(--status-danger, #f85149);
+}
+
+.rp-btn-pill.mode-stop svg {
+  stroke: var(--status-danger, #f85149);
 }
 
 /* Audio Settings Popover / Dropdown (Tucked Away) */
 .rp-audio-popover-wrapper {
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  flex: 1;
+}
+
+.rp-audio-popover-wrapper .rp-btn-pill {
+  width: 100%;
 }
 
 .rp-audio-popover {
   position: absolute;
   bottom: calc(100% + 8px);
   right: 0;
-  background: var(--bg-secondary, #161b22);
-  border: 1px solid var(--border-color, #30363d);
+  background: var(--bg-surface-elevated, #161b22);
+  border: 1px solid var(--border-muted, #30363d);
   border-radius: 6px;
-  padding: 0.75rem;
+  padding: 0.5rem;
   width: 220px;
   z-index: 50;
   display: none;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .rp-audio-popover.open {
@@ -553,18 +587,20 @@
 }
 
 .rp-audio-popover-title {
-  font-size: 0.75rem;
+  font-size: 0.725rem;
   font-weight: 700;
   text-transform: uppercase;
   color: var(--text-muted, #8b949e);
+  padding: 0.25rem 0.5rem;
   margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border-subtle, #21262d);
 }
 
 .rp-channel-option {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.4rem 0.5rem;
+  padding: 0.45rem 0.65rem;
   border-radius: 4px;
   font-size: 0.8rem;
   color: var(--text-primary, #f0f6fc);
@@ -573,14 +609,16 @@
   border: none;
   text-align: left;
   width: 100%;
+  transition: background-color 0.15s ease;
 }
 
 .rp-channel-option:hover {
-  background-color: var(--bg-hover, #21262d);
+  background-color: var(--bg-surface-hover, #1f242c);
 }
 
 .rp-channel-option.selected {
-  color: var(--accent-primary, #2895f3);
+  color: var(--accent-primary, #18edb3);
+  background-color: rgba(24, 237, 179, 0.08);
   font-weight: 600;
 }
 
