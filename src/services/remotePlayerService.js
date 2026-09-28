@@ -229,7 +229,7 @@ class RemotePlayerService {
     if (this.io) {
       this.io.emit('remote_player:telemetry', {
         playerId,
-        telemetry: merged,
+        telemetry,
         timestamp: Date.now()
       });
     }
