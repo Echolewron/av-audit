@@ -123,16 +123,23 @@ class RemotePlayerView {
 
     socket.on('remote_player:telemetry', ({ playerId, telemetry }) => {
       const idx = this.players.findIndex(p => p.id === playerId);
+      let wasOffline = false;
       if (idx !== -1) {
+        wasOffline = !this.players[idx].is_online;
         const merged = { ...(this.players[idx].telemetry || {}), ...telemetry };
         this.players[idx].telemetry = merged;
         this.players[idx].is_online = true;
       }
 
       if (this.activePlayerId === playerId) {
+        if (wasOffline) this.updateConsoleHeader();
         this.applyTelemetry(telemetry);
       } else if (!this.activePlayerId) {
-        this.updateCardMiniTelemetry(playerId, telemetry);
+        if (wasOffline) {
+          this.renderGrid();
+        } else {
+          this.updateCardMiniTelemetry(playerId, telemetry);
+        }
       }
     });
 
@@ -141,7 +148,9 @@ class RemotePlayerView {
       if (window.helpers && window.helpers.showToast) {
         window.helpers.showToast(`Connected to ${player.name || 'NS Player'}!`, 'success');
       }
-      this.loadPlayers();
+      this.loadPlayers().then(() => {
+        if (!this.activePlayerId) this.renderGrid();
+      });
     });
   }
 

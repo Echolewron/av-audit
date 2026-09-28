@@ -34,7 +34,11 @@ const io = new Server(server, {
   cors: {
     origin: true,
     credentials: true
-  }
+  },
+  transports: ['websocket', 'polling'],
+  pingInterval: 25000,
+  pingTimeout: 30000,
+  maxHttpBufferSize: 5e6
 });
 app.set('io', io);
 setupSocketHandler(io);

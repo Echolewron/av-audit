@@ -73,9 +73,8 @@ function setupSocketHandler(io) {
       const result = remotePlayerService.handlePlayerRegister(socket, payload);
       if (typeof ack === 'function') {
         ack(result);
-      } else {
-        socket.emit('player:register_response', result);
       }
+      socket.emit('player:register_response', result);
     });
 
     socket.on('player:telemetry', (payload) => {
